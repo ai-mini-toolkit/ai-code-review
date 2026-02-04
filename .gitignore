@@ -1,0 +1,24 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Dependencies
+node_modules/
+target/
+
+# Build
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.swp
