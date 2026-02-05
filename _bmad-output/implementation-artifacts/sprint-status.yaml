@@ -1,0 +1,139 @@
+# generated: 2026-02-05
+# project: ai-code-review
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: C:\Users\songh\clawd\ai-code-review\_bmad-output\implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-02-05
+project: ai-code-review
+project_key: NOKEY
+tracking_system: file-system
+story_location: C:\Users\songh\clawd\ai-code-review\_bmad-output\implementation-artifacts
+
+development_status:
+  # Epic 1: 项目基础设施与配置管理 (Project Infrastructure & Configuration Management)
+  epic-1: in-progress
+  1-1-initialize-spring-boot-multi-module-project: review
+  1-2-initialize-frontend-vue-vben-admin: backlog
+  1-3-configure-postgresql-jpa: backlog
+  1-4-configure-redis-caching: backlog
+  1-5-implement-project-config-api: backlog
+  1-6-implement-ai-model-config-api: backlog
+  1-7-implement-prompt-template-api: backlog
+  1-8-configure-docker-compose-dev: backlog
+  1-9-system-monitoring-alerting: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Webhook 集成与任务队列 (Webhook Integration & Task Queue)
+  epic-2: backlog
+  2-1-webhook-verification-abstraction: backlog
+  2-2-github-webhook-signature-verification: backlog
+  2-3-gitlab-aws-codecommit-webhook-verification: backlog
+  2-4-webhook-receiving-controller: backlog
+  2-5-code-review-task-creation-persistence: backlog
+  2-6-redis-priority-queue-management: backlog
+  2-7-task-retry-mechanism: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: 代码解析与上下文提取 (Code Parsing & Context Extraction)
+  epic-3: backlog
+  3-1-unified-diff-parser: backlog
+  3-2-git-api-client: backlog
+  3-3-programming-language-detection: backlog
+  3-4-java-call-chain-analysis-javaparser: backlog
+  3-5-code-context-extraction-service: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: AI 智能审查引擎 (AI Smart Code Review Engine)
+  epic-4: backlog
+  4-1-ai-provider-abstraction-layer: backlog
+  4-2-openai-provider-integration: backlog
+  4-3-anthropic-claude-provider-integration: backlog
+  4-4-custom-openapi-provider-integration: backlog
+  4-5-six-dimension-review-orchestration: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: 审查报告与结果存储 (Review Reports & Result Storage)
+  epic-5: backlog
+  5-1-review-result-persistence-storage: backlog
+  5-2-review-report-generation-service: backlog
+  5-3-call-chain-diagram-visualization: backlog
+  5-4-review-result-query-api: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: 质量阈值与 PR/MR 拦截 (Quality Thresholds & PR/MR Blocking)
+  epic-6: backlog
+  6-1-threshold-configuration-management: backlog
+  6-2-threshold-validation-engine: backlog
+  6-3-github-check-runs-status-update: backlog
+  6-4-gitlab-aws-codecommit-status-update: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: 多渠道通知系统 (Multi-Channel Notification System)
+  epic-7: backlog
+  7-1-email-notification-service: backlog
+  7-2-git-platform-comment-notification: backlog
+  7-3-im-webhook-notifications: backlog
+  7-4-notification-template-management: backlog
+  epic-7-retrospective: optional
+
+  # Epic 8: Web 管理界面 (Web Management Interface)
+  epic-8: backlog
+  8-1-project-management-interface: backlog
+  8-2-review-history-viewing-interface: backlog
+  8-3-ai-model-configuration-interface: backlog
+  8-4-prompt-template-editor: backlog
+  8-5-review-report-visualization-components: backlog
+  8-6-user-authentication-authorization-jwt: backlog
+  epic-8-retrospective: optional
+
+  # Epic 9: 端到端测试与集成验证 (End-to-End Testing & Integration Verification)
+  epic-9: backlog
+  9-1-e2e-testing-framework-setup: backlog
+  9-2-webhook-to-review-e2e-testing: backlog
+  9-3-multi-platform-integration-e2e-testing: backlog
+  9-4-ai-review-quality-verification-testing: backlog
+  9-5-web-interface-e2e-testing: backlog
+  9-6-cicd-integration-regression-testing: backlog
+  9-7-error-scenarios-boundary-testing: backlog
+  epic-9-retrospective: optional
+
+  # Epic 10: 性能测试与优化 (Performance Testing & Optimization)
+  epic-10: backlog
+  10-1-performance-test-dataset-preparation: backlog
+  10-2-single-review-performance-testing: backlog
+  10-3-concurrent-task-performance-testing: backlog
+  10-4-webhook-response-time-testing: backlog
+  10-5-database-query-performance-optimization: backlog
+  10-6-api-response-time-optimization: backlog
+  10-7-frontend-loading-performance-optimization: backlog
+  epic-10-retrospective: optional

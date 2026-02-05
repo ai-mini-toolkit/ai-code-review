@@ -1,0 +1,25 @@
+# Development profile configuration
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+
+logging:
+  level:
+    com.aicodereview: DEBUG
+    org.springframework.web: DEBUG
+
+# Database configuration (to be filled in Story 1.3)
+# spring:
+#   datasource:
+#     url: jdbc:postgresql://localhost:5432/aicodereview_dev
+#     username: ${DB_USERNAME:aicodereview}
+#     password: ${DB_PASSWORD:changeme}
+
+# Redis configuration (to be filled in Story 1.4)
+# spring:
+#   data:
+#     redis:
+#       host: ${REDIS_HOST:localhost}
+#       port: ${REDIS_PORT:6379}

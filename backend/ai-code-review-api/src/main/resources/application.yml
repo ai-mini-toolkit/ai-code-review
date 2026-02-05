@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: ai-code-review
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,info
+  endpoint:
+    health:
+      show-details: when-authorized
