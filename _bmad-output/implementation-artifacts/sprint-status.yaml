@@ -42,7 +42,7 @@ story_location: C:\Users\songh\clawd\ai-code-review\_bmad-output\implementation-
 development_status:
   # Epic 1: 项目基础设施与配置管理 (Project Infrastructure & Configuration Management)
   epic-1: in-progress
-  1-1-initialize-spring-boot-multi-module-project: review
+  1-1-initialize-spring-boot-multi-module-project: done
   1-2-initialize-frontend-vue-vben-admin: backlog
   1-3-configure-postgresql-jpa: backlog
   1-4-configure-redis-caching: backlog
