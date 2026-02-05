@@ -154,7 +154,7 @@ backend/
 │   │   ├── entity/                         # JPA Entities
 │   │   ├── repository/                     # Spring Data Repositories
 │   │   └── mapper/                         # Entity-Domain Mappers
-│   ├── src/main/resources/db/migration/    # Flyway Migrations
+│   ├── src/main/resources/db/migration/    # Flyway Migrations (will be added in Story 1.3)
 │   └── pom.xml
 ├── ai-code-review-integration/             # 外部集成
 │   ├── src/main/java/com/aicodereview/integration/
@@ -197,10 +197,12 @@ package com.aicodereview.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.Instant;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ApiResponse<T> {
     private boolean success;
     private T data;
@@ -240,7 +242,7 @@ public class AiCodeReviewApplication {
 
 **父 POM 策略:**
 - 父 POM 管理所有依赖版本
-- 仅 `ai-code-review-api` 声明 `spring-boot-starter-parent`
+- 使用 BOM import 方式导入 `spring-boot-dependencies` (不使用 parent 方式)
 - 其他模块依赖特定的 Spring 依赖
 - 防止库模块中的依赖膨胀
 
@@ -359,17 +361,17 @@ management:
 
 ## 🎯 Definition of Done (完成定义)
 
-- [ ] 所有 6 个 Maven 模块已创建并配置
-- [ ] 包结构遵循 `com.aicodereview.*` 约定
-- [ ] 父 POM 正确配置依赖管理
-- [ ] 模块间依赖关系正确设置
-- [ ] `ApiResponse<T>` 类已创建
-- [ ] Spring Boot 主应用类已创建
-- [ ] 配置文件（application.yml + profiles）已创建
-- [ ] `mvn clean install` 成功执行
-- [ ] Spring Boot 应用可以启动
-- [ ] 代码已提交到 Git
-- [ ] 无编译错误或警告
+- [x] 所有 6 个 Maven 模块已创建并配置
+- [x] 包结构遵循 `com.aicodereview.*` 约定
+- [x] 父 POM 正确配置依赖管理
+- [x] 模块间依赖关系正确设置
+- [x] `ApiResponse<T>` 类已创建
+- [x] Spring Boot 主应用类已创建
+- [x] 配置文件（application.yml + profiles）已创建
+- [x] `mvn clean install` 成功执行
+- [x] Spring Boot 应用可以启动
+- [x] 代码已提交到 Git
+- [x] 无编译错误或警告
 
 ---
 
@@ -380,7 +382,7 @@ management:
 ❌ **不要做:**
 - 创建 `I` 前缀的接口（如 `IService`）
 - 在 common 模块中依赖其他模块
-- 使用 `spring-boot-starter-parent` 在多个模块
+- 使用 `spring-boot-starter-parent` 作为 parent（应使用 BOM import）
 - 跳过包命名约定
 - 忘记配置 `scanBasePackages`
 
@@ -397,6 +399,10 @@ management:
 2. **使用 IDE 的 Maven 支持** - IntelliJ IDEA 或 Eclipse 可以自动导入模块
 3. **增量验证** - 每创建一个模块就验证编译
 4. **复制粘贴模板** - 使用 POM 模板加速配置
+
+### 数据库迁移说明
+
+📝 **注意**: 本 Story 仅创建目录结构。实际的 Flyway 迁移脚本和数据库配置将在 **Story 1.3 (Configure PostgreSQL & JPA)** 中实现。当前阶段，`db/migration/` 目录保持为空。
 
 ---
 
