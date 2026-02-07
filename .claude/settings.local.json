@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(chmod:*)",
+      "Bash(tree:*)",
+      "Bash(java:*)",
+      "Bash(mvn:*)",
+      "Bash(redis-cli ping:*)",
+      "Bash(cat:*)",
+      "Bash(tee:*)",
+      "Bash(AWS_ACCESS_KEY_ID=\"\" AWS_SECRET_ACCESS_KEY=\"\" mvn exec:java:*)",
+      "Bash(tail:*)",
+      "Bash(docker:*)",
+      "Bash(test:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix code review issues: Add logging, tests, and configuration\n\nApplied auto-fixes for all HIGH and MEDIUM severity issues from code review:\n\nHIGH Fixes:\n- Add SLF4J logging to GlobalExceptionHandler with proper error tracking\n- Create comprehensive .gitignore file for backend directory\n- Fix sensitive information exposure in error responses\n\nMEDIUM Fixes:\n- Add unit tests for ErrorCode \\(8 tests\\), AppConstants \\(5 tests\\), GlobalExceptionHandler \\(4 tests\\)\n- Add AssertJ test dependency to common module\n- Create logback-spring.xml with dev/prod/test profiles\n- Update story documentation to clarify Flyway migrations timing\n- Correct Spring Boot BOM import strategy documentation\n- Add @NoArgsConstructor to ApiResponse example in docs\n- Improve AiCodeReviewApplicationTests with real assertions \\(3 tests\\)\n\nAll tests passing: 19 tests across all modules\nBuild status: SUCCESS\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}

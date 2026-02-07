@@ -43,8 +43,8 @@ development_status:
   # Epic 1: 项目基础设施与配置管理 (Project Infrastructure & Configuration Management)
   epic-1: in-progress
   1-1-initialize-spring-boot-multi-module-project: done
-  1-2-initialize-frontend-vue-vben-admin: backlog
-  1-3-configure-postgresql-jpa: backlog
+  1-2-initialize-frontend-vue-vben-admin: ready-for-dev
+  1-3-configure-postgresql-jpa: ready-for-dev
   1-4-configure-redis-caching: backlog
   1-5-implement-project-config-api: backlog
   1-6-implement-ai-model-config-api: backlog
