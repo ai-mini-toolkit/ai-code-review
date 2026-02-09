@@ -25,6 +25,10 @@
         </dependency>
         <dependency>
             <groupId>com.aicodereview</groupId>
+            <artifactId>ai-code-review-repository</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aicodereview</groupId>
             <artifactId>ai-code-review-service</artifactId>
         </dependency>
 
