@@ -21,8 +21,25 @@ services:
     networks:
       - aicodereview-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: aicodereview-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aicodereview-network
+
 volumes:
   postgres-data:
+    driver: local
+  redis-data:
     driver: local
 
 networks:
