@@ -12,6 +12,7 @@ public enum ErrorCode {
     NOT_FOUND("ERR_404", "Resource not found"),
     UNAUTHORIZED("ERR_401", "Unauthorized"),
     FORBIDDEN("ERR_403", "Forbidden"),
+    CONFLICT("ERR_409", "Resource conflict"),
     VALIDATION_ERROR("ERR_422", "Validation error");
 
     private final String code;

@@ -49,6 +49,12 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+        <!-- Jackson Java 8 Date/Time support for Redis JSON serialization -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
         <!-- Commons Pool for Lettuce Connection Pool -->
         <dependency>
             <groupId>org.apache.commons</groupId>

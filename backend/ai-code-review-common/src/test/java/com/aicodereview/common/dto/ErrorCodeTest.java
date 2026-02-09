@@ -48,13 +48,14 @@ class ErrorCodeTest {
     @Test
     void shouldHaveAllDefinedErrorCodes() {
         ErrorCode[] errorCodes = ErrorCode.values();
-        assertThat(errorCodes).hasSize(6);
+        assertThat(errorCodes).hasSize(7);
         assertThat(errorCodes).containsExactlyInAnyOrder(
                 ErrorCode.BAD_REQUEST,
                 ErrorCode.INTERNAL_SERVER_ERROR,
                 ErrorCode.NOT_FOUND,
                 ErrorCode.UNAUTHORIZED,
                 ErrorCode.FORBIDDEN,
+                ErrorCode.CONFLICT,
                 ErrorCode.VALIDATION_ERROR
         );
     }

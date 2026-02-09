@@ -59,6 +59,10 @@ spring:
       key-prefix: "aicodereview:cache:"
       use-key-prefix: true
 
+app:
+  encryption:
+    key: ${ENCRYPTION_KEY:default-dev-key-32chars!!}
+
 logging:
   level:
     com.aicodereview: DEBUG

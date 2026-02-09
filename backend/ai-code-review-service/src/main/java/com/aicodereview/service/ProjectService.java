@@ -1,0 +1,23 @@
+package com.aicodereview.service;
+
+import com.aicodereview.common.dto.project.CreateProjectRequest;
+import com.aicodereview.common.dto.project.ProjectDTO;
+import com.aicodereview.common.dto.project.UpdateProjectRequest;
+
+import java.util.List;
+
+/**
+ * Service interface for project configuration management.
+ */
+public interface ProjectService {
+
+    ProjectDTO createProject(CreateProjectRequest request);
+
+    List<ProjectDTO> listProjects(Boolean enabled);
+
+    ProjectDTO getProjectById(Long id);
+
+    ProjectDTO updateProject(Long id, UpdateProjectRequest request);
+
+    void deleteProject(Long id);
+}
