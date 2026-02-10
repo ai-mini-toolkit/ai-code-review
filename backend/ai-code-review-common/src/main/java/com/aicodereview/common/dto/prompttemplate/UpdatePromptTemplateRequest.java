@@ -15,14 +15,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdatePromptTemplateRequest {
 
-    @Size(max = 255, message = "Name must not exceed 255 characters")
+    @Size(min = 1, max = 255, message = "Name must be between 1 and 255 characters")
     private String name;
 
     @Pattern(regexp = "^(security|performance|maintainability|correctness|style|best_practices)$",
             message = "Category must be one of: security, performance, maintainability, correctness, style, best_practices")
     private String category;
 
-    @Size(max = 10000, message = "Template content must not exceed 10000 characters")
+    @Size(min = 1, max = 10000, message = "Template content must be between 1 and 10000 characters")
     private String templateContent;
 
     @Min(value = 1, message = "Version must be at least 1")

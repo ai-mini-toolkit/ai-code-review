@@ -1,6 +1,6 @@
 # Story 1.7: 实现 Prompt 模板管理后端 API
 
-**Status:** review
+**Status:** done
 
 **Epic:** 1 - 项目基础设施与配置管理 (Project Infrastructure & Configuration Management)
 
@@ -469,7 +469,18 @@ Claude Opus 4.6 (claude-opus-4-6)
 2. Handlebars.java `compileInline()` throws `HandlebarsException` (RuntimeException) for template syntax errors, not `IOException` - must catch both
 3. Static `Handlebars` instance (`private static final Handlebars HANDLEBARS`) reused across calls - thread-safe per Handlebars docs
 4. `previewTemplate` uses `@Transactional(propagation = Propagation.NOT_SUPPORTED)` per Story 1.6 code review lesson
-5. All 12 integration test cases passing: CRUD (6) + duplicate name (1) + not found (1) + validation (1) + preview (1) + invalid syntax (1) + cache (1)
+5. All 14 integration test cases passing: CRUD (6) + duplicate name (1) + not found (1) + validation (1) + preview (1) + invalid syntax (1) + cache (1) + enabled filter (1) + combined filter (1)
+
+### Code Review Fixes Applied
+
+| ID | Severity | Description | Fix |
+|----|----------|-------------|-----|
+| M1 | MEDIUM | Dead variable `elapsed` in previewTemplate catch blocks | Removed unused variable |
+| M2 | MEDIUM | Duplicate IOException/HandlebarsException catch blocks | Combined using multi-catch `catch (IOException \| HandlebarsException e)` |
+| M3 | MEDIUM | UpdatePromptTemplateRequest allows empty strings for name/templateContent | Added `@Size(min = 1)` to name and templateContent |
+| M4 | MEDIUM | Preview endpoint null sampleData risk | Added null check, defaults to `Map.of()` |
+| L1 | LOW | Missing combined category+enabled filter test | Added `shouldFilterByCategoryAndEnabled` test |
+| L2 | LOW | Missing enabled-only filter test | Added `shouldFilterByEnabled` test |
 
 ### File List
 

@@ -143,21 +143,17 @@ public class PromptTemplateServiceImpl implements PromptTemplateService {
         PromptTemplate template = promptTemplateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PromptTemplate", id));
 
+        Map<String, Object> context = sampleData != null ? sampleData : Map.of();
         long startTime = System.currentTimeMillis();
         try {
             Template compiled = HANDLEBARS.compileInline(template.getTemplateContent());
-            String rendered = compiled.apply(sampleData);
+            String rendered = compiled.apply(context);
             long elapsed = System.currentTimeMillis() - startTime;
             return PreviewResponse.builder()
                     .renderedContent(rendered)
                     .renderTimeMs(elapsed)
                     .build();
-        } catch (IOException e) {
-            long elapsed = System.currentTimeMillis() - startTime;
-            log.warn("Template rendering failed for id {}: {}", id, e.getMessage());
-            throw new TemplateSyntaxException("Template rendering failed: " + e.getMessage(), e);
-        } catch (HandlebarsException e) {
-            long elapsed = System.currentTimeMillis() - startTime;
+        } catch (IOException | HandlebarsException e) {
             log.warn("Template rendering failed for id {}: {}", id, e.getMessage());
             throw new TemplateSyntaxException("Template rendering failed: " + e.getMessage(), e);
         }
@@ -166,9 +162,7 @@ public class PromptTemplateServiceImpl implements PromptTemplateService {
     private void validateTemplateSyntax(String templateContent) {
         try {
             HANDLEBARS.compileInline(templateContent);
-        } catch (IOException e) {
-            throw new TemplateSyntaxException("Invalid Mustache template syntax: " + e.getMessage(), e);
-        } catch (HandlebarsException e) {
+        } catch (IOException | HandlebarsException e) {
             throw new TemplateSyntaxException("Invalid Mustache template syntax: " + e.getMessage(), e);
         }
     }

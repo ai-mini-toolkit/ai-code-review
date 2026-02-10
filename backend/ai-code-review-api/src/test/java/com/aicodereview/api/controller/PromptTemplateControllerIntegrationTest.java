@@ -324,6 +324,42 @@ class PromptTemplateControllerIntegrationTest {
 
     @Test
     @Order(12)
+    void shouldFilterByEnabled() {
+        // The security-review-v1 template was disabled in Order 5 update test
+        // Create an enabled template to ensure we have both states
+        CreatePromptTemplateRequest enabledReq = buildCreateRequest("enabled-filter-test", "best_practices");
+        ResponseEntity<Map> createResp = restTemplate.postForEntity(
+                "/api/v1/prompt-templates", enabledReq, Map.class);
+        assertThat(createResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        // Filter by enabled=true
+        ResponseEntity<Map> response = restTemplate.getForEntity(
+                "/api/v1/prompt-templates?enabled=true", Map.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
+        assertThat(data).isNotEmpty();
+        assertThat(data).allMatch(m -> Boolean.TRUE.equals(m.get("enabled")));
+    }
+
+    @Test
+    @Order(13)
+    void shouldFilterByCategoryAndEnabled() {
+        // Filter by category=security AND enabled=true
+        ResponseEntity<Map> response = restTemplate.getForEntity(
+                "/api/v1/prompt-templates?category=best_practices&enabled=true", Map.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> data = (List<Map<String, Object>>) response.getBody().get("data");
+        assertThat(data).isNotEmpty();
+        assertThat(data).allMatch(m ->
+                "best_practices".equals(m.get("category")) && Boolean.TRUE.equals(m.get("enabled")));
+    }
+
+    @Test
+    @Order(14)
     void shouldCachePromptTemplateInRedisOnGet() {
         CreatePromptTemplateRequest request = buildCreateRequest("cache-test-template", "maintainability");
 
