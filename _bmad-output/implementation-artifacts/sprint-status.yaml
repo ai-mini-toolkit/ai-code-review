@@ -50,7 +50,7 @@ development_status:
   1-6-implement-ai-model-config-api: done
   1-7-implement-prompt-template-api: done
   1-8-configure-docker-compose-dev: done
-  1-9-system-monitoring-alerting: backlog
+  1-9-system-monitoring-alerting: review
   epic-1-retrospective: optional
 
   # Epic 2: Webhook 集成与任务队列 (Webhook Integration & Task Queue)

@@ -12,7 +12,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,metrics,info
+        include: health,metrics,info,prometheus
   endpoint:
     health:
       show-details: when-authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
