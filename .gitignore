@@ -19,6 +19,9 @@ logs/
 .DS_Store
 Thumbs.db
 
+# Environment
+.env
+
 # Temp
 *.tmp
 *.swp

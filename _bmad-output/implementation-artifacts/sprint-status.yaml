@@ -49,7 +49,7 @@ development_status:
   1-5-implement-project-config-api: done
   1-6-implement-ai-model-config-api: done
   1-7-implement-prompt-template-api: done
-  1-8-configure-docker-compose-dev: backlog
+  1-8-configure-docker-compose-dev: review
   1-9-system-monitoring-alerting: backlog
   epic-1-retrospective: optional
 

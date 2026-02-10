@@ -1,0 +1,26 @@
+# Build output
+**/target/
+
+# IDE files
+**/.idea/
+**/*.iml
+**/.project
+**/.settings/
+**/.classpath
+**/.vscode/
+
+# Git
+.git/
+.gitignore
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+
+# Documentation
+*.md
+LICENSE
+
+# Test output
+**/test-output/
+**/surefire-reports/

@@ -1,0 +1,20 @@
+FROM node:22-slim
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV NODE_OPTIONS=--max-old-space-size=8192
+
+RUN npm i -g corepack && corepack enable
+
+WORKDIR /app
+
+# Copy all source files (node_modules and dist excluded via .dockerignore)
+COPY . .
+
+# Install dependencies (creates proper Linux symlinks)
+RUN pnpm install --frozen-lockfile
+
+EXPOSE 5666
+
+# Start the Ant Design variant dev server with host binding for Docker access
+CMD ["pnpm", "-F", "@vben/web-antd", "run", "dev", "--", "--host", "0.0.0.0"]
