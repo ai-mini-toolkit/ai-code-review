@@ -1,6 +1,6 @@
 # Story 1.8: 配置 Docker Compose 开发环境
 
-**Status:** review
+**Status:** done
 
 ---
 
@@ -181,3 +181,50 @@ Claude Opus 4.6
 - `.gitignore` - Added `.env` entry
 - `backend/ai-code-review-api/pom.xml` - Added explicit `repackage` goal to spring-boot-maven-plugin
 - `frontend/.dockerignore` - Added `**/node_modules` and `**/dist` patterns
+
+---
+
+## Senior Developer Review (AI)
+
+**Reviewer:** ethan | **Date:** 2026-02-10 | **Model:** Claude Opus 4.6
+
+### Review Summary
+
+| Severity | Count | Fixed |
+|----------|-------|-------|
+| HIGH     | 3     | 3     |
+| MEDIUM   | 1     | 1     |
+| LOW      | 3     | 0 (deferred) |
+
+### Issues Found & Fixed
+
+**H1 (FIXED): Frontend service missing healthcheck**
+- AC 3 requires all 4 services have healthchecks. Frontend had none.
+- Fix: Added Node.js-based healthcheck using `fetch('http://localhost:5666')` with 120s start_period.
+
+**H2 (FIXED): Frontend hot-reload not functional**
+- AC 4 requires hot-reload dev mode, but no volume mount existed. Code baked into image at build time.
+- Fix: Added bind mount `./frontend/apps/web-antd/src:/app/apps/web-antd/src` + `CHOKIDAR_USEPOLLING=true`.
+
+**H3 (FIXED): .env.example decorative — docker-compose hardcoded credentials**
+- docker-compose.yml used hardcoded values instead of `${VAR:-default}` substitution.
+- Fix: All environment values now use `${VAR:-default}` syntax. `.env` file overrides actually work.
+
+**M1 (FIXED): Backend Dockerfile missing default SPRING_PROFILES_ACTIVE**
+- AC 1 requires default docker profile. Only set via docker-compose, not in Dockerfile.
+- Fix: Added `ENV SPRING_PROFILES_ACTIVE=docker` in runtime stage.
+
+### Deferred (LOW)
+
+- L1: Container runs as root (security best practice, low risk in dev)
+- L2: Backend healthcheck uses wget (works but curl more standard)
+- L3: Epic AC mentions README startup guide (not in story scope)
+
+### Files Modified by Review
+
+- `docker-compose.yml` — H1, H2, H3 fixes
+- `backend/Dockerfile` — M1 fix
+
+### Test Verification
+
+All 82 backend tests pass with no regressions after fixes.

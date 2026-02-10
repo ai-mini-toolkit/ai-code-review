@@ -3,9 +3,9 @@ services:
     image: postgres:18-alpine
     container_name: aicodereview-postgres
     environment:
-      POSTGRES_DB: aicodereview_dev
-      POSTGRES_USER: aicodereview
-      POSTGRES_PASSWORD: dev_password_123
+      POSTGRES_DB: ${POSTGRES_DB:-aicodereview_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-aicodereview}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password_123}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5432:5432"
@@ -45,9 +45,9 @@ services:
       redis:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      DB_USERNAME: aicodereview
-      DB_PASSWORD: dev_password_123
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      DB_USERNAME: ${DB_USERNAME:-aicodereview}
+      DB_PASSWORD: ${DB_PASSWORD:-dev_password_123}
     ports:
       - "8080:8080"
     healthcheck:
@@ -69,6 +69,16 @@ services:
         condition: service_healthy
     ports:
       - "5666:5666"
+    volumes:
+      - ./frontend/apps/web-antd/src:/app/apps/web-antd/src
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:5666').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
     networks:
       - aicodereview-network
 

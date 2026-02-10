@@ -22,6 +22,8 @@ RUN mvn clean package -DskipTests -B
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
+ENV SPRING_PROFILES_ACTIVE=docker
+
 COPY --from=builder /build/ai-code-review-api/target/ai-code-review-api-*.jar app.jar
 
 EXPOSE 8080
