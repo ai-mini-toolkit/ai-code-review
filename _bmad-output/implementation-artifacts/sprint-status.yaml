@@ -47,7 +47,7 @@ development_status:
   1-3-configure-postgresql-jpa: done
   1-4-configure-redis-caching: done
   1-5-implement-project-config-api: done
-  1-6-implement-ai-model-config-api: backlog
+  1-6-implement-ai-model-config-api: done
   1-7-implement-prompt-template-api: backlog
   1-8-configure-docker-compose-dev: backlog
   1-9-system-monitoring-alerting: backlog
