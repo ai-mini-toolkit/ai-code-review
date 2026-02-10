@@ -41,7 +41,7 @@ story_location: C:\Users\songh\clawd\ai-code-review\_bmad-output\implementation-
 
 development_status:
   # Epic 1: 项目基础设施与配置管理 (Project Infrastructure & Configuration Management)
-  epic-1: in-progress
+  epic-1: done
   1-1-initialize-spring-boot-multi-module-project: done
   1-2-initialize-frontend-vue-vben-admin: done
   1-3-configure-postgresql-jpa: done
@@ -51,7 +51,7 @@ development_status:
   1-7-implement-prompt-template-api: done
   1-8-configure-docker-compose-dev: done
   1-9-system-monitoring-alerting: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: done
 
   # Epic 2: Webhook 集成与任务队列 (Webhook Integration & Task Queue)
   epic-2: backlog
