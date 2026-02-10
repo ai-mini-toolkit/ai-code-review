@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -27,6 +28,9 @@ class ProjectControllerIntegrationTest {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     private static Long createdProjectId;
 
@@ -230,6 +234,44 @@ class ProjectControllerIntegrationTest {
 
     @Test
     @Order(9)
+    void shouldCacheProjectInRedisOnGet() {
+        CreateProjectRequest request = buildCreateRequest("cache-test-project");
+
+        // Create a project
+        ResponseEntity<Map> createResponse = restTemplate.postForEntity(
+                "/api/v1/projects", request, Map.class);
+        assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Map<String, Object> data = getData(createResponse.getBody());
+        Long id = ((Number) data.get("id")).longValue();
+
+        // Clear cache to ensure clean state
+        cacheManager.getCache("projects").clear();
+
+        // First GET - should hit database and populate cache
+        ResponseEntity<Map> firstGet = restTemplate.getForEntity(
+                "/api/v1/projects/" + id, Map.class);
+        assertThat(firstGet.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        // Verify cache entry exists after GET
+        Object cachedValue = cacheManager.getCache("projects").get(id);
+        assertThat(cachedValue).isNotNull();
+
+        // Second GET - should hit cache (we verify cache has the entry)
+        ResponseEntity<Map> secondGet = restTemplate.getForEntity(
+                "/api/v1/projects/" + id, Map.class);
+        assertThat(secondGet.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(getData(secondGet.getBody()).get("name")).isEqualTo("cache-test-project");
+
+        // Cleanup
+        restTemplate.delete("/api/v1/projects/" + id);
+
+        // Verify cache is evicted after delete
+        Object afterDelete = cacheManager.getCache("projects").get(id);
+        assertThat(afterDelete).isNull();
+    }
+
+    @Test
+    @Order(10)
     void shouldReturn422ForMissingRequiredFields() {
         CreateProjectRequest request = CreateProjectRequest.builder().build();
 

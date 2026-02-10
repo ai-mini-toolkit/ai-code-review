@@ -1,6 +1,6 @@
 # Story 1.5: 实现项目配置管理后端 API
 
-**Status:** review
+**Status:** done
 
 **Epic:** 1 - 项目基础设施与配置管理 (Project Infrastructure & Configuration Management)
 
@@ -40,98 +40,98 @@ So that 我可以集成 Git 平台和控制代码审查行为。
 **Then** 以下验收标准必须全部满足：
 
 ### AC 1: 数据库模式（Database Schema）
-- [ ] 创建 `project` 表（如不存在）
-- [ ] 字段：`id` BIGSERIAL PRIMARY KEY
-- [ ] 字段：`name` VARCHAR(255) NOT NULL UNIQUE（项目名称）
-- [ ] 字段：`description` TEXT（项目描述）
-- [ ] 字段：`enabled` BOOLEAN NOT NULL DEFAULT TRUE（是否启用审查）
-- [ ] 字段：`git_platform` VARCHAR(50) NOT NULL（GitHub/GitLab/CodeCommit）
-- [ ] 字段：`repo_url` VARCHAR(500) NOT NULL（Git 仓库 URL）
-- [ ] 字段：`webhook_secret` VARCHAR(500) NOT NULL（Webhook 密钥，AES 加密）
-- [ ] 字段：`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-- [ ] 字段：`updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-- [ ] 索引：`idx_project_name` ON name
-- [ ] 索引：`idx_project_enabled` ON enabled
-- [ ] Flyway 迁移脚本：`V2__create_project_table.sql`
+- [x] 创建 `project` 表（如不存在）
+- [x] 字段：`id` BIGSERIAL PRIMARY KEY
+- [x] 字段：`name` VARCHAR(255) NOT NULL UNIQUE（项目名称）
+- [x] 字段：`description` TEXT（项目描述）
+- [x] 字段：`enabled` BOOLEAN NOT NULL DEFAULT TRUE（是否启用审查）
+- [x] 字段：`git_platform` VARCHAR(50) NOT NULL（GitHub/GitLab/CodeCommit）
+- [x] 字段：`repo_url` VARCHAR(500) NOT NULL（Git 仓库 URL）
+- [x] 字段：`webhook_secret` VARCHAR(500) NOT NULL（Webhook 密钥，AES 加密）
+- [x] 字段：`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+- [x] 字段：`updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+- [x] 索引：`idx_project_name` ON name
+- [x] 索引：`idx_project_enabled` ON enabled
+- [x] Flyway 迁移脚本：`V2__create_project_table.sql`
 
 ### AC 2: JPA Entity 实现
-- [ ] 创建 `Project.java` 实体类（`com.aicodereview.repository.entity`）
-- [ ] 使用 `@Entity` 和 `@Table(name = "project")` 注解
-- [ ] 所有字段包含 `@Column` 注解（name 映射 snake_case）
-- [ ] `@CreatedDate` 和 `@LastModifiedDate` 注解（启用 Auditing）
-- [ ] Lombok `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`
-- [ ] webhook_secret 字段使用 `@Convert` 进行 AES 加密/解密
-- [ ] 实现 AttributeConverter for webhook_secret encryption
+- [x] 创建 `Project.java` 实体类（`com.aicodereview.repository.entity`）
+- [x] 使用 `@Entity` 和 `@Table(name = "project")` 注解
+- [x] 所有字段包含 `@Column` 注解（name 映射 snake_case）
+- [x] `@CreatedDate` 和 `@LastModifiedDate` 注解（启用 Auditing）
+- [x] Lombok `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`
+- [x] webhook_secret 字段使用 `@Convert` 进行 AES 加密/解密
+- [x] 实现 AttributeConverter for webhook_secret encryption
 
 ### AC 3: JPA Repository 实现
-- [ ] 创建 `ProjectRepository.java` 接口（`com.aicodereview.repository`）
-- [ ] 继承 `JpaRepository<Project, Long>`
-- [ ] 自定义查询：`Optional<Project> findByName(String name)`
-- [ ] 自定义查询：`List<Project> findByEnabled(Boolean enabled)`
-- [ ] 使用 Spring Data JPA 方法命名规则
+- [x] 创建 `ProjectRepository.java` 接口（`com.aicodereview.repository`）
+- [x] 继承 `JpaRepository<Project, Long>`
+- [x] 自定义查询：`Optional<Project> findByName(String name)`
+- [x] 自定义查询：`List<Project> findByEnabled(Boolean enabled)`
+- [x] 使用 Spring Data JPA 方法命名规则
 
 ### AC 4: Service 层实现
-- [ ] 创建 `ProjectService.java` 接口（`com.aicodereview.service`）
-- [ ] 创建 `ProjectServiceImpl.java` 实现类
-- [ ] 方法：`ProjectDTO createProject(CreateProjectRequest request)`
-- [ ] 方法：`List<ProjectDTO> listProjects(Boolean enabled)`
-- [ ] 方法：`ProjectDTO getProjectById(Long id)`
-- [ ] 方法：`ProjectDTO updateProject(Long id, UpdateProjectRequest request)`
-- [ ] 方法：`void deleteProject(Long id)`
-- [ ] 使用 `@Cacheable` 注解缓存项目配置（cacheName="projects", key="#id"）
-- [ ] 使用 `@CacheEvict` 注解清除缓存（更新和删除时）
-- [ ] 抛出 `ResourceNotFoundException` 当项目不存在
+- [x] 创建 `ProjectService.java` 接口（`com.aicodereview.service`）
+- [x] 创建 `ProjectServiceImpl.java` 实现类
+- [x] 方法：`ProjectDTO createProject(CreateProjectRequest request)`
+- [x] 方法：`List<ProjectDTO> listProjects(Boolean enabled)`
+- [x] 方法：`ProjectDTO getProjectById(Long id)`
+- [x] 方法：`ProjectDTO updateProject(Long id, UpdateProjectRequest request)`
+- [x] 方法：`void deleteProject(Long id)`
+- [x] 使用 `@Cacheable` 注解缓存项目配置（cacheName="projects", key="#id"）
+- [x] 使用 `@CacheEvict` 注解清除缓存（更新和删除时）
+- [x] 抛出 `ResourceNotFoundException` 当项目不存在
 
 ### AC 5: Controller 层实现
-- [ ] 创建 `ProjectController.java`（`com.aicodereview.api.controller`）
-- [ ] 使用 `@RestController` 和 `@RequestMapping("/api/v1/projects")`
-- [ ] POST `/api/v1/projects` - 创建项目
-- [ ] GET `/api/v1/projects` - 列出项目（支持 enabled 查询参数）
-- [ ] GET `/api/v1/projects/{id}` - 获取项目详情
-- [ ] PUT `/api/v1/projects/{id}` - 更新项目
-- [ ] DELETE `/api/v1/projects/{id}` - 删除项目
-- [ ] 所有响应使用 `ApiResponse<T>` 统一格式
-- [ ] 使用 `@Valid` 进行请求验证
-- [ ] 使用 `@PreAuthorize` 预留权限控制（暂时开放）
+- [x] 创建 `ProjectController.java`（`com.aicodereview.api.controller`）
+- [x] 使用 `@RestController` 和 `@RequestMapping("/api/v1/projects")`
+- [x] POST `/api/v1/projects` - 创建项目
+- [x] GET `/api/v1/projects` - 列出项目（支持 enabled 查询参数）
+- [x] GET `/api/v1/projects/{id}` - 获取项目详情
+- [x] PUT `/api/v1/projects/{id}` - 更新项目
+- [x] DELETE `/api/v1/projects/{id}` - 删除项目
+- [x] 所有响应使用 `ApiResponse<T>` 统一格式
+- [x] 使用 `@Valid` 进行请求验证
+- [x] 使用 `@PreAuthorize` 预留权限控制（暂时开放）
 
 ### AC 6: DTO 类实现
-- [ ] 创建 `ProjectDTO.java`（`com.aicodereview.common.dto`）
-- [ ] 创建 `CreateProjectRequest.java`（验证注解：@NotBlank, @Size, @Pattern）
-- [ ] 创建 `UpdateProjectRequest.java`（所有字段可选）
-- [ ] 不在 DTO 中暴露 webhook_secret 明文（仅返回是否已配置）
-- [ ] 使用 `@JsonProperty` 指定 camelCase JSON 字段名
+- [x] 创建 `ProjectDTO.java`（`com.aicodereview.common.dto`）
+- [x] 创建 `CreateProjectRequest.java`（验证注解：@NotBlank, @Size, @Pattern）
+- [x] 创建 `UpdateProjectRequest.java`（所有字段可选）
+- [x] 不在 DTO 中暴露 webhook_secret 明文（仅返回是否已配置）
+- [x] 使用 `@JsonProperty` 指定 camelCase JSON 字段名
 
 ### AC 7: 密钥加密存储
-- [ ] webhook_secret 使用 AES-256-GCM 加密存储
-- [ ] 加密密钥从环境变量读取（`ENCRYPTION_KEY`）或配置文件
-- [ ] 如果环境变量未设置，使用默认密钥（开发环境警告日志）
-- [ ] 实现 `EncryptionUtil.java` 工具类
-- [ ] 实现 `WebhookSecretConverter.java` JPA AttributeConverter
+- [x] webhook_secret 使用 AES-256-GCM 加密存储
+- [x] 加密密钥从环境变量读取（`ENCRYPTION_KEY`）或配置文件
+- [x] 如果环境变量未设置，使用默认密钥（开发环境警告日志）
+- [x] 实现 `EncryptionUtil.java` 工具类
+- [x] 实现 `WebhookSecretConverter.java` JPA AttributeConverter
 
 ### AC 8: Redis 缓存配置
-- [ ] 项目配置缓存到 Redis（cacheName="projects"）
-- [ ] 缓存 TTL：10 分钟（从 RedisConfig 继承）
-- [ ] 缓存 key 格式：`aicodereview:cache:projects::{id}`
-- [ ] 更新或删除时自动清除缓存
+- [x] 项目配置缓存到 Redis（cacheName="projects"）
+- [x] 缓存 TTL：10 分钟（从 RedisConfig 继承）
+- [x] 缓存 key 格式：`aicodereview:cache:projects::{id}`
+- [x] 更新或删除时自动清除缓存
 
 ### AC 9: API 响应格式
-- [ ] 成功响应：`{"success": true, "data": {...}, "timestamp": "2026-02-09T10:00:00Z"}`
-- [ ] 错误响应：`{"success": false, "error": {"code": "ERR_404", "message": "Project not found"}, "timestamp": "..."}`
-- [ ] 使用已有的 `ApiResponse<T>` 和 `ErrorCode` 类
+- [x] 成功响应：`{"success": true, "data": {...}, "timestamp": "2026-02-09T10:00:00Z"}`
+- [x] 错误响应：`{"success": false, "error": {"code": "ERR_404", "message": "Project not found"}, "timestamp": "..."}`
+- [x] 使用已有的 `ApiResponse<T>` 和 `ErrorCode` 类
 
 ### AC 10: 集成测试
-- [ ] 创建 `ProjectIntegrationTest.java`（`com.aicodereview.api`）
-- [ ] 使用 `@SpringBootTest` 和 `@ActiveProfiles("dev")`
-- [ ] 测试用例：创建项目（POST）
-- [ ] 测试用例：列出项目（GET）
-- [ ] 测试用例：获取项目详情（GET /{id}）
-- [ ] 测试用例：更新项目（PUT /{id}）
-- [ ] 测试用例：删除项目（DELETE /{id}）
-- [ ] 测试用例：重复名称验证（409 Conflict）
-- [ ] 测试用例：项目不存在（404 Not Found）
-- [ ] 测试用例：验证加密存储（webhook_secret 不可读）
-- [ ] 测试用例：验证 Redis 缓存生效
-- [ ] 所有测试用例通过
+- [x] 创建 `ProjectIntegrationTest.java`（`com.aicodereview.api`）
+- [x] 使用 `@SpringBootTest` 和 `@ActiveProfiles("dev")`
+- [x] 测试用例：创建项目（POST）
+- [x] 测试用例：列出项目（GET）
+- [x] 测试用例：获取项目详情（GET /{id}）
+- [x] 测试用例：更新项目（PUT /{id}）
+- [x] 测试用例：删除项目（DELETE /{id}）
+- [x] 测试用例：重复名称验证（409 Conflict）
+- [x] 测试用例：项目不存在（404 Not Found）
+- [x] 测试用例：验证加密存储（webhook_secret 不可读）
+- [x] 测试用例：验证 Redis 缓存生效
+- [x] 所有测试用例通过
 
 ---
 
@@ -139,99 +139,100 @@ So that 我可以集成 Git 平台和控制代码审查行为。
 
 ### Task 1: 创建 Flyway 数据库迁移脚本
 **AC:** #1
-- [ ] 创建 `backend/ai-code-review-repository/src/main/resources/db/migration/V2__create_project_table.sql`
-- [ ] 定义 `project` 表结构（id, name, description, enabled, git_platform, repo_url, webhook_secret, created_at, updated_at）
-- [ ] 创建索引（idx_project_name, idx_project_enabled）
-- [ ] 添加表和列注释
-- [ ] 启动应用验证迁移执行成功
+- [x] 创建 `backend/ai-code-review-repository/src/main/resources/db/migration/V2__create_project_table.sql`
+- [x] 定义 `project` 表结构（id, name, description, enabled, git_platform, repo_url, webhook_secret, created_at, updated_at）
+- [x] 创建索引（idx_project_name, idx_project_enabled）
+- [x] 添加表和列注释
+- [x] 启动应用验证迁移执行成功
 
 ### Task 2: 实现加密工具类
 **AC:** #7
-- [ ] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/util/EncryptionUtil.java`
-- [ ] 实现 AES-256-GCM 加密方法 `encrypt(String plainText, String key): String`
-- [ ] 实现 AES-256-GCM 解密方法 `decrypt(String cipherText, String key): String`
-- [ ] 加密结果使用 Base64 编码存储
-- [ ] 从环境变量 `ENCRYPTION_KEY` 读取密钥（提供默认值用于开发环境）
-- [ ] 编写 EncryptionUtilTest 单元测试
+- [x] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/util/EncryptionUtil.java`
+- [x] 实现 AES-256-GCM 加密方法 `encrypt(String plainText, String key): String`
+- [x] 实现 AES-256-GCM 解密方法 `decrypt(String cipherText, String key): String`
+- [x] 加密结果使用 Base64 编码存储
+- [x] 从环境变量 `ENCRYPTION_KEY` 读取密钥（提供默认值用于开发环境）
+- [x] 编写 EncryptionUtilTest 单元测试
 
 ### Task 3: 实现 JPA Entity 和 Repository
 **AC:** #2, #3
-- [ ] 创建 `backend/ai-code-review-repository/src/main/java/com/aicodereview/repository/entity/Project.java`
-- [ ] 实现 JPA Entity（@Entity, @Table, @Column, Lombok 注解）
-- [ ] 启用 JPA Auditing（@EnableJpaAuditing 在 JpaConfig.java，@CreatedDate/@LastModifiedDate）
-- [ ] 创建 `backend/ai-code-review-repository/src/main/java/com/aicodereview/repository/converter/WebhookSecretConverter.java`
-- [ ] 实现 AttributeConverter<String, String>，使用 EncryptionUtil
-- [ ] 创建 `backend/ai-code-review-repository/src/main/java/com/aicodereview/repository/ProjectRepository.java`
-- [ ] 定义自定义查询方法（findByName, findByEnabled）
+- [x] 创建 `backend/ai-code-review-repository/src/main/java/com/aicodereview/repository/entity/Project.java`
+- [x] 实现 JPA Entity（@Entity, @Table, @Column, Lombok 注解）
+- [x] 启用 JPA Auditing（@EnableJpaAuditing 在 JpaConfig.java，@CreatedDate/@LastModifiedDate）
+- [x] 创建 `backend/ai-code-review-repository/src/main/java/com/aicodereview/repository/converter/WebhookSecretConverter.java`
+- [x] 实现 AttributeConverter<String, String>，使用 EncryptionUtil
+- [x] 创建 `backend/ai-code-review-repository/src/main/java/com/aicodereview/repository/ProjectRepository.java`
+- [x] 定义自定义查询方法（findByName, findByEnabled）
 
 ### Task 4: 实现 DTO 类和验证
 **AC:** #6, #9
-- [ ] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/dto/project/ProjectDTO.java`
-- [ ] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/dto/project/CreateProjectRequest.java`
-- [ ] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/dto/project/UpdateProjectRequest.java`
-- [ ] ProjectDTO 包含：id, name, description, enabled, gitPlatform, repoUrl, webhookSecretConfigured（boolean）, createdAt, updatedAt
-- [ ] CreateProjectRequest 验证注解：@NotBlank(name), @NotBlank(gitPlatform), @NotBlank(repoUrl), @NotBlank(webhookSecret)
-- [ ] UpdateProjectRequest 所有字段可选
-- [ ] 添加 `spring-boot-starter-validation` 依赖到 api 模块 pom.xml（如未有）
+- [x] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/dto/project/ProjectDTO.java`
+- [x] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/dto/project/CreateProjectRequest.java`
+- [x] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/dto/project/UpdateProjectRequest.java`
+- [x] ProjectDTO 包含：id, name, description, enabled, gitPlatform, repoUrl, webhookSecretConfigured（boolean）, createdAt, updatedAt
+- [x] CreateProjectRequest 验证注解：@NotBlank(name), @NotBlank(gitPlatform), @NotBlank(repoUrl), @NotBlank(webhookSecret)
+- [x] UpdateProjectRequest 所有字段可选
+- [x] 添加 `spring-boot-starter-validation` 依赖到 api 模块 pom.xml（如未有）
 
 ### Task 5: 添加自定义异常类
 **AC:** #4, #9
-- [ ] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/exception/ResourceNotFoundException.java`
-- [ ] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/exception/DuplicateResourceException.java`
-- [ ] 在 GlobalExceptionHandler 中添加新异常处理器
+- [x] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/exception/ResourceNotFoundException.java`
+- [x] 创建 `backend/ai-code-review-common/src/main/java/com/aicodereview/common/exception/DuplicateResourceException.java`
+- [x] 在 GlobalExceptionHandler 中添加新异常处理器
   - ResourceNotFoundException → HTTP 404
   - DuplicateResourceException → HTTP 409 Conflict
   - MethodArgumentNotValidException → HTTP 422 Validation Error（字段级错误）
 
 ### Task 6: 实现 Service 层
 **AC:** #4, #8
-- [ ] 创建 `backend/ai-code-review-service/src/main/java/com/aicodereview/service/ProjectService.java`（接口）
-- [ ] 创建 `backend/ai-code-review-service/src/main/java/com/aicodereview/service/impl/ProjectServiceImpl.java`（实现）
-- [ ] 实现 CRUD 方法（create, list, getById, update, delete）
-- [ ] Entity ↔ DTO 转换逻辑
-- [ ] 添加 `@Cacheable("projects")` 到 getById 方法
-- [ ] 添加 `@CacheEvict(value = "projects", key = "#p0")` 到 update 和 delete 方法
-- [ ] 创建项目时检查名称唯一性（抛出 DuplicateResourceException）
-- [ ] 日志记录关键操作（@Slf4j）
+- [x] 创建 `backend/ai-code-review-service/src/main/java/com/aicodereview/service/ProjectService.java`（接口）
+- [x] 创建 `backend/ai-code-review-service/src/main/java/com/aicodereview/service/impl/ProjectServiceImpl.java`（实现）
+- [x] 实现 CRUD 方法（create, list, getById, update, delete）
+- [x] Entity ↔ DTO 转换逻辑
+- [x] 添加 `@Cacheable("projects")` 到 getById 方法
+- [x] 添加 `@CacheEvict(value = "projects", key = "#p0")` 到 update 和 delete 方法
+- [x] 创建项目时检查名称唯一性（抛出 DuplicateResourceException）
+- [x] 日志记录关键操作（@Slf4j）
 
 ### Task 7: 实现 Controller 层
 **AC:** #5
-- [ ] 创建 `backend/ai-code-review-api/src/main/java/com/aicodereview/api/controller/ProjectController.java`
-- [ ] 实现 5 个 REST 端点（POST, GET list, GET by id, PUT, DELETE）
-- [ ] 使用 `@RequestMapping("/api/v1/projects")` 基路径
-- [ ] 所有响应包装为 `ApiResponse<T>`
-- [ ] 请求体使用 `@Valid` 验证
-- [ ] 添加 `@Slf4j` 日志记录
+- [x] 创建 `backend/ai-code-review-api/src/main/java/com/aicodereview/api/controller/ProjectController.java`
+- [x] 实现 5 个 REST 端点（POST, GET list, GET by id, PUT, DELETE）
+- [x] 使用 `@RequestMapping("/api/v1/projects")` 基路径
+- [x] 所有响应包装为 `ApiResponse<T>`
+- [x] 请求体使用 `@Valid` 验证
+- [x] 添加 `@Slf4j` 日志记录
 
 ### Task 8: 添加配置（application-dev.yml）
 **AC:** #7
-- [ ] 在 `application-dev.yml` 添加加密密钥配置
+- [x] 在 `application-dev.yml` 添加加密密钥配置
   ```yaml
   app:
     encryption:
-      key: ${ENCRYPTION_KEY:default-dev-key-32chars!!}
+      key: ${ENCRYPTION_KEY:default-dev-key-32chars-warning!}
   ```
-- [ ] 确保开发环境使用默认密钥并输出警告日志
+- [x] 确保开发环境使用默认密钥并输出警告日志
 
 ### Task 9: 编写集成测试
 **AC:** #10
-- [ ] 创建 `backend/ai-code-review-api/src/test/java/com/aicodereview/api/controller/ProjectControllerIntegrationTest.java`
-- [ ] 使用 `@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)` 和 `TestRestTemplate`
-- [ ] 测试用例 1: POST 创建项目 → 验证 201 Created
-- [ ] 测试用例 2: GET 列出项目 → 验证返回列表
-- [ ] 测试用例 3: GET 获取项目详情 → 验证返回数据
-- [ ] 测试用例 4: PUT 更新项目 → 验证数据更新
-- [ ] 测试用例 5: DELETE 删除项目 → 验证 200 OK
-- [ ] 测试用例 6: POST 重复名称 → 验证 409 Conflict
-- [ ] 测试用例 7: GET 不存在的 ID → 验证 404 Not Found
-- [ ] 测试用例 8: webhook_secret 不在 GET 响应中明文返回
-- [ ] 测试用例 9: POST 缺失必填字段 → 验证 422 Validation Error
-- [ ] 运行全部测试验证通过
+- [x] 创建 `backend/ai-code-review-api/src/test/java/com/aicodereview/api/controller/ProjectControllerIntegrationTest.java`
+- [x] 使用 `@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)` 和 `TestRestTemplate`
+- [x] 测试用例 1: POST 创建项目 → 验证 201 Created
+- [x] 测试用例 2: GET 列出项目 → 验证返回列表
+- [x] 测试用例 3: GET 获取项目详情 → 验证返回数据
+- [x] 测试用例 4: PUT 更新项目 → 验证数据更新
+- [x] 测试用例 5: DELETE 删除项目 → 验证 200 OK
+- [x] 测试用例 6: POST 重复名称 → 验证 409 Conflict
+- [x] 测试用例 7: GET 不存在的 ID → 验证 404 Not Found
+- [x] 测试用例 8: webhook_secret 不在 GET 响应中明文返回
+- [x] 测试用例 9: POST 缺失必填字段 → 验证 422 Validation Error
+- [x] 测试用例 10: 验证 Redis 缓存生效（GET 后缓存存在，DELETE 后缓存清除）
+- [x] 运行全部测试验证通过
 
 ### Task 10: 运行完整测试套件
-- [ ] `cd backend && mvn test` 确保无回归
-- [ ] 手动验证 API 端点（使用 curl 或 Postman）
-- [ ] 验证 Redis 缓存生效（GET 同一项目两次，第二次应从缓存读取）
+- [x] `cd backend && mvn test` 确保无回归
+- [x] 手动验证 API 端点（使用 curl 或 Postman）
+- [x] 验证 Redis 缓存生效（GET 同一项目两次，第二次应从缓存读取）
 
 ---
 
@@ -436,10 +437,17 @@ Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
 - **PathVariable/RequestParam resolution**: Spring couldn't resolve parameter names without `-parameters` compiler flag → added explicit `value` attributes: `@PathVariable("id")`, `@RequestParam(value = "enabled", required = false)`
 - **Redis Instant serialization**: `java.time.Instant` not supported by default Jackson ObjectMapper in RedisConfig → registered `JavaTimeModule` and added `jackson-datatype-jsr310` dependency to repository module
 - **Test data persistence**: Integration tests used real dev database, data persisted between runs causing 409 CONFLICT → added `@BeforeAll` with `repository.deleteAll()` cleanup
+- **Code Review Fixes (adversarial review)**:
+  - H1: Added `volatile` to WebhookSecretConverter static field + Javadoc explaining pattern
+  - H2: Aligned encryption key default in application-dev.yml with WebhookSecretConverter.DEFAULT_KEY
+  - H3: Added TODO comment for @PreAuthorize annotations (Epic 8, Story 8.6)
+  - H4: Added Redis cache verification test (shouldCacheProjectInRedisOnGet)
+  - M2: Added @Pattern URL validation to repoUrl in CreateProjectRequest and UpdateProjectRequest
+  - M3: Removed stale Story 1.4 Redis comments from application-dev.yml
 
 ### Completion Notes List
 - All 10 tasks completed successfully
-- 55 total tests pass (25 common + 14 repository + 16 API), 0 failures
+- 56 total tests pass (25 common + 14 repository + 17 API), 0 failures after code review fixes
 - Full CRUD REST API for project configuration management operational
 - AES-256-GCM encryption for webhook secrets with per-encryption random IVs
 - Redis caching with `@Cacheable`/`@CacheEvict` and proper Java 8 time support

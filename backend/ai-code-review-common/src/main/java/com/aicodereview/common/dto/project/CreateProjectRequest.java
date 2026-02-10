@@ -32,6 +32,7 @@ public class CreateProjectRequest {
 
     @NotBlank(message = "Repository URL is required")
     @Size(max = 500, message = "Repository URL must not exceed 500 characters")
+    @Pattern(regexp = "^https?://.+", message = "Repository URL must start with http:// or https://")
     private String repoUrl;
 
     @NotBlank(message = "Webhook secret is required")

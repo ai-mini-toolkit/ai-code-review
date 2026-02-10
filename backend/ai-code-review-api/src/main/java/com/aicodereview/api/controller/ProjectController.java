@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// TODO: Add @PreAuthorize annotations when spring-boot-starter-security is introduced (Epic 8, Story 8.6)
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/projects")

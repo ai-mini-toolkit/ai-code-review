@@ -10,13 +10,19 @@ import org.springframework.stereotype.Component;
 /**
  * JPA AttributeConverter that encrypts/decrypts webhook secrets transparently.
  * Uses AES-256-GCM encryption via EncryptionUtil.
+ *
+ * <p>NOTE: Uses static field pattern because Hibernate may instantiate converters
+ * directly via {@code new}. The {@code @Component} annotation ensures Spring creates
+ * a managed instance first, setting the static key via {@code @Value}. The static
+ * fallback in {@code getKey()} ensures the converter works even if Spring injection
+ * hasn't occurred yet (e.g., during Flyway migration or test context startup).</p>
  */
 @Slf4j
 @Component
 @Converter
 public class WebhookSecretConverter implements AttributeConverter<String, String> {
 
-    private static String encryptionKey;
+    private static volatile String encryptionKey;
 
     private static final String DEFAULT_KEY = "default-dev-key-32chars-warning!";
 

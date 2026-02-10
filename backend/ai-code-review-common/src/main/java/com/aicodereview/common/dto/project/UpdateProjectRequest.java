@@ -28,6 +28,7 @@ public class UpdateProjectRequest {
     private String gitPlatform;
 
     @Size(max = 500, message = "Repository URL must not exceed 500 characters")
+    @Pattern(regexp = "^https?://.+", message = "Repository URL must start with http:// or https://")
     private String repoUrl;
 
     private String webhookSecret;
