@@ -32,6 +32,13 @@
             <artifactId>ai-code-review-integration</artifactId>
         </dependency>
 
+        <!-- Handlebars.java Mustache Template Engine -->
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+
         <!-- Spring Context -->
         <dependency>
             <groupId>org.springframework</groupId>

@@ -4,6 +4,7 @@ import com.aicodereview.common.dto.ApiResponse;
 import com.aicodereview.common.dto.ErrorCode;
 import com.aicodereview.common.exception.DuplicateResourceException;
 import com.aicodereview.common.exception.ResourceNotFoundException;
+import com.aicodereview.common.exception.TemplateSyntaxException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,6 +69,18 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(TemplateSyntaxException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTemplateSyntaxError(TemplateSyntaxException ex) {
+        log.warn("Template syntax error: {}", ex.getMessage());
+        ApiResponse<Void> response = ApiResponse.error(
+                ErrorCode.VALIDATION_ERROR,
+                ex.getMessage()
+        );
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(response);
     }
 
