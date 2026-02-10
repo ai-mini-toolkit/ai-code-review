@@ -66,9 +66,33 @@
       }
     },
     {
-      "title": "API Response Time (p95)",
+      "title": "Redis Status",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        {
+          "expr": "redis_connected_clients",
+          "legendFormat": "Connected Clients"
+        },
+        {
+          "expr": "rate(redis_commands_processed_total[1m])",
+          "legendFormat": "Commands/s"
+        },
+        {
+          "expr": "redis_memory_used_bytes / 1024 / 1024",
+          "legendFormat": "Memory Used (MB)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "API Response Time (p95)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
       "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "targets": [
         {

@@ -41,10 +41,9 @@ class MonitoringIntegrationTest {
 
     @Test
     @Order(2)
-    @DisplayName("GET /actuator/health includes systemHealth component")
+    @DisplayName("GET /actuator/health returns UP status with all components healthy")
     @SuppressWarnings("unchecked")
-    void shouldIncludeSystemHealthIndicator() {
-        // Use admin credentials or direct access depending on show-details config
+    void shouldReturnHealthyStatus() {
         ResponseEntity<Map> response = restTemplate.getForEntity(
                 "/actuator/health", Map.class);
 

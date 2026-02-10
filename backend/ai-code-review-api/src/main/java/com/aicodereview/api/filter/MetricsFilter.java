@@ -1,8 +1,6 @@
 package com.aicodereview.api.filter;
 
-import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -50,19 +48,12 @@ public class MetricsFilter implements Filter {
             String status = String.valueOf(httpResponse.getStatus());
             String endpoint = normalizeEndpoint(uri);
 
-            Counter.builder("api_requests_total")
-                    .description("Total API requests")
-                    .tag("endpoint", endpoint)
-                    .tag("method", method)
-                    .tag("status", status)
-                    .register(meterRegistry)
+            meterRegistry.counter("api_requests_total",
+                    "endpoint", endpoint, "method", method, "status", status)
                     .increment();
 
-            Timer.builder("api_response_time_seconds")
-                    .description("API response time")
-                    .tag("endpoint", endpoint)
-                    .tag("method", method)
-                    .register(meterRegistry)
+            meterRegistry.timer("api_response_time_seconds",
+                    "endpoint", endpoint, "method", method)
                     .record(duration);
         }
     }

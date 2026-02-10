@@ -16,6 +16,7 @@ public class CorrelationIdFilter implements Filter {
 
     public static final String REQUEST_ID_HEADER = "X-Request-Id";
     public static final String MDC_REQUEST_ID = "requestId";
+    private static final int MAX_REQUEST_ID_LENGTH = 64;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -28,7 +29,7 @@ public class CorrelationIdFilter implements Filter {
         }
 
         String requestId = httpRequest.getHeader(REQUEST_ID_HEADER);
-        if (requestId == null || requestId.isBlank()) {
+        if (requestId == null || requestId.isBlank() || requestId.length() > MAX_REQUEST_ID_LENGTH) {
             requestId = UUID.randomUUID().toString();
         }
 
