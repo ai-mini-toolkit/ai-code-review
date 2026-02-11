@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation of ReviewTaskService for managing code review tasks.
@@ -64,6 +65,15 @@ public class ReviewTaskServiceImpl implements ReviewTaskService {
                     log.warn("Project not found with ID: {}", request.getProjectId());
                     return new ResourceNotFoundException("Project", "id", request.getProjectId());
                 });
+
+        // Step 1.5: Check for duplicate task (same project + commit)
+        Optional<ReviewTask> existingTask = reviewTaskRepository
+                .findByProjectIdAndCommitHash(request.getProjectId(), request.getCommitHash());
+        if (existingTask.isPresent()) {
+            log.info("Task already exists for project {} and commit {} (task ID: {})",
+                    request.getProjectId(), request.getCommitHash(), existingTask.get().getId());
+            return ReviewTaskMapper.toDTO(existingTask.get());
+        }
 
         // Step 2: Determine priority based on task type
         TaskPriority priority = determinePriority(request.getTaskType());
@@ -144,6 +154,12 @@ public class ReviewTaskServiceImpl implements ReviewTaskService {
         ReviewTask task = reviewTaskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ReviewTask", "id", id));
 
+        // Validate state transition: only PENDING tasks can be started
+        if (task.getStatus() != TaskStatus.PENDING) {
+            throw new IllegalStateException(
+                    "Cannot start task " + id + ": expected status PENDING, but was " + task.getStatus());
+        }
+
         // Update status and set started timestamp
         task.setStatus(TaskStatus.RUNNING);
         task.setStartedAt(Instant.now());
@@ -162,6 +178,12 @@ public class ReviewTaskServiceImpl implements ReviewTaskService {
         ReviewTask task = reviewTaskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ReviewTask", "id", id));
 
+        // Validate state transition: only RUNNING tasks can be completed
+        if (task.getStatus() != TaskStatus.RUNNING) {
+            throw new IllegalStateException(
+                    "Cannot complete task " + id + ": expected status RUNNING, but was " + task.getStatus());
+        }
+
         // Update status and set completed timestamp
         task.setStatus(TaskStatus.COMPLETED);
         task.setCompletedAt(Instant.now());
@@ -179,6 +201,12 @@ public class ReviewTaskServiceImpl implements ReviewTaskService {
 
         ReviewTask task = reviewTaskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ReviewTask", "id", id));
+
+        // Validate state transition: only RUNNING tasks can fail
+        if (task.getStatus() != TaskStatus.RUNNING) {
+            throw new IllegalStateException(
+                    "Cannot fail task " + id + ": expected status RUNNING, but was " + task.getStatus());
+        }
 
         // Increment retry count
         task.setRetryCount(task.getRetryCount() + 1);

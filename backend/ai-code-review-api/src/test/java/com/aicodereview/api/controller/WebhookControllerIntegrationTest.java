@@ -6,6 +6,13 @@ package com.aicodereview.api.controller;
 // import static io.restassured.RestAssured.given;
 // import static org.hamcrest.Matchers.*;
 
+import com.aicodereview.common.enums.TaskStatus;
+import com.aicodereview.common.enums.TaskType;
+import com.aicodereview.repository.ProjectRepository;
+import com.aicodereview.repository.ReviewTaskRepository;
+import com.aicodereview.repository.entity.Project;
+import com.aicodereview.repository.entity.ReviewTask;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +28,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,6 +56,17 @@ class WebhookControllerIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private ReviewTaskRepository reviewTaskRepository;
+
+    private static final String GITHUB_REPO_URL = "https://github.com/user/test-repo";
+    private static final String GITLAB_REPO_URL = "https://gitlab.com/user/test-project";
+
+    private static boolean setupComplete = false;
+
     @BeforeEach
     void setUp() {
         // Configure RestTemplate to not throw exceptions for error status codes
@@ -59,6 +78,36 @@ class WebhookControllerIntegrationTest {
                 return false;
             }
         });
+
+        // Set up test projects once
+        if (!setupComplete) {
+            // Clean up any existing data
+            reviewTaskRepository.deleteAll();
+            projectRepository.deleteAll();
+
+            // Create test projects matching webhook repo URLs
+            Project githubProject = Project.builder()
+                    .name("Test GitHub Repo")
+                    .description("Test project for GitHub webhooks")
+                    .enabled(true)
+                    .gitPlatform("github")
+                    .repoUrl(GITHUB_REPO_URL)
+                    .webhookSecret("test-github-secret")
+                    .build();
+            projectRepository.save(githubProject);
+
+            Project gitlabProject = Project.builder()
+                    .name("Test GitLab Project")
+                    .description("Test project for GitLab webhooks")
+                    .enabled(true)
+                    .gitPlatform("gitlab")
+                    .repoUrl(GITLAB_REPO_URL)
+                    .webhookSecret("test-gitlab-token")
+                    .build();
+            projectRepository.save(gitlabProject);
+
+            setupComplete = true;
+        }
 
         // TODO: Configure RestAssured port when dependency is available
         // RestAssured.port = port;
@@ -93,10 +142,15 @@ class WebhookControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /api/webhook/github - valid HMAC-SHA256 signature should return 202")
+    @DisplayName("POST /api/webhook/github - valid HMAC-SHA256 signature should return 202 and create task")
     void testGitHubWebhook_ValidSignature_Returns202() {
-        // Given: Valid GitHub webhook payload
-        String payload = "{\"ref\":\"refs/heads/main\",\"repository\":{\"name\":\"test-repo\",\"full_name\":\"user/test-repo\"},\"pusher\":{\"name\":\"testuser\"}}";
+        // Given: Valid GitHub webhook payload with complete repository info
+        String payload = String.format(
+                "{\"ref\":\"refs/heads/main\",\"after\":\"abc123def456\"," +
+                "\"repository\":{\"name\":\"test-repo\",\"full_name\":\"user/test-repo\",\"html_url\":\"%s\"}," +
+                "\"pusher\":{\"name\":\"testuser\"}}",
+                GITHUB_REPO_URL
+        );
         String secret = "test-github-secret";
 
         // Calculate HMAC-SHA256 signature (GitHub format)
@@ -120,6 +174,17 @@ class WebhookControllerIntegrationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         assertThat(response.getBody()).contains("\"success\":true");
         assertThat(response.getBody()).contains("Webhook received and task enqueued");
+
+        // And: Review task should be created in database
+        List<ReviewTask> tasks = reviewTaskRepository.findByRepoUrl(GITHUB_REPO_URL);
+        assertThat(tasks).isNotEmpty();
+        ReviewTask task = tasks.get(tasks.size() - 1); // Get most recent task
+        assertThat(task.getTaskType()).isEqualTo(TaskType.PUSH);
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.PENDING);
+        assertThat(task.getBranch()).isEqualTo("main");
+        assertThat(task.getCommitHash()).isEqualTo("abc123def456");
+        assertThat(task.getAuthor()).isEqualTo("testuser");
+        assertThat(task.getPrNumber()).isNull();
     }
 
     // Note: 401 error response tests are skipped in integration tests due to Java HttpURLConnection limitations
@@ -127,10 +192,67 @@ class WebhookControllerIntegrationTest {
     // Integration tests focus on happy path scenarios (202 Accepted responses).
 
     @Test
-    @DisplayName("POST /api/webhook/gitlab - valid token should return 202")
+    @DisplayName("POST /api/webhook/github - pull request event should create PR task")
+    void testGitHubWebhook_PullRequest_CreatesPRTask() {
+        // Given: Valid GitHub pull request webhook payload
+        String payload = String.format(
+                "{\"action\":\"opened\"," +
+                "\"pull_request\":{" +
+                    "\"number\":42," +
+                    "\"title\":\"Fix bug in auth\"," +
+                    "\"body\":\"This PR fixes authentication issue\"," +
+                    "\"user\":{\"login\":\"contributor\"}," +
+                    "\"head\":{\"ref\":\"feature-branch\",\"sha\":\"pr123abc\"}" +
+                "}," +
+                "\"repository\":{\"name\":\"test-repo\",\"full_name\":\"user/test-repo\",\"html_url\":\"%s\"}}",
+                GITHUB_REPO_URL
+        );
+        String secret = "test-github-secret";
+        String signature = calculateGitHubSignature(payload, secret);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-Hub-Signature-256", signature);
+
+        HttpEntity<String> request = new HttpEntity<>(payload, headers);
+
+        // When: Send webhook request
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "/api/webhook/github",
+                request,
+                String.class
+        );
+
+        // Then: Should return 202 Accepted
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+
+        // And: Review task should be created with PR details
+        List<ReviewTask> tasks = reviewTaskRepository.findByRepoUrl(GITHUB_REPO_URL);
+        ReviewTask prTask = tasks.stream()
+                .filter(t -> t.getTaskType() == TaskType.PULL_REQUEST)
+                .filter(t -> t.getPrNumber() != null && t.getPrNumber() == 42)
+                .findFirst()
+                .orElse(null);
+        assertThat(prTask).isNotNull();
+        assertThat(prTask.getTaskType()).isEqualTo(TaskType.PULL_REQUEST);
+        assertThat(prTask.getPrNumber()).isEqualTo(42);
+        assertThat(prTask.getPrTitle()).isEqualTo("Fix bug in auth");
+        assertThat(prTask.getPrDescription()).isEqualTo("This PR fixes authentication issue");
+        assertThat(prTask.getBranch()).isEqualTo("feature-branch");
+        assertThat(prTask.getCommitHash()).isEqualTo("pr123abc");
+        assertThat(prTask.getAuthor()).isEqualTo("contributor");
+    }
+
+    @Test
+    @DisplayName("POST /api/webhook/gitlab - valid token should return 202 and create task")
     void testGitLabWebhook_ValidToken_Returns202() {
         // Given: Valid GitLab webhook payload
-        String payload = "{\"object_kind\":\"push\",\"project\":{\"name\":\"test-project\",\"path_with_namespace\":\"user/test-project\"},\"user_username\":\"testuser\"}";
+        String payload = String.format(
+                "{\"object_kind\":\"push\",\"ref\":\"refs/heads/develop\",\"after\":\"gitlab789xyz\"," +
+                "\"project\":{\"name\":\"test-project\",\"path_with_namespace\":\"user/test-project\",\"web_url\":\"%s\"}," +
+                "\"user_username\":\"gitlabuser\"}",
+                GITLAB_REPO_URL
+        );
         String token = "test-gitlab-token";
 
         HttpHeaders headers = new HttpHeaders();
@@ -149,6 +271,16 @@ class WebhookControllerIntegrationTest {
         // Then: Should return 202 Accepted
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         assertThat(response.getBody()).contains("\"success\":true");
+
+        // And: Review task should be created in database
+        List<ReviewTask> tasks = reviewTaskRepository.findByRepoUrl(GITLAB_REPO_URL);
+        assertThat(tasks).isNotEmpty();
+        ReviewTask task = tasks.get(tasks.size() - 1); // Get most recent task
+        assertThat(task.getTaskType()).isEqualTo(TaskType.PUSH);
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.PENDING);
+        assertThat(task.getBranch()).isEqualTo("develop");
+        assertThat(task.getCommitHash()).isEqualTo("gitlab789xyz");
+        assertThat(task.getAuthor()).isEqualTo("gitlabuser");
     }
 
     @Test

@@ -122,6 +122,18 @@ public class ProjectServiceImpl implements ProjectService {
         log.info("Project deleted: {}", id);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ProjectDTO findByRepoUrl(String repoUrl) {
+        log.debug("Finding project by repoUrl: {}", repoUrl);
+        Project project = projectRepository.findByRepoUrl(repoUrl)
+                .orElseThrow(() -> {
+                    log.warn("Project not found with repoUrl: {}", repoUrl);
+                    return new ResourceNotFoundException("Project", "repoUrl", repoUrl);
+                });
+        return toDTO(project);
+    }
+
     private ProjectDTO toDTO(Project project) {
         return ProjectDTO.builder()
                 .id(project.getId())

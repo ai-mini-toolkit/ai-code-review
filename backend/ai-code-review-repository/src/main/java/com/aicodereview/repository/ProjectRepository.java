@@ -16,4 +16,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     Optional<Project> findByName(String name);
 
     List<Project> findByEnabled(Boolean enabled);
+
+    Optional<Project> findByRepoUrl(String repoUrl);
 }

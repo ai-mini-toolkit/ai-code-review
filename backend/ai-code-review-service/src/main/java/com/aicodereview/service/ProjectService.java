@@ -20,4 +20,16 @@ public interface ProjectService {
     ProjectDTO updateProject(Long id, UpdateProjectRequest request);
 
     void deleteProject(Long id);
+
+    /**
+     * Finds a project by repository URL.
+     * <p>
+     * Used by webhook processing to identify which project the webhook belongs to.
+     * </p>
+     *
+     * @param repoUrl the repository URL
+     * @return the project DTO
+     * @throws ResourceNotFoundException if project with given repoUrl does not exist
+     */
+    ProjectDTO findByRepoUrl(String repoUrl);
 }

@@ -372,7 +372,7 @@ public class WebhookController {
         } catch (Exception e) {
             // Unexpected error during task creation
             log.error("Failed to create review task for platform: {}, error: {}", platform, e.getMessage(), e);
-            throw new RuntimeException("Failed to create review task: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to create review task", e);
         }
     }
 
@@ -537,8 +537,8 @@ public class WebhookController {
                     yield author;
                 } catch (Exception e) {
                     log.error("Failed to extract author from CodeCommit event: {}", e.getMessage(), e);
-                    if (e instanceof IllegalArgumentException) {
-                        throw e;
+                    if (e instanceof IllegalArgumentException iae) {
+                        throw iae;
                     }
                     throw new IllegalArgumentException("Invalid CodeCommit webhook payload: unable to extract author", e);
                 }
