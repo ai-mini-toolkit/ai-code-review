@@ -54,8 +54,8 @@ development_status:
   epic-1-retrospective: done
 
   # Epic 2: Webhook 集成与任务队列 (Webhook Integration & Task Queue)
-  epic-2: backlog
-  2-1-webhook-verification-abstraction: backlog
+  epic-2: in-progress
+  2-1-webhook-verification-abstraction: review
   2-2-github-webhook-signature-verification: backlog
   2-3-gitlab-aws-codecommit-webhook-verification: backlog
   2-4-webhook-receiving-controller: backlog
