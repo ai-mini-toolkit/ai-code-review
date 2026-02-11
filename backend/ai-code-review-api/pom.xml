@@ -31,6 +31,10 @@
             <groupId>com.aicodereview</groupId>
             <artifactId>ai-code-review-service</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.aicodereview</groupId>
+            <artifactId>ai-code-review-integration</artifactId>
+        </dependency>
 
         <!-- Spring Boot Web -->
         <dependency>

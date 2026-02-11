@@ -58,7 +58,7 @@ development_status:
   2-1-webhook-verification-abstraction: done
   2-2-github-webhook-signature-verification: done
   2-3-gitlab-aws-codecommit-webhook-verification: in-progress
-  2-4-webhook-receiving-controller: backlog
+  2-4-webhook-receiving-controller: review
   2-5-code-review-task-creation-persistence: backlog
   2-6-redis-priority-queue-management: backlog
   2-7-task-retry-mechanism: backlog

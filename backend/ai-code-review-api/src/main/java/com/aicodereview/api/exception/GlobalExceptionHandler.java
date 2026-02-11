@@ -22,6 +22,19 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(com.fasterxml.jackson.core.JsonProcessingException.class)
+    public ResponseEntity<ApiResponse<Void>> handleJsonProcessingException(com.fasterxml.jackson.core.JsonProcessingException ex) {
+        log.warn("JSON processing error: {}", ex.getMessage());
+        ApiResponse<Void> response = ApiResponse.error(
+                ErrorCode.VALIDATION_ERROR,
+                "Invalid JSON payload: " + ex.getMessage(),
+                null
+        );
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
         log.error("Unhandled exception occurred", ex);
