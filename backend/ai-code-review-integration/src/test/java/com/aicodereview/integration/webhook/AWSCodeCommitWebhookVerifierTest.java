@@ -151,6 +151,8 @@ class AWSCodeCommitWebhookVerifierTest {
         String payload = "{"
                 + "\"Type\":\"Notification\","
                 + "\"MessageId\":\"test-id\","
+                + "\"SignatureVersion\":\"1\","
+                + "\"Signature\":\"dGVzdA==\","
                 + "\"SigningCertURL\":\"https://evil.com/cert.pem\""
                 + "}";
         String signature = "signature";
@@ -192,32 +194,86 @@ class AWSCodeCommitWebhookVerifierTest {
         assertThat(result).isFalse();
     }
 
-    @Test
-    @DisplayName("verify - SigningCertURL with valid AWS domain should be accepted")
-    void testVerify_ValidAWSCertURL_IsAccepted() {
-        // This test verifies URL validation logic passes for valid AWS domains
-        // Actual signature verification would fail due to missing/invalid signature,
-        // but URL validation should pass
+    // --- Direct URL validation tests (isValidAWSCertURL) ---
 
-        // Given: Valid AWS SNS certificate URL
+    @Test
+    @DisplayName("isValidAWSCertURL - valid SNS HTTPS URL should return true")
+    void testIsValidAWSCertURL_ValidSNSUrl_ReturnsTrue() {
+        assertThat(verifier.isValidAWSCertURL("https://sns.us-east-1.amazonaws.com/cert.pem")).isTrue();
+    }
+
+    @Test
+    @DisplayName("isValidAWSCertURL - valid SNS China region URL should return true")
+    void testIsValidAWSCertURL_ValidChinaRegionUrl_ReturnsTrue() {
+        assertThat(verifier.isValidAWSCertURL("https://sns.cn-north-1.amazonaws.com.cn/cert.pem")).isTrue();
+    }
+
+    @Test
+    @DisplayName("isValidAWSCertURL - HTTP protocol should be rejected")
+    void testIsValidAWSCertURL_HttpProtocol_ReturnsFalse() {
+        // HTTP is vulnerable to MITM attacks - must require HTTPS
+        assertThat(verifier.isValidAWSCertURL("http://sns.us-east-1.amazonaws.com/cert.pem")).isFalse();
+    }
+
+    @Test
+    @DisplayName("isValidAWSCertURL - spoofed domain (evil-amazonaws.com) should be rejected")
+    void testIsValidAWSCertURL_SpoofedDomain_ReturnsFalse() {
+        // Domain suffix attack: evil-amazonaws.com ends with .amazonaws.com but is not AWS
+        assertThat(verifier.isValidAWSCertURL("https://sns.us-east-1.evil-amazonaws.com/cert.pem")).isFalse();
+    }
+
+    @Test
+    @DisplayName("isValidAWSCertURL - non-SNS AWS subdomain should be rejected")
+    void testIsValidAWSCertURL_NonSNSSubdomain_ReturnsFalse() {
+        assertThat(verifier.isValidAWSCertURL("https://s3.us-east-1.amazonaws.com/cert.pem")).isFalse();
+    }
+
+    @Test
+    @DisplayName("isValidAWSCertURL - null URL should return false")
+    void testIsValidAWSCertURL_NullUrl_ReturnsFalse() {
+        assertThat(verifier.isValidAWSCertURL(null)).isFalse();
+    }
+
+    // --- SignatureVersion validation tests ---
+
+    @Test
+    @DisplayName("verify - missing SignatureVersion field should return false")
+    void testVerify_MissingSignatureVersion_ReturnsFalse() {
+        // Given: SNS message without SignatureVersion
         String payload = "{"
                 + "\"Type\":\"Notification\","
                 + "\"MessageId\":\"test-id\","
-                + "\"TopicArn\":\"arn:aws:sns:us-east-1:123456789012:test\","
-                + "\"Message\":\"test message\","
-                + "\"Timestamp\":\"2026-01-15T10:00:00.000Z\","
-                + "\"SignatureVersion\":\"1\","
-                + "\"Signature\":\"invalid-signature-for-testing\","
+                + "\"Signature\":\"dGVzdA==\","
                 + "\"SigningCertURL\":\"https://sns.us-east-1.amazonaws.com/cert.pem\""
                 + "}";
-        String signature = "not-used-payload-contains-signature";
+        String signature = "signature";
         String secret = "not-used";
 
         // When
         boolean result = verifier.verify(payload, signature, secret);
 
-        // Then: Should pass URL validation but fail on signature verification
-        // (returns false but for signature reason, not URL reason)
+        // Then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("verify - unsupported SignatureVersion '3' should return false")
+    void testVerify_UnsupportedSignatureVersion_ReturnsFalse() {
+        // Given: SNS message with unsupported version
+        String payload = "{"
+                + "\"Type\":\"Notification\","
+                + "\"MessageId\":\"test-id\","
+                + "\"SignatureVersion\":\"3\","
+                + "\"Signature\":\"dGVzdA==\","
+                + "\"SigningCertURL\":\"https://sns.us-east-1.amazonaws.com/cert.pem\""
+                + "}";
+        String signature = "signature";
+        String secret = "not-used";
+
+        // When
+        boolean result = verifier.verify(payload, signature, secret);
+
+        // Then
         assertThat(result).isFalse();
     }
 }

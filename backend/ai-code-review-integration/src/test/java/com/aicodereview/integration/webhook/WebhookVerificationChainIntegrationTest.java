@@ -88,10 +88,12 @@ class WebhookVerificationChainIntegrationTest {
     @Test
     @DisplayName("verify - AWS CodeCommit platform should route to AWSCodeCommitWebhookVerifier")
     void testVerify_CodeCommitPlatform_RoutesToRealVerifier() {
-        // Given: AWS SNS message payload (structure validated, signature verification returns false for now)
+        // Given: AWS SNS message payload with all required fields
         String payload = "{"
                 + "\"Type\":\"Notification\","
                 + "\"MessageId\":\"test-id\","
+                + "\"SignatureVersion\":\"1\","
+                + "\"Signature\":\"dGVzdA==\","
                 + "\"SigningCertURL\":\"https://sns.us-east-1.amazonaws.com/cert.pem\""
                 + "}";
         String signature = "base64-signature";

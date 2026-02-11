@@ -65,15 +65,12 @@ import java.net.URL;
 public class AWSCodeCommitWebhookVerifier implements WebhookVerifier {
 
     private static final String PLATFORM_NAME = "codecommit";
-    private static final String[] VALID_CERT_DOMAINS = {
-        ".amazonaws.com",
-        ".amazonaws.com.cn"
-    };
     private static final String[] SUPPORTED_MESSAGE_TYPES = {
         "Notification",
         "SubscriptionConfirmation",
         "UnsubscribeConfirmation"
     };
+    private static final String[] SUPPORTED_SIGNATURE_VERSIONS = {"1", "2"};
 
     // ObjectMapper is thread-safe and can be reused
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -118,6 +115,19 @@ public class AWSCodeCommitWebhookVerifier implements WebhookVerifier {
             // Validate message type is supported
             if (!isSupportedMessageType(messageType)) {
                 log.warn("AWS CodeCommit webhook verification failed: unsupported message type: {}", messageType);
+                return false;
+            }
+
+            // Validate SignatureVersion and Signature fields exist
+            if (!snsMessage.has("SignatureVersion") || !snsMessage.has("Signature")) {
+                log.warn("AWS CodeCommit webhook verification failed: missing required fields (SignatureVersion or Signature)");
+                return false;
+            }
+
+            // Validate SignatureVersion is supported (1 or 2)
+            String signatureVersion = snsMessage.get("SignatureVersion").asText();
+            if (!isSupportedSignatureVersion(signatureVersion)) {
+                log.warn("AWS CodeCommit webhook verification failed: unsupported SignatureVersion: {}", signatureVersion);
                 return false;
             }
 
@@ -166,36 +176,59 @@ public class AWSCodeCommitWebhookVerifier implements WebhookVerifier {
     }
 
     /**
-     * Validates that the signing certificate URL is from a legitimate AWS domain.
+     * Validates that the signing certificate URL is from a legitimate AWS SNS domain.
      * <p>
      * This prevents SSRF attacks by ensuring certificates are only downloaded
-     * from trusted AWS domains.
+     * from trusted AWS SNS domains over HTTPS.
+     * </p>
+     * <p>
+     * Valid URL pattern: {@code https://sns.<region>.amazonaws.com[.cn]/...}
      * </p>
      *
      * @param certURL the certificate URL from SNS message
-     * @return {@code true} if URL is from valid AWS domain, {@code false} otherwise
+     * @return {@code true} if URL is from valid AWS SNS domain via HTTPS, {@code false} otherwise
      */
-    private boolean isValidAWSCertURL(String certURL) {
+    boolean isValidAWSCertURL(String certURL) {
         if (certURL == null || certURL.isBlank()) {
             return false;
         }
 
         try {
             URL url = new URL(certURL);
-            String host = url.getHost();
 
-            // Check if host ends with valid AWS domain
-            for (String validDomain : VALID_CERT_DOMAINS) {
-                if (host.endsWith(validDomain)) {
-                    return true;
-                }
+            // Must use HTTPS protocol to prevent MITM attacks
+            if (!"https".equalsIgnoreCase(url.getProtocol())) {
+                log.warn("AWS SNS certificate URL must use HTTPS protocol");
+                return false;
             }
 
-            return false;
+            String host = url.getHost();
+
+            // Must match sns.<region>.amazonaws.com or sns.<region>.amazonaws.com.cn
+            // This prevents domain spoofing (e.g., evil-amazonaws.com)
+            return host.matches("sns\\.[a-z0-9-]+\\.amazonaws\\.com(\\.cn)?");
         } catch (Exception e) {
-            log.debug("Invalid certificate URL format: {}", certURL, e);
+            log.debug("Invalid certificate URL format: {}", maskSensitiveURL(certURL), e);
             return false;
         }
+    }
+
+    /**
+     * Checks if the signature version is supported.
+     *
+     * @param version the SignatureVersion field from SNS message
+     * @return {@code true} if version is supported ("1" or "2"), {@code false} otherwise
+     */
+    private boolean isSupportedSignatureVersion(String version) {
+        if (version == null) {
+            return false;
+        }
+        for (String supported : SUPPORTED_SIGNATURE_VERSIONS) {
+            if (supported.equals(version)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
