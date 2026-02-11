@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * GitHub Webhook signature verifier implementing HMAC-SHA256 validation.
@@ -33,15 +35,17 @@ import java.nio.charset.StandardCharsets;
  *
  * <h3>Usage Example:</h3>
  * <pre>{@code
+ * // Controller is responsible for extracting header and routing to verifier
  * @Autowired
  * private WebhookVerificationChain verificationChain;
  *
- * String platform = "github";
- * String payload = request.getBody();  // Raw JSON body
+ * // 1. Extract signature from request header (controller's responsibility)
  * String signature = request.getHeader("X-Hub-Signature-256");
+ * String payload = request.getBody();  // Raw JSON body
  * String secret = project.getWebhookSecret();
  *
- * boolean isValid = verificationChain.verify(platform, payload, signature, secret);
+ * // 2. Verify signature using the chain (routes to GitHubWebhookVerifier)
+ * boolean isValid = verificationChain.verify("github", payload, signature, secret);
  * if (!isValid) {
  *     return ResponseEntity.status(401).body("Invalid webhook signature");
  * }
@@ -90,7 +94,7 @@ public class GitHubWebhookVerifier implements WebhookVerifier {
         // Validate signature format
         if (signature.isEmpty() || !signature.startsWith(SIGNATURE_PREFIX)) {
             log.warn("GitHub webhook signature has invalid format: expected 'sha256=<hex>', got prefix: {}",
-                    signature.isEmpty() ? "(empty)" : signature.substring(0, Math.min(7, signature.length())));
+                    signature.isEmpty() ? "(empty)" : signature.substring(0, Math.min(20, signature.length())));
             return false;
         }
 
@@ -105,7 +109,7 @@ public class GitHubWebhookVerifier implements WebhookVerifier {
         boolean isValid = CryptoUtils.constantTimeEquals(expectedSignature, signature);
 
         if (isValid) {
-            log.info("GitHub webhook verification succeeded");
+            log.debug("GitHub webhook verification succeeded");
         } else {
             log.warn("GitHub webhook verification failed: signature mismatch");
         }
@@ -147,7 +151,7 @@ public class GitHubWebhookVerifier implements WebhookVerifier {
             // Convert to lowercase hexadecimal string (GitHub uses lowercase)
             String hex = bytesToHex(hmacBytes);
             return SIGNATURE_PREFIX + hex;
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             log.error("Failed to compute HMAC-SHA256: {}", e.getMessage(), e);
             return null;
         }
@@ -160,7 +164,7 @@ public class GitHubWebhookVerifier implements WebhookVerifier {
      * @return lowercase hexadecimal representation
      */
     private String bytesToHex(byte[] bytes) {
-        StringBuilder hexString = new StringBuilder();
+        StringBuilder hexString = new StringBuilder(bytes.length * 2);
         for (byte b : bytes) {
             String hex = Integer.toHexString(0xff & b);
             if (hex.length() == 1) {

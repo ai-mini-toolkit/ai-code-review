@@ -41,16 +41,17 @@
 ### AC 2: HMAC-SHA256 签名验证算法
 - [x] 使用 `javax.crypto.Mac` 实现 HMAC-SHA256 计算
 - [x] 签名格式：`sha256=<hex_digest>`（GitHub 标准格式）
-- [x] 从 X-Hub-Signature-256 header 提取签名
+- [x] 验证 X-Hub-Signature-256 header 的签名格式（由 Controller 提取并传入）
 - [x] 使用 webhook_secret 作为 HMAC 密钥
 - [x] 使用 `CryptoUtils.constantTimeEquals()` 比较签名（防御时序攻击）
 
-### AC 3: 签名解析与验证流程
-- [x] 解析 X-Hub-Signature-256 header：提取 "sha256=" 前缀后的十六进制摘要
+### AC 3: 签名验证流程
+- [x] 验证签名格式：检查 "sha256=" 前缀存在
 - [x] 计算 HMAC-SHA256(payload, secret)
-- [x] 将计算结果转换为十六进制字符串
+- [x] 将计算结果转换为十六进制字符串并添加 "sha256=" 前缀
 - [x] 使用常量时间比较：`CryptoUtils.constantTimeEquals(expected, actual)`
 - [x] 签名不匹配时返回 false（不抛出异常，由 Chain 处理）
+- [x] 注：签名从 header 提取由 Controller 负责（Story 2.4），本类仅验证格式和计算 HMAC
 
 ### AC 4: 异常处理与错误场景
 - [x] signature 为 null 或空字符串 → 返回 false
@@ -502,5 +503,5 @@ class GitHubWebhookVerifierTest {
 - [x] Javadoc 完整（类、公共方法）
 - [x] 安全检查清单全部通过
 - [x] Spring 自动注入验证（WebhookVerificationChain 能发现 GitHubWebhookVerifier）
-- [ ] 代码已提交到 master 分支并推送到远程仓库
+- [x] 代码已提交到 master 分支并推送到远程仓库
 - [x] Story 状态更新为 "review"（准备代码审查）
