@@ -7,6 +7,13 @@ spring:
 server:
   port: 8080
 
+# Webhook configuration
+webhook:
+  secrets:
+    github: ${WEBHOOK_SECRET_GITHUB:test-github-secret}
+    gitlab: ${WEBHOOK_SECRET_GITLAB:test-gitlab-token}
+    codecommit: ${WEBHOOK_SECRET_CODECOMMIT:not-used-for-sns}
+
 # Actuator endpoints
 management:
   endpoints:

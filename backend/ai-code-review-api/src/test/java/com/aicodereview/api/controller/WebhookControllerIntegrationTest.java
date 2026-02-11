@@ -1,5 +1,11 @@
 package com.aicodereview.api.controller;
 
+// TODO: Uncomment when REST Assured dependency is available
+// import io.restassured.RestAssured;
+// import io.restassured.http.ContentType;
+// import static io.restassured.RestAssured.given;
+// import static org.hamcrest.Matchers.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +23,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+
 
 /**
  * Integration tests for WebhookController with real verifiers.
@@ -51,6 +59,9 @@ class WebhookControllerIntegrationTest {
                 return false;
             }
         });
+
+        // TODO: Configure RestAssured port when dependency is available
+        // RestAssured.port = port;
     }
 
     /**
@@ -163,4 +174,66 @@ class WebhookControllerIntegrationTest {
         assertThat(response.getBody()).contains("\"success\":false");
         assertThat(response.getBody()).contains("Unsupported platform");
     }
+
+    // ========================================
+    // TODO: 401 Tests using RestAssured (when dependency is available)
+    // RestAssured handles 401 responses better than TestRestTemplate
+    // ========================================
+
+    /*
+    @Test
+    @DisplayName("POST /api/webhook/github - invalid signature should return 401 (RestAssured)")
+    void testGitHubWebhook_InvalidSignature_Returns401() {
+        String payload = "{\"ref\":\"refs/heads/main\",\"repository\":{\"name\":\"test-repo\",\"full_name\":\"user/test-repo\"},\"pusher\":{\"name\":\"testuser\"}}";
+        String invalidSignature = "sha256=invalid-signature";
+
+        given()
+                .contentType(ContentType.JSON)
+                .header("X-Hub-Signature-256", invalidSignature)
+                .body(payload)
+        .when()
+                .post("/api/webhook/github")
+        .then()
+                .statusCode(401)
+                .body("success", equalTo(false))
+                .body("error.code", equalTo("ERR_401"))
+                .body("error.message", containsString("Invalid webhook signature"));
+    }
+
+    @Test
+    @DisplayName("POST /api/webhook/github - missing signature header should return 401 (RestAssured)")
+    void testGitHubWebhook_MissingSignature_Returns401() {
+        String payload = "{\"ref\":\"refs/heads/main\",\"repository\":{\"name\":\"test-repo\",\"full_name\":\"user/test-repo\"},\"pusher\":{\"name\":\"testuser\"}}";
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(payload)
+        .when()
+                .post("/api/webhook/github")
+        .then()
+                .statusCode(401)
+                .body("success", equalTo(false))
+                .body("error.code", equalTo("ERR_401"))
+                .body("error.message", containsString("Webhook signature missing"));
+    }
+
+    @Test
+    @DisplayName("POST /api/webhook/gitlab - invalid token should return 401 (RestAssured)")
+    void testGitLabWebhook_InvalidToken_Returns401() {
+        String payload = "{\"object_kind\":\"push\",\"project\":{\"name\":\"test-project\",\"path_with_namespace\":\"user/test-project\"},\"user_username\":\"testuser\"}";
+        String invalidToken = "invalid-token";
+
+        given()
+                .contentType(ContentType.JSON)
+                .header("X-Gitlab-Token", invalidToken)
+                .body(payload)
+        .when()
+                .post("/api/webhook/gitlab")
+        .then()
+                .statusCode(401)
+                .body("success", equalTo(false))
+                .body("error.code", equalTo("ERR_401"))
+                .body("error.message", containsString("Invalid webhook signature"));
+    }
+    */
 }

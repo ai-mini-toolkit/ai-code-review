@@ -118,13 +118,14 @@ class WebhookControllerTest {
         when(verificationChain.verify(eq("github"), eq(malformedPayload), eq(signature), anyString()))
                 .thenReturn(true);
 
-        // When & Then: Should return 422 Unprocessable Entity
+        // When & Then: Should return 422 Unprocessable Entity (handled by GlobalExceptionHandler)
         mockMvc.perform(post("/api/webhook/github")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(malformedPayload)
                         .header("X-Hub-Signature-256", signature))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.success").value(false));
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error.code").value("ERR_422"));
     }
 
     @Test

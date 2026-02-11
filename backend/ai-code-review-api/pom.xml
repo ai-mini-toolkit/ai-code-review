@@ -73,6 +73,15 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- TODO: Add REST Assured when network access to Maven Central is available
+             REST Assured handles 401 responses better than TestRestTemplate
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <scope>test</scope>
+        </dependency>
+        -->
     </dependencies>
 
     <build>

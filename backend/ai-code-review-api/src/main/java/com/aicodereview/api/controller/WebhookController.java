@@ -6,7 +6,10 @@ import com.aicodereview.integration.webhook.WebhookVerificationChain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,13 +48,22 @@ public class WebhookController {
     // Supported platforms
     private static final Set<String> SUPPORTED_PLATFORMS = Set.of("github", "gitlab", "codecommit");
 
-    // ObjectMapper for JSON parsing (thread-safe)
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    // ObjectMapper for JSON parsing (thread-safe, with JavaTimeModule for timestamp support)
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     private final WebhookVerificationChain verificationChain;
 
-    // TODO: Inject ProjectConfigService to fetch webhook secrets from database (Story 1.5)
-    // For now, using hardcoded test secrets in development
+    // Webhook secrets injected from configuration (environment variables or application.yml)
+    @Value("${webhook.secrets.github}")
+    private String githubSecret;
+
+    @Value("${webhook.secrets.gitlab}")
+    private String gitlabSecret;
+
+    @Value("${webhook.secrets.codecommit}")
+    private String codecommitSecret;
 
     /**
      * Constructor injection of dependencies.
@@ -69,12 +81,13 @@ public class WebhookController {
      * @param payload  the raw webhook payload (JSON string)
      * @param headers  all HTTP request headers
      * @return 202 Accepted with acknowledgment message, or error response
+     * @throws JsonProcessingException if payload is not valid JSON (handled by GlobalExceptionHandler)
      */
     @PostMapping("/{platform}")
     public ResponseEntity<ApiResponse<String>> receiveWebhook(
             @PathVariable(value = "platform") String platform,
             @RequestBody String payload,
-            @RequestHeader Map<String, String> headers) {
+            @RequestHeader Map<String, String> headers) throws JsonProcessingException {
 
         log.info("Received webhook from platform: {}", platform);
 
@@ -105,16 +118,8 @@ public class WebhookController {
                             "Invalid webhook signature"));
         }
 
-        // Step 4: Parse JSON payload
-        JsonNode event;
-        try {
-            event = parsePayload(payload);
-        } catch (JsonProcessingException e) {
-            log.warn("Failed to parse webhook payload as JSON: {}", e.getMessage());
-            return ResponseEntity.status(422)
-                    .body(ApiResponse.error(ErrorCode.VALIDATION_ERROR,
-                            "Invalid JSON payload: " + e.getMessage()));
-        }
+        // Step 4: Parse JSON payload (JsonProcessingException handled by GlobalExceptionHandler)
+        JsonNode event = parsePayload(payload);
 
         // Step 5: Validate required fields based on platform
         try {
@@ -153,10 +158,14 @@ public class WebhookController {
      * @return the signature string, or null if not found
      */
     private String extractSignature(String platform, Map<String, String> headers) {
+        if (platform == null) {
+            return null;
+        }
+
         return switch (platform.toLowerCase()) {
             case "github" -> getHeaderCaseInsensitive(headers, GITHUB_SIGNATURE_HEADER);
             case "gitlab" -> getHeaderCaseInsensitive(headers, GITLAB_TOKEN_HEADER);
-            case "codecommit" -> "dummy"; // AWS SNS signature embedded in payload
+            case "codecommit" -> "AWS_SNS_SIGNATURE_IN_PAYLOAD"; // AWS SNS signature embedded in payload
             default -> null;
         };
     }
@@ -179,21 +188,28 @@ public class WebhookController {
     /**
      * Retrieves webhook secret for the given platform.
      * <p>
-     * TODO: Implement database lookup using ProjectConfigService.
-     * For now, returns hardcoded test secrets.
+     * Secrets are injected from configuration (environment variables or application.yml).
+     * This allows different secrets per environment without hardcoding them in source code.
+     * </p>
+     * <p>
+     * Note: Per-project webhook secrets (from Project entity) will be implemented in a future story.
+     * Current implementation uses platform-level secrets which is acceptable for initial deployment.
      * </p>
      *
      * @param platform the platform name (github, gitlab, codecommit)
      * @return the webhook secret for signature verification
+     * @throws IllegalArgumentException if platform is null or secret not configured
      */
     private String getWebhookSecret(String platform) {
-        // TODO: Replace with actual database lookup
-        // return projectConfigService.getWebhookSecret(platform);
+        if (platform == null) {
+            throw new IllegalArgumentException("Platform cannot be null");
+        }
+
         return switch (platform.toLowerCase()) {
-            case "github" -> "test-github-secret";
-            case "gitlab" -> "test-gitlab-token";
-            case "codecommit" -> "not-used-for-sns";
-            default -> null;
+            case "github" -> githubSecret;
+            case "gitlab" -> gitlabSecret;
+            case "codecommit" -> codecommitSecret;
+            default -> throw new IllegalArgumentException("Unsupported platform: " + platform);
         };
     }
 
