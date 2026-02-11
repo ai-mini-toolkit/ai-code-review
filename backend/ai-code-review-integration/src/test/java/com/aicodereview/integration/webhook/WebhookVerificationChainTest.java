@@ -90,15 +90,39 @@ class WebhookVerificationChainTest {
     }
 
     @Test
-    @DisplayName("verify - null platform should throw UnsupportedPlatformException")
+    @DisplayName("verify - null platform should throw IllegalArgumentException")
     void testVerify_NullPlatform_ThrowsException() {
         String payload = "test payload";
         String signature = "some-signature";
         String secret = "some-secret";
 
         assertThatThrownBy(() -> verificationChain.verify(null, payload, signature, secret))
-                .isInstanceOf(UnsupportedPlatformException.class)
-                .hasMessage("Platform not supported: null");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("All parameters must be non-null");
+    }
+
+    @Test
+    @DisplayName("verify - null payload should throw IllegalArgumentException")
+    void testVerify_NullPayload_ThrowsException() {
+        assertThatThrownBy(() -> verificationChain.verify("github", null, "sig", "secret"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("All parameters must be non-null");
+    }
+
+    @Test
+    @DisplayName("verify - null signature should throw IllegalArgumentException")
+    void testVerify_NullSignature_ThrowsException() {
+        assertThatThrownBy(() -> verificationChain.verify("github", "payload", null, "secret"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("All parameters must be non-null");
+    }
+
+    @Test
+    @DisplayName("verify - null secret should throw IllegalArgumentException")
+    void testVerify_NullSecret_ThrowsException() {
+        assertThatThrownBy(() -> verificationChain.verify("github", "payload", "sig", null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("All parameters must be non-null");
     }
 
     @Test
@@ -129,6 +153,19 @@ class WebhookVerificationChainTest {
         assertThatThrownBy(() -> verificationChain.verify("GITHUB", "payload", "sig", "secret"))
                 .isInstanceOf(UnsupportedPlatformException.class)
                 .hasMessage("Platform not supported: GITHUB");
+    }
+
+    @Test
+    @DisplayName("initialization - duplicate platform should throw IllegalStateException")
+    void testInitialization_DuplicatePlatform_ThrowsException() {
+        // Create a second GitHub verifier to simulate duplicate platform registration
+        WebhookVerifier duplicateGitHubVerifier = new MockGitHubVerifier();
+
+        assertThatThrownBy(() -> new WebhookVerificationChain(
+                Arrays.asList(githubVerifier, duplicateGitHubVerifier)
+        ))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Duplicate webhook verifier for platform: github");
     }
 
     // ========================================

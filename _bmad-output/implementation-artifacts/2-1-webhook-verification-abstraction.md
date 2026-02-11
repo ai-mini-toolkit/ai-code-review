@@ -228,6 +228,11 @@ Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
   - **Root Cause**: @Slf4j 注解需要 SLF4J API 支持
   - **Resolution**: 添加依赖后重新编译成功
 
+- **Code Review Fix - Test Failure**: 修复 H2 (null 参数验证) 后，testVerify_NullPlatform_ThrowsException 失败
+  - **Root Cause**: 新增 null 验证逻辑改变了异常类型（IllegalArgumentException 替代 UnsupportedPlatformException）
+  - **Fix**: 更新测试断言期望 IllegalArgumentException，新增 3 个额外 null 参数测试（payload, signature, secret）
+  - **Resolution**: 所有 12 个测试通过
+
 ### Completion Notes List
 
 ✅ **Story 2.1 实现完成** - Webhook 验证抽象层（责任链模式）
@@ -237,15 +242,32 @@ Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
 2. ✅ **WebhookVerificationChain** - 责任链管理器，自动路由到对应平台验证器
 3. ✅ **CryptoUtils.constantTimeEquals()** - 防御时序攻击的常量时间比较工具
 4. ✅ **UnsupportedPlatformException** - 自定义异常，处理不支持平台场景
-5. ✅ **完整单元测试** - 20 个新测试用例，覆盖所有核心逻辑
+5. ✅ **完整单元测试** - 24 个新测试用例，覆盖所有核心逻辑
 
 **测试统计**：
-- **新增测试**: 20 个
+- **新增测试**: 24 个
   - CryptoUtilsTest: 12 个测试
-  - WebhookVerificationChainTest: 8 个测试
+  - WebhookVerificationChainTest: 12 个测试（初始 8 个 + 代码审查新增 4 个）
 - **测试覆盖**: 100% (所有公共方法)
-- **总测试数**: 109 (之前 89 + 新增 20)
+- **总测试数**: 113 (之前 89 + 新增 24)
 - **测试结果**: ✅ 所有测试通过，无回归
+
+**代码审查与修复**：
+- **审查类型**: Adversarial Code Review
+- **审查日期**: 2026-02-11
+- **发现问题**: 8 个 (2 HIGH, 4 MEDIUM, 2 LOW)
+- **修复问题**: 6 个 (2 HIGH, 4 MEDIUM)
+- **已修复 (HIGH)**:
+  - ✅ H1: 添加 duplicate platform 检测，避免 IllegalStateException
+  - ✅ H2: 添加 null 参数验证，增强防御性编程
+- **已修复 (MEDIUM)**:
+  - ✅ M1: 更新 DoD 反映实际分支 (master)
+  - ✅ M2: 修改日志级别，平台列表改为 DEBUG 级别
+  - ✅ M3: 新增 duplicate platform 单元测试
+  - ✅ M4: 确认 HTTP 400 异常映射将在 Story 2.4 实现
+- **延期 (LOW - 可选)**:
+  - L1: serialVersionUID (可选，未来需要时添加)
+  - L2: 注释优化 (可选，当前注释已足够清晰)
 
 **代码质量**：
 - ✅ 详细 Javadoc（接口、类、方法级别）
@@ -272,6 +294,9 @@ Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
 
 **修改文件**：
 - `backend/ai-code-review-integration/pom.xml` - 添加 slf4j-api 依赖
+- `backend/ai-code-review-integration/src/main/java/com/aicodereview/integration/webhook/WebhookVerificationChain.java` - 代码审查修复 (H1, H2, M2)
+- `backend/ai-code-review-integration/src/test/java/com/aicodereview/integration/webhook/WebhookVerificationChainTest.java` - 代码审查修复 (M3, 新增 4 个 null 参数测试)
+- `_bmad-output/implementation-artifacts/2-1-webhook-verification-abstraction.md` - 代码审查修复 (M1, DoD 更新)
 
 ---
 
@@ -369,5 +394,5 @@ public class WebhookVerificationChain {
 - [x] 代码符合命名约定（architecture.md#命名约定）
 - [x] Javadoc 完整（接口、公共方法）
 - [x] 安全检查清单全部通过
-- [ ] 代码已提交到 feature-epic-2 分支（待执行）
+- [x] 代码已提交到 master 分支并推送到远程仓库
 - [x] Story 状态更新为 "review"（准备代码审查）
