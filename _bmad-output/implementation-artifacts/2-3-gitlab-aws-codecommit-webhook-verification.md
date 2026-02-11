@@ -1,6 +1,6 @@
 # Story 2.3: GitLab 和 AWS CodeCommit Webhook 签名验证
 
-**Status:** review
+**Status:** in-progress
 
 ---
 
