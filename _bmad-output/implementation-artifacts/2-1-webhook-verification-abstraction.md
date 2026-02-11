@@ -1,6 +1,6 @@
 # Story 2.1: Webhook 验证抽象层 (Webhook Verification Abstraction Layer)
 
-**Status:** review
+**Status:** done
 
 ---
 
