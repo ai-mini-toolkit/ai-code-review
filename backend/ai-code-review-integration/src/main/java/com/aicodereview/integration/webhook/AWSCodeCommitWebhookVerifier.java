@@ -75,11 +75,8 @@ public class AWSCodeCommitWebhookVerifier implements WebhookVerifier {
         "UnsubscribeConfirmation"
     };
 
-    private final ObjectMapper objectMapper;
-
-    public AWSCodeCommitWebhookVerifier() {
-        this.objectMapper = new ObjectMapper();
-    }
+    // ObjectMapper is thread-safe and can be reused
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * Verifies AWS CodeCommit webhook signature delivered through SNS.
@@ -107,7 +104,7 @@ public class AWSCodeCommitWebhookVerifier implements WebhookVerifier {
 
         try {
             // Parse SNS message JSON
-            JsonNode snsMessage = objectMapper.readTree(payload);
+            JsonNode snsMessage = OBJECT_MAPPER.readTree(payload);
 
             // Validate required fields exist
             if (!snsMessage.has("Type") || !snsMessage.has("SigningCertURL")) {
