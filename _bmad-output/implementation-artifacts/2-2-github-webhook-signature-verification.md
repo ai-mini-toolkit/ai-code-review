@@ -1,6 +1,6 @@
 # Story 2.2: GitHub Webhook 签名验证 (GitHub Webhook Signature Verification)
 
-**Status:** review
+**Status:** done
 
 ---
 
