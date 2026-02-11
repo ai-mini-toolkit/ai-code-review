@@ -14,6 +14,11 @@ webhook:
     gitlab: ${WEBHOOK_SECRET_GITLAB:test-gitlab-token}
     codecommit: ${WEBHOOK_SECRET_CODECOMMIT:not-used-for-sns}
 
+# Review task configuration
+aicodereview:
+  task:
+    max-retries: ${REVIEW_TASK_MAX_RETRIES:3}
+
 # Actuator endpoints
 management:
   endpoints:

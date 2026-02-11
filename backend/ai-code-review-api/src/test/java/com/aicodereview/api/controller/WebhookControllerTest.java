@@ -1,8 +1,16 @@
 package com.aicodereview.api.controller;
 
 import com.aicodereview.common.dto.ErrorCode;
+import com.aicodereview.common.dto.project.ProjectDTO;
+import com.aicodereview.common.dto.reviewtask.ReviewTaskDTO;
+import com.aicodereview.common.enums.TaskPriority;
+import com.aicodereview.common.enums.TaskStatus;
+import com.aicodereview.common.enums.TaskType;
 import com.aicodereview.integration.webhook.WebhookVerificationChain;
+import com.aicodereview.service.ProjectService;
+import com.aicodereview.service.ReviewTaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +18,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -32,11 +42,50 @@ class WebhookControllerTest {
     @MockBean
     private WebhookVerificationChain verificationChain;
 
+    @MockBean
+    private ReviewTaskService reviewTaskService;
+
+    @MockBean
+    private ProjectService projectService;
+
+    @BeforeEach
+    void setUp() {
+        // Mock ProjectService to return valid projects
+        ProjectDTO githubProject = ProjectDTO.builder()
+                .id(1L)
+                .name("Test GitHub Repo")
+                .repoUrl("https://github.com/user/test-repo")
+                .enabled(true)
+                .build();
+
+        ProjectDTO gitlabProject = ProjectDTO.builder()
+                .id(2L)
+                .name("Test GitLab Repo")
+                .repoUrl("https://gitlab.com/user/test-project")
+                .enabled(true)
+                .build();
+
+        when(projectService.findByRepoUrl("https://github.com/user/test-repo")).thenReturn(githubProject);
+        when(projectService.findByRepoUrl("https://gitlab.com/user/test-project")).thenReturn(gitlabProject);
+
+        // Mock ReviewTaskService to return valid tasks
+        ReviewTaskDTO mockTask = ReviewTaskDTO.builder()
+                .id(100L)
+                .projectId(1L)
+                .taskType(TaskType.PUSH)
+                .status(TaskStatus.PENDING)
+                .priority(TaskPriority.NORMAL)
+                .createdAt(Instant.now())
+                .build();
+
+        when(reviewTaskService.createTask(any())).thenReturn(mockTask);
+    }
+
     @Test
     @DisplayName("POST /api/webhook/github - valid signature should return 202 Accepted")
     void testReceiveWebhook_GitHub_ValidSignature_Returns202() throws Exception {
         // Given: Valid GitHub webhook with valid signature
-        String payload = "{\"ref\":\"refs/heads/main\",\"repository\":{\"name\":\"test-repo\",\"full_name\":\"user/test-repo\"},\"pusher\":{\"name\":\"testuser\"}}";
+        String payload = "{\"ref\":\"refs/heads/main\",\"repository\":{\"name\":\"test-repo\",\"full_name\":\"user/test-repo\",\"html_url\":\"https://github.com/user/test-repo\"},\"pusher\":{\"name\":\"testuser\"},\"after\":\"abc123\"}";
         String signature = "sha256=valid-signature";
 
         // Mock verification success
@@ -57,7 +106,7 @@ class WebhookControllerTest {
     @DisplayName("POST /api/webhook/gitlab - valid token should return 202 Accepted")
     void testReceiveWebhook_GitLab_ValidToken_Returns202() throws Exception {
         // Given: Valid GitLab webhook with valid token
-        String payload = "{\"object_kind\":\"push\",\"project\":{\"name\":\"test-project\",\"path_with_namespace\":\"user/test-project\"},\"user_username\":\"testuser\"}";
+        String payload = "{\"object_kind\":\"push\",\"ref\":\"refs/heads/main\",\"project\":{\"name\":\"test-project\",\"path_with_namespace\":\"user/test-project\",\"web_url\":\"https://gitlab.com/user/test-project\"},\"user_username\":\"testuser\",\"after\":\"abc123\"}";
         String token = "test-gitlab-token";
 
         // Mock verification success

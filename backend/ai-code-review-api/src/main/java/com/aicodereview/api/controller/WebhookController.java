@@ -2,7 +2,14 @@ package com.aicodereview.api.controller;
 
 import com.aicodereview.common.dto.ApiResponse;
 import com.aicodereview.common.dto.ErrorCode;
+import com.aicodereview.common.dto.project.ProjectDTO;
+import com.aicodereview.common.dto.reviewtask.CreateReviewTaskRequest;
+import com.aicodereview.common.dto.reviewtask.ReviewTaskDTO;
+import com.aicodereview.common.enums.TaskType;
+import com.aicodereview.common.exception.ResourceNotFoundException;
 import com.aicodereview.integration.webhook.WebhookVerificationChain;
+import com.aicodereview.service.ProjectService;
+import com.aicodereview.service.ReviewTaskService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,6 +61,8 @@ public class WebhookController {
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     private final WebhookVerificationChain verificationChain;
+    private final ReviewTaskService reviewTaskService;
+    private final ProjectService projectService;
 
     // Webhook secrets injected from configuration (environment variables or application.yml)
     @Value("${webhook.secrets.github}")
@@ -69,9 +78,15 @@ public class WebhookController {
      * Constructor injection of dependencies.
      *
      * @param verificationChain the webhook signature verification chain
+     * @param reviewTaskService service for managing review tasks
+     * @param projectService service for project management
      */
-    public WebhookController(WebhookVerificationChain verificationChain) {
+    public WebhookController(WebhookVerificationChain verificationChain,
+                             ReviewTaskService reviewTaskService,
+                             ProjectService projectService) {
         this.verificationChain = verificationChain;
+        this.reviewTaskService = reviewTaskService;
+        this.projectService = projectService;
     }
 
     /**
@@ -287,35 +302,352 @@ public class WebhookController {
     }
 
     /**
-     * Enqueues code review task to Redis.
+     * Creates review task from webhook event and persists to database.
      * <p>
-     * TODO: Will be implemented in Story 2.5 (Redis priority queue).
-     * For now, just logs the task.
+     * Processing steps:
+     * 1. Extract repository URL from event
+     * 2. Find project by repoUrl (throws 404 if not found)
+     * 3. Determine TaskType from platform and event
+     * 4. Extract task details (branch, commitHash, author, PR info)
+     * 5. Create CreateReviewTaskRequest
+     * 6. Call reviewTaskService.createTask() to persist
+     * 7. Log success with task ID
      * </p>
      *
-     * @param platform the platform name
-     * @param event    the parsed event
+     * @param platform the platform name (github, gitlab, codecommit)
+     * @param event    the parsed webhook event
+     * @throws ResourceNotFoundException if project with repoUrl not found (propagated to caller)
+     * @throws RuntimeException if task creation fails (logged and re-thrown)
      */
     private void enqueueTask(String platform, JsonNode event) {
-        // TODO: Implement in Story 2.5 (Redis priority queue)
-        String eventType = extractEventType(platform, event);
-        log.info("Task enqueued for platform: {}, event type: {}", platform, eventType);
+        try {
+            // Step 1: Extract repository URL
+            String repoUrl = extractRepoUrl(platform, event);
+            log.debug("Extracted repoUrl: {} from platform: {}", repoUrl, platform);
+
+            // Step 2: Find project by repoUrl
+            ProjectDTO project;
+            try {
+                project = projectService.findByRepoUrl(repoUrl);
+                log.debug("Found project ID: {} for repoUrl: {}", project.getId(), repoUrl);
+            } catch (ResourceNotFoundException e) {
+                log.warn("Project not found for repoUrl: {}", repoUrl);
+                throw e; // Propagate 404 to controller (will be handled by GlobalExceptionHandler)
+            }
+
+            // Step 3: Determine TaskType from platform and event
+            TaskType taskType = determineTaskType(platform, event);
+            log.debug("Determined taskType: {} for platform: {}", taskType, platform);
+
+            // Step 4: Extract task details
+            String branch = extractBranch(platform, event);
+            String commitHash = extractCommitHash(platform, event);
+            String author = extractAuthor(platform, event);
+            Integer prNumber = extractPrNumber(platform, event);
+            String prTitle = extractPrTitle(platform, event);
+            String prDescription = extractPrDescription(platform, event);
+
+            // Step 5: Build CreateReviewTaskRequest
+            CreateReviewTaskRequest request = CreateReviewTaskRequest.builder()
+                    .projectId(project.getId())
+                    .taskType(taskType)
+                    .repoUrl(repoUrl)
+                    .branch(branch)
+                    .commitHash(commitHash)
+                    .author(author)
+                    .prNumber(prNumber)
+                    .prTitle(prTitle)
+                    .prDescription(prDescription)
+                    .build();
+
+            // Step 6: Create review task
+            ReviewTaskDTO task = reviewTaskService.createTask(request);
+
+            log.info("Review task created successfully - ID: {}, project: {}, type: {}, commit: {}",
+                    task.getId(), project.getName(), taskType, commitHash);
+
+        } catch (ResourceNotFoundException e) {
+            // Project not found - propagate to GlobalExceptionHandler (will return 404)
+            throw e;
+        } catch (Exception e) {
+            // Unexpected error during task creation
+            log.error("Failed to create review task for platform: {}, error: {}", platform, e.getMessage(), e);
+            throw new RuntimeException("Failed to create review task: " + e.getMessage(), e);
+        }
     }
 
     /**
-     * Extracts event type from webhook payload.
+     * Extracts repository URL from webhook event.
      *
      * @param platform the platform name
      * @param event    the parsed event
-     * @return the event type (push, pull_request, merge_request, etc.)
+     * @return the repository URL (normalized)
      */
-    private String extractEventType(String platform, JsonNode event) {
+    private String extractRepoUrl(String platform, JsonNode event) {
         return switch (platform.toLowerCase()) {
-            case "github" -> event.has("pull_request") ? "pull_request" : "push";
-            case "gitlab" -> event.has("object_kind") ?
-                    event.get("object_kind").asText() : "unknown";
-            case "codecommit" -> "codecommit_event";
-            default -> "unknown";
+            case "github" -> event.path("repository").path("html_url").asText();
+            case "gitlab" -> event.path("project").path("web_url").asText();
+            case "codecommit" -> {
+                // CodeCommit events are wrapped in SNS, extract from Message
+                String message = event.path("Message").asText();
+                try {
+                    JsonNode codecommitEvent = OBJECT_MAPPER.readTree(message);
+                    yield codecommitEvent.path("repositoryName").asText();
+                } catch (Exception e) {
+                    log.warn("Failed to parse CodeCommit message: {}", e.getMessage());
+                    yield "";
+                }
+            }
+            default -> "";
+        };
+    }
+
+    /**
+     * Determines TaskType from platform and event structure.
+     *
+     * @param platform the platform name
+     * @param event    the parsed event
+     * @return the TaskType enum value
+     */
+    private TaskType determineTaskType(String platform, JsonNode event) {
+        return switch (platform.toLowerCase()) {
+            case "github" -> event.has("pull_request") ? TaskType.PULL_REQUEST : TaskType.PUSH;
+            case "gitlab" -> {
+                String objectKind = event.path("object_kind").asText();
+                if ("merge_request".equals(objectKind)) {
+                    yield TaskType.MERGE_REQUEST;
+                } else {
+                    yield TaskType.PUSH;
+                }
+            }
+            case "codecommit" -> TaskType.PUSH; // CodeCommit only supports push events
+            default -> TaskType.PUSH;
+        };
+    }
+
+    /**
+     * Extracts branch name from webhook event.
+     *
+     * @param platform the platform name
+     * @param event    the parsed event
+     * @return the branch name
+     */
+    private String extractBranch(String platform, JsonNode event) {
+        return switch (platform.toLowerCase()) {
+            case "github" -> {
+                if (event.has("pull_request")) {
+                    yield event.path("pull_request").path("head").path("ref").asText();
+                } else {
+                    String ref = event.path("ref").asText();
+                    yield ref.startsWith("refs/heads/") ? ref.substring(11) : ref;
+                }
+            }
+            case "gitlab" -> {
+                if (event.has("merge_request")) {
+                    yield event.path("merge_request").path("source_branch").asText();
+                } else {
+                    String ref = event.path("ref").asText();
+                    yield ref.startsWith("refs/heads/") ? ref.substring(11) : ref;
+                }
+            }
+            case "codecommit" -> {
+                String message = event.path("Message").asText();
+                try {
+                    JsonNode codecommitEvent = OBJECT_MAPPER.readTree(message);
+                    String ref = codecommitEvent.path("referenceFullName").asText();
+                    yield ref.startsWith("refs/heads/") ? ref.substring(11) : ref;
+                } catch (Exception e) {
+                    log.error("Failed to extract branch from CodeCommit event: {}", e.getMessage(), e);
+                    throw new IllegalArgumentException("Invalid CodeCommit webhook payload: unable to extract branch", e);
+                }
+            }
+            default -> {
+                log.error("Unsupported platform for branch extraction: {}", platform);
+                throw new IllegalArgumentException("Unsupported platform: " + platform);
+            }
+        };
+    }
+
+    /**
+     * Extracts commit hash from webhook event.
+     *
+     * @param platform the platform name
+     * @param event    the parsed event
+     * @return the commit SHA/hash
+     */
+    private String extractCommitHash(String platform, JsonNode event) {
+        return switch (platform.toLowerCase()) {
+            case "github" -> {
+                if (event.has("pull_request")) {
+                    yield event.path("pull_request").path("head").path("sha").asText();
+                } else {
+                    yield event.path("after").asText();
+                }
+            }
+            case "gitlab" -> {
+                if (event.has("merge_request")) {
+                    yield event.path("merge_request").path("last_commit").path("id").asText();
+                } else {
+                    yield event.path("after").asText();
+                }
+            }
+            case "codecommit" -> {
+                String message = event.path("Message").asText();
+                try {
+                    JsonNode codecommitEvent = OBJECT_MAPPER.readTree(message);
+                    yield codecommitEvent.path("newCommitId").asText();
+                } catch (Exception e) {
+                    log.error("Failed to extract commit hash from CodeCommit event: {}", e.getMessage(), e);
+                    throw new IllegalArgumentException("Invalid CodeCommit webhook payload: unable to extract commit hash", e);
+                }
+            }
+            default -> {
+                log.error("Unsupported platform for commit hash extraction: {}", platform);
+                throw new IllegalArgumentException("Unsupported platform: " + platform);
+            }
+        };
+    }
+
+    /**
+     * Extracts author username from webhook event.
+     *
+     * @param platform the platform name
+     * @param event    the parsed event
+     * @return the author username
+     */
+    private String extractAuthor(String platform, JsonNode event) {
+        return switch (platform.toLowerCase()) {
+            case "github" -> {
+                if (event.has("pull_request")) {
+                    yield event.path("pull_request").path("user").path("login").asText();
+                } else {
+                    yield event.path("pusher").path("name").asText();
+                }
+            }
+            case "gitlab" -> event.path("user_username").asText();
+            case "codecommit" -> {
+                String message = event.path("Message").asText();
+                try {
+                    JsonNode codecommitEvent = OBJECT_MAPPER.readTree(message);
+                    String author = codecommitEvent.path("author").asText();
+                    if (author == null || author.isEmpty()) {
+                        log.error("Author field is missing or empty in CodeCommit event");
+                        throw new IllegalArgumentException("Invalid CodeCommit webhook payload: author field is missing");
+                    }
+                    yield author;
+                } catch (Exception e) {
+                    log.error("Failed to extract author from CodeCommit event: {}", e.getMessage(), e);
+                    if (e instanceof IllegalArgumentException) {
+                        throw e;
+                    }
+                    throw new IllegalArgumentException("Invalid CodeCommit webhook payload: unable to extract author", e);
+                }
+            }
+            default -> {
+                log.error("Unsupported platform for author extraction: {}", platform);
+                throw new IllegalArgumentException("Unsupported platform: " + platform);
+            }
+        };
+    }
+
+    /**
+     * Extracts PR/MR number from webhook event (null for push events).
+     *
+     * @param platform the platform name
+     * @param event    the parsed event
+     * @return the PR/MR number, or null if not applicable
+     */
+    private Integer extractPrNumber(String platform, JsonNode event) {
+        return switch (platform.toLowerCase()) {
+            case "github" -> {
+                if (event.has("pull_request")) {
+                    JsonNode numberNode = event.path("pull_request").path("number");
+                    if (!numberNode.isInt()) {
+                        log.warn("GitHub PR number is not an integer: {}", numberNode.asText());
+                        yield null;
+                    }
+                    int prNumber = numberNode.asInt(0);
+                    if (prNumber <= 0) {
+                        log.warn("GitHub PR number is invalid: {}", prNumber);
+                        yield null;
+                    }
+                    yield prNumber;
+                } else {
+                    yield null;
+                }
+            }
+            case "gitlab" -> {
+                if (event.has("merge_request")) {
+                    JsonNode iidNode = event.path("merge_request").path("iid");
+                    if (!iidNode.isInt()) {
+                        log.warn("GitLab MR iid is not an integer: {}", iidNode.asText());
+                        yield null;
+                    }
+                    int mrNumber = iidNode.asInt(0);
+                    if (mrNumber <= 0) {
+                        log.warn("GitLab MR iid is invalid: {}", mrNumber);
+                        yield null;
+                    }
+                    yield mrNumber;
+                } else {
+                    yield null;
+                }
+            }
+            default -> null;
+        };
+    }
+
+    /**
+     * Extracts PR/MR title from webhook event (null for push events).
+     *
+     * @param platform the platform name
+     * @param event    the parsed event
+     * @return the PR/MR title, or null if not applicable
+     */
+    private String extractPrTitle(String platform, JsonNode event) {
+        return switch (platform.toLowerCase()) {
+            case "github" -> {
+                if (event.has("pull_request")) {
+                    yield event.path("pull_request").path("title").asText();
+                } else {
+                    yield null;
+                }
+            }
+            case "gitlab" -> {
+                if (event.has("merge_request")) {
+                    yield event.path("merge_request").path("title").asText();
+                } else {
+                    yield null;
+                }
+            }
+            default -> null;
+        };
+    }
+
+    /**
+     * Extracts PR/MR description from webhook event (null for push events).
+     *
+     * @param platform the platform name
+     * @param event    the parsed event
+     * @return the PR/MR description, or null if not applicable
+     */
+    private String extractPrDescription(String platform, JsonNode event) {
+        return switch (platform.toLowerCase()) {
+            case "github" -> {
+                if (event.has("pull_request")) {
+                    yield event.path("pull_request").path("body").asText();
+                } else {
+                    yield null;
+                }
+            }
+            case "gitlab" -> {
+                if (event.has("merge_request")) {
+                    yield event.path("merge_request").path("description").asText();
+                } else {
+                    yield null;
+                }
+            }
+            default -> null;
         };
     }
 }
