@@ -10,6 +10,7 @@ import com.aicodereview.repository.ProjectRepository;
 import com.aicodereview.repository.ReviewTaskRepository;
 import com.aicodereview.repository.entity.Project;
 import com.aicodereview.repository.entity.ReviewTask;
+import com.aicodereview.service.QueueService;
 import com.aicodereview.service.ReviewTaskService;
 import com.aicodereview.service.mapper.ReviewTaskMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -44,14 +45,17 @@ public class ReviewTaskServiceImpl implements ReviewTaskService {
 
     private final ReviewTaskRepository reviewTaskRepository;
     private final ProjectRepository projectRepository;
+    private final QueueService queueService;
 
     @Value("${aicodereview.task.max-retries:3}")
     private int defaultMaxRetries;
 
     public ReviewTaskServiceImpl(ReviewTaskRepository reviewTaskRepository,
-                                  ProjectRepository projectRepository) {
+                                  ProjectRepository projectRepository,
+                                  QueueService queueService) {
         this.reviewTaskRepository = reviewTaskRepository;
         this.projectRepository = projectRepository;
+        this.queueService = queueService;
     }
 
     @Override
@@ -101,7 +105,15 @@ public class ReviewTaskServiceImpl implements ReviewTaskService {
 
         log.info("Successfully created review task with ID: {}, priority: {}", saved.getId(), priority);
 
-        // Step 5: Convert to DTO and return
+        // Step 5: Enqueue task to Redis priority queue (best-effort, DB is primary record)
+        try {
+            queueService.enqueue(saved.getId(), priority);
+        } catch (Exception e) {
+            log.error("Failed to enqueue task {} to Redis queue. Task is saved in DB but not queued. " +
+                    "Manual re-queue or reconciliation may be needed.", saved.getId(), e);
+        }
+
+        // Step 6: Convert to DTO and return
         return ReviewTaskMapper.toDTO(saved);
     }
 
@@ -229,6 +241,16 @@ public class ReviewTaskServiceImpl implements ReviewTaskService {
         }
 
         ReviewTask updated = reviewTaskRepository.save(task);
+
+        // Re-enqueue to Redis priority queue if task reverted to PENDING (best-effort)
+        if (updated.getStatus() == TaskStatus.PENDING) {
+            try {
+                queueService.enqueue(updated.getId(), updated.getPriority());
+            } catch (Exception e) {
+                log.error("Failed to re-enqueue task {} to Redis queue after retry. " +
+                        "Task is saved in DB but not queued.", updated.getId(), e);
+            }
+        }
 
         return ReviewTaskMapper.toDTO(updated);
     }

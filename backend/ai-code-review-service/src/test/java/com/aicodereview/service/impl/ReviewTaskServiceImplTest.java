@@ -10,6 +10,7 @@ import com.aicodereview.repository.ProjectRepository;
 import com.aicodereview.repository.ReviewTaskRepository;
 import com.aicodereview.repository.entity.Project;
 import com.aicodereview.repository.entity.ReviewTask;
+import com.aicodereview.service.QueueService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,6 +55,9 @@ class ReviewTaskServiceImplTest {
 
     @Mock
     private ProjectRepository projectRepository;
+
+    @Mock
+    private QueueService queueService;
 
     @InjectMocks
     private ReviewTaskServiceImpl reviewTaskService;
@@ -135,6 +139,9 @@ class ReviewTaskServiceImplTest {
         assertThat(savedTask.getStatus()).isEqualTo(TaskStatus.PENDING);
         assertThat(savedTask.getMaxRetries()).isEqualTo(3);
         assertThat(savedTask.getRetryCount()).isEqualTo(0);
+
+        // Verify enqueue to Redis priority queue
+        verify(queueService).enqueue(100L, TaskPriority.NORMAL);
     }
 
     @Test
@@ -165,6 +172,9 @@ class ReviewTaskServiceImplTest {
         ArgumentCaptor<ReviewTask> taskCaptor = ArgumentCaptor.forClass(ReviewTask.class);
         verify(reviewTaskRepository).save(taskCaptor.capture());
         assertThat(taskCaptor.getValue().getPriority()).isEqualTo(TaskPriority.HIGH);
+
+        // Verify enqueue to Redis priority queue with HIGH priority
+        verify(queueService).enqueue(100L, TaskPriority.HIGH);
     }
 
     @Test
@@ -193,6 +203,9 @@ class ReviewTaskServiceImplTest {
         ArgumentCaptor<ReviewTask> taskCaptor = ArgumentCaptor.forClass(ReviewTask.class);
         verify(reviewTaskRepository).save(taskCaptor.capture());
         assertThat(taskCaptor.getValue().getPriority()).isEqualTo(TaskPriority.HIGH);
+
+        // Verify enqueue to Redis priority queue with HIGH priority
+        verify(queueService).enqueue(100L, TaskPriority.HIGH);
     }
 
     @Test
@@ -375,6 +388,9 @@ class ReviewTaskServiceImplTest {
         assertThat(savedTask.getRetryCount()).isEqualTo(1);
         assertThat(savedTask.getStatus()).isEqualTo(TaskStatus.PENDING);
         assertThat(savedTask.getCompletedAt()).isNull();
+
+        // Verify re-enqueue to Redis queue for retry
+        verify(queueService).enqueue(100L, TaskPriority.NORMAL);
     }
 
     @Test
@@ -404,6 +420,9 @@ class ReviewTaskServiceImplTest {
         assertThat(savedTask.getRetryCount()).isEqualTo(3);
         assertThat(savedTask.getStatus()).isEqualTo(TaskStatus.FAILED);
         assertThat(savedTask.getCompletedAt()).isNotNull();
+
+        // Verify NO re-enqueue when max retries exhausted
+        verify(queueService, never()).enqueue(anyLong(), any());
     }
 
     @Test
@@ -467,6 +486,9 @@ class ReviewTaskServiceImplTest {
 
         // And: Should NOT save a new task
         verify(reviewTaskRepository, never()).save(any());
+
+        // And: Should NOT enqueue (duplicate)
+        verify(queueService, never()).enqueue(anyLong(), any());
     }
 
     // --- State transition validation tests (H2 fix) ---
@@ -508,5 +530,55 @@ class ReviewTaskServiceImplTest {
         assertThatThrownBy(() -> reviewTaskService.markTaskFailed(100L, "error"))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("expected status RUNNING");
+    }
+
+    // --- Redis failure resilience tests (H1/H2 code review fix) ---
+
+    @Test
+    @DisplayName("createTask - Redis enqueue failure should NOT prevent task creation")
+    void testCreateTask_RedisFailure_TaskStillCreated() {
+        // Given
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(reviewTaskRepository.findByProjectIdAndCommitHash(1L, "abc123")).thenReturn(Optional.empty());
+        when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+        doThrow(new RuntimeException("Redis connection refused"))
+                .when(queueService).enqueue(anyLong(), any());
+
+        // When: createTask should succeed despite Redis failure
+        ReviewTaskDTO result = reviewTaskService.createTask(testRequest);
+
+        // Then: Task should still be created and returned
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(100L);
+
+        // And: DB save should have happened
+        verify(reviewTaskRepository).save(any(ReviewTask.class));
+
+        // And: Enqueue was attempted
+        verify(queueService).enqueue(100L, TaskPriority.NORMAL);
+    }
+
+    @Test
+    @DisplayName("markTaskFailed - Redis enqueue failure should NOT prevent retry state update")
+    void testMarkTaskFailed_RedisFailure_RetryStateStillUpdated() {
+        // Given: Task with 0 retries
+        testTask.setRetryCount(0);
+        testTask.setMaxRetries(3);
+        testTask.setStatus(TaskStatus.RUNNING);
+
+        when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+        when(reviewTaskRepository.save(any(ReviewTask.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        doThrow(new RuntimeException("Redis connection refused"))
+                .when(queueService).enqueue(anyLong(), any());
+
+        // When: markTaskFailed should succeed despite Redis failure
+        ReviewTaskDTO result = reviewTaskService.markTaskFailed(100L, "Connection timeout");
+
+        // Then: Retry state should be updated
+        assertThat(result.getRetryCount()).isEqualTo(1);
+        assertThat(result.getStatus()).isEqualTo(TaskStatus.PENDING);
+
+        // And: DB save should have happened
+        verify(reviewTaskRepository).save(any(ReviewTask.class));
     }
 }
