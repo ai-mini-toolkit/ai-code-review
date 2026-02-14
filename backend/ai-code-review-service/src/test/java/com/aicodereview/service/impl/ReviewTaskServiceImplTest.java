@@ -389,8 +389,8 @@ class ReviewTaskServiceImplTest {
         assertThat(savedTask.getStatus()).isEqualTo(TaskStatus.PENDING);
         assertThat(savedTask.getCompletedAt()).isNull();
 
-        // Verify re-enqueue to Redis queue for retry
-        verify(queueService).enqueue(100L, TaskPriority.NORMAL);
+        // Verify NO direct enqueue (requeue responsibility moved to RetryService in Story 2.7)
+        verify(queueService, never()).enqueue(anyLong(), any());
     }
 
     @Test
@@ -559,26 +559,79 @@ class ReviewTaskServiceImplTest {
     }
 
     @Test
-    @DisplayName("markTaskFailed - Redis enqueue failure should NOT prevent retry state update")
-    void testMarkTaskFailed_RedisFailure_RetryStateStillUpdated() {
-        // Given: Task with 0 retries
+    @DisplayName("markTaskFailed - should NOT call queueService (requeue moved to RetryService)")
+    void testMarkTaskFailed_NoDirectRequeue() {
+        // Given
         testTask.setRetryCount(0);
         testTask.setMaxRetries(3);
         testTask.setStatus(TaskStatus.RUNNING);
 
         when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
         when(reviewTaskRepository.save(any(ReviewTask.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        reviewTaskService.markTaskFailed(100L, "Connection timeout");
+
+        // Then: No queue operations from markTaskFailed (RetryService handles requeue)
+        verify(queueService, never()).enqueue(anyLong(), any());
+        verify(queueService, never()).requeueWithDelay(anyLong(), any(), anyInt());
+    }
+
+    // --- markTaskFailedPermanently tests (Story 2.7) ---
+
+    @Test
+    @DisplayName("markTaskFailedPermanently - should set FAILED status immediately without incrementing retryCount")
+    void testMarkTaskFailedPermanently_ImmediateFailed() {
+        // Given: Task is RUNNING with 0 retries
+        testTask.setStatus(TaskStatus.RUNNING);
+        testTask.setRetryCount(0);
+        testTask.setMaxRetries(3);
+
+        when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+        when(reviewTaskRepository.save(any(ReviewTask.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        ReviewTaskDTO result = reviewTaskService.markTaskFailedPermanently(100L, "401 Unauthorized");
+
+        // Then
+        assertThat(result.getStatus()).isEqualTo(TaskStatus.FAILED);
+        assertThat(result.getCompletedAt()).isNotNull();
+        assertThat(result.getErrorMessage()).isEqualTo("401 Unauthorized");
+        assertThat(result.getRetryCount()).isEqualTo(0); // NOT incremented
+
+        // Verify lock released
+        verify(queueService).releaseLock(100L);
+    }
+
+    @Test
+    @DisplayName("markTaskFailedPermanently - non-RUNNING task should throw IllegalStateException")
+    void testMarkTaskFailedPermanently_NonRunningTask_ThrowsException() {
+        // Given: Task is PENDING
+        testTask.setStatus(TaskStatus.PENDING);
+        when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+
+        // When/Then
+        assertThatThrownBy(() -> reviewTaskService.markTaskFailedPermanently(100L, "error"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("expected status RUNNING");
+    }
+
+    @Test
+    @DisplayName("markTaskFailedPermanently - Redis lock release failure should NOT prevent DB update")
+    void testMarkTaskFailedPermanently_RedisFailure_DbStillUpdated() {
+        // Given
+        testTask.setStatus(TaskStatus.RUNNING);
+
+        when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+        when(reviewTaskRepository.save(any(ReviewTask.class))).thenAnswer(invocation -> invocation.getArgument(0));
         doThrow(new RuntimeException("Redis connection refused"))
-                .when(queueService).enqueue(anyLong(), any());
+                .when(queueService).releaseLock(anyLong());
 
-        // When: markTaskFailed should succeed despite Redis failure
-        ReviewTaskDTO result = reviewTaskService.markTaskFailed(100L, "Connection timeout");
+        // When: Should not throw
+        ReviewTaskDTO result = reviewTaskService.markTaskFailedPermanently(100L, "Bad request");
 
-        // Then: Retry state should be updated
-        assertThat(result.getRetryCount()).isEqualTo(1);
-        assertThat(result.getStatus()).isEqualTo(TaskStatus.PENDING);
-
-        // And: DB save should have happened
+        // Then: DB state still updated
+        assertThat(result.getStatus()).isEqualTo(TaskStatus.FAILED);
         verify(reviewTaskRepository).save(any(ReviewTask.class));
     }
 }

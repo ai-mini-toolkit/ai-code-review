@@ -242,15 +242,40 @@ public class ReviewTaskServiceImpl implements ReviewTaskService {
 
         ReviewTask updated = reviewTaskRepository.save(task);
 
-        // Re-enqueue to Redis priority queue if task reverted to PENDING (best-effort)
-        if (updated.getStatus() == TaskStatus.PENDING) {
-            try {
-                queueService.enqueue(updated.getId(), updated.getPriority());
-            } catch (Exception e) {
-                log.error("Failed to re-enqueue task {} to Redis queue after retry. " +
-                        "Task is saved in DB but not queued.", updated.getId(), e);
-            }
+        // Note: Requeue responsibility moved to RetryService (Story 2.7)
+        // RetryService.handleTaskFailure() calls requeueWithDelay() with exponential backoff
+
+        return ReviewTaskMapper.toDTO(updated);
+    }
+
+    @Override
+    public ReviewTaskDTO markTaskFailedPermanently(Long id, String errorMessage) {
+        log.error("Permanently failing task {} with error: {}", id, errorMessage);
+
+        ReviewTask task = reviewTaskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ReviewTask", "id", id));
+
+        // Validate state transition: only RUNNING tasks can be failed
+        if (task.getStatus() != TaskStatus.RUNNING) {
+            throw new IllegalStateException(
+                    "Cannot fail task " + id + ": expected status RUNNING, but was " + task.getStatus());
         }
+
+        // Immediately mark as FAILED — do NOT increment retryCount
+        task.setStatus(TaskStatus.FAILED);
+        task.setCompletedAt(Instant.now());
+        task.setErrorMessage(errorMessage);
+
+        ReviewTask updated = reviewTaskRepository.save(task);
+
+        // Release queue lock (best-effort)
+        try {
+            queueService.releaseLock(id);
+        } catch (Exception e) {
+            log.error("Failed to release lock for permanently failed task {}", id, e);
+        }
+
+        log.warn("Task {} permanently failed (non-retryable): {}", id, errorMessage);
 
         return ReviewTaskMapper.toDTO(updated);
     }

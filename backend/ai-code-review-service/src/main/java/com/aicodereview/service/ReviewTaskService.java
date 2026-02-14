@@ -136,6 +136,23 @@ public interface ReviewTaskService {
     ReviewTaskDTO markTaskFailed(Long id, String errorMessage);
 
     /**
+     * Marks a task as permanently failed for non-retryable errors.
+     * <p>
+     * Unlike {@link #markTaskFailed}, this method:
+     * - Sets status to FAILED immediately (regardless of retry_count vs max_retries)
+     * - Sets completedAt timestamp
+     * - Does NOT increment retry_count (this wasn't a retry attempt)
+     * </p>
+     *
+     * @param id           the task ID to mark as permanently failed
+     * @param errorMessage the error message describing the failure
+     * @return the updated task DTO with FAILED status
+     * @throws ResourceNotFoundException if task with given ID does not exist
+     * @since 2.7.0
+     */
+    ReviewTaskDTO markTaskFailedPermanently(Long id, String errorMessage);
+
+    /**
      * Checks if a task can be retried.
      * <p>
      * Returns true if retry_count < max_retries, false otherwise.
