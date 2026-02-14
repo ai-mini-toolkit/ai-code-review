@@ -1,4 +1,4 @@
-package com.aicodereview.common.dto;
+package com.aicodereview.common.dto.reviewtask;
 
 import com.aicodereview.common.enums.ChangeType;
 import com.aicodereview.common.enums.Language;
@@ -8,18 +8,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Metadata about a single file's changes in a Git diff.
+ * Simplified file metadata for AI review context.
+ * Derived from FileDiffInfo but only contains fields relevant to AI consumption.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileDiffInfo {
-    private String oldPath;
-    private String newPath;
+public class FileInfo {
+    private String path;
     private ChangeType changeType;
     private Language language;
-    private boolean isBinary;
-    private int linesAdded;
-    private int linesDeleted;
 }

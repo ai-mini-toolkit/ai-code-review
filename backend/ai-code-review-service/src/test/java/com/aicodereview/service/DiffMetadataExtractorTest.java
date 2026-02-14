@@ -86,6 +86,8 @@ class DiffMetadataExtractorTest {
             assertThat(file.getNewPath()).isEqualTo("src/main/java/App.java");
             assertThat(file.getLanguage()).isEqualTo(Language.JAVA);
             assertThat(file.isBinary()).isFalse();
+            assertThat(file.getLinesAdded()).isEqualTo(2);
+            assertThat(file.getLinesDeleted()).isEqualTo(1);
             assertThat(result.getStatistics().getTotalLinesAdded()).isEqualTo(2);
             assertThat(result.getStatistics().getTotalLinesDeleted()).isEqualTo(1);
         }
@@ -308,25 +310,33 @@ class DiffMetadataExtractorTest {
             // Verify file count and order
             assertThat(result.getFiles()).hasSize(4);
 
-            // File 1: MODIFY Java
+            // File 1: MODIFY Java (+2 -1)
             FileDiffInfo file1 = result.getFiles().get(0);
             assertThat(file1.getChangeType()).isEqualTo(ChangeType.MODIFY);
             assertThat(file1.getLanguage()).isEqualTo(Language.JAVA);
+            assertThat(file1.getLinesAdded()).isEqualTo(2);
+            assertThat(file1.getLinesDeleted()).isEqualTo(1);
 
-            // File 2: ADD Java
+            // File 2: ADD Java (+3)
             FileDiffInfo file2 = result.getFiles().get(1);
             assertThat(file2.getChangeType()).isEqualTo(ChangeType.ADD);
             assertThat(file2.getLanguage()).isEqualTo(Language.JAVA);
+            assertThat(file2.getLinesAdded()).isEqualTo(3);
+            assertThat(file2.getLinesDeleted()).isZero();
 
-            // File 3: DELETE Python
+            // File 3: DELETE Python (-2)
             FileDiffInfo file3 = result.getFiles().get(2);
             assertThat(file3.getChangeType()).isEqualTo(ChangeType.DELETE);
             assertThat(file3.getLanguage()).isEqualTo(Language.PYTHON);
+            assertThat(file3.getLinesAdded()).isZero();
+            assertThat(file3.getLinesDeleted()).isEqualTo(2);
 
-            // File 4: RENAME Markdown
+            // File 4: RENAME Markdown (0 changes)
             FileDiffInfo file4 = result.getFiles().get(3);
             assertThat(file4.getChangeType()).isEqualTo(ChangeType.RENAME);
             assertThat(file4.getLanguage()).isEqualTo(Language.MARKDOWN);
+            assertThat(file4.getLinesAdded()).isZero();
+            assertThat(file4.getLinesDeleted()).isZero();
 
             // Aggregate statistics: +2 -1 (modify) + +3 (add) + -2 (delete) + 0 (rename)
             assertThat(result.getStatistics().getTotalFilesChanged()).isEqualTo(4);

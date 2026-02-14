@@ -316,6 +316,38 @@ class ReviewTaskIntegrationTest {
         assertThat(tasks).allMatch(t -> t.getProject().getId().equals(project.getId()));
     }
 
+    @Test
+    @DisplayName("V7 migration: code_context column should store and retrieve large JSON")
+    void testCodeContextColumnStorageAndRetrieval() {
+        // Given: A task created via webhook
+        Project project = projectRepository.findByRepoUrl(GITHUB_REPO_URL).orElseThrow();
+        ReviewTask task = ReviewTask.builder()
+                .project(project)
+                .taskType(TaskType.PUSH)
+                .repoUrl(GITHUB_REPO_URL)
+                .branch("main")
+                .commitHash("codecontext123")
+                .author("testuser")
+                .priority(com.aicodereview.common.enums.TaskPriority.NORMAL)
+                .build();
+        ReviewTask savedTask = reviewTaskRepository.save(task);
+
+        // When: Set code_context with a large JSON string
+        String codeContextJson = "{\"rawDiff\":\"diff --git a/f.java b/f.java\\n\","
+                + "\"files\":[{\"path\":\"f.java\",\"changeType\":\"MODIFY\",\"language\":\"JAVA\"}],"
+                + "\"fileContents\":{\"f.java\":\"" + "x".repeat(5000) + "\"},"
+                + "\"statistics\":{\"totalFilesChanged\":1,\"totalLinesAdded\":5,\"totalLinesDeleted\":2},"
+                + "\"taskMeta\":{\"author\":\"dev\",\"branch\":\"main\",\"commitHash\":\"sha\",\"taskType\":\"PUSH\"}}";
+        savedTask.setCodeContext(codeContextJson);
+        reviewTaskRepository.save(savedTask);
+
+        // Then: Retrieved code_context matches exactly
+        ReviewTask retrieved = reviewTaskRepository.findById(savedTask.getId()).orElseThrow();
+        assertThat(retrieved.getCodeContext()).isEqualTo(codeContextJson);
+        assertThat(retrieved.getCodeContext()).contains("rawDiff");
+        assertThat(retrieved.getCodeContext()).contains("fileContents");
+    }
+
     /**
      * Helper method to calculate HMAC-SHA256 signature for GitHub webhooks.
      */

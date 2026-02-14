@@ -68,7 +68,7 @@ development_status:
   epic-3: in-progress
   3-1-diff-metadata-extraction: done
   3-2-git-platform-api-client: done
-  3-3-ai-review-context-assembly: backlog
+  3-3-ai-review-context-assembly: done
   epic-3-retrospective: optional
 
   # Epic 4: AI 智能审查引擎 (AI Smart Code Review Engine)

@@ -48,12 +48,14 @@ public class DiffMetadataExtractor {
         for (String section : fileSections) {
             FileDiffInfo info = parseFileSection(section);
             if (info != null) {
-                files.add(info);
                 if (!info.isBinary()) {
                     int[] lineCounts = countLines(section);
+                    info.setLinesAdded(lineCounts[0]);
+                    info.setLinesDeleted(lineCounts[1]);
                     totalAdded += lineCounts[0];
                     totalDeleted += lineCounts[1];
                 }
+                files.add(info);
             }
         }
 

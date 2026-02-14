@@ -155,6 +155,14 @@ public class ReviewTask {
     private String errorMessage;
 
     /**
+     * Serialized CodeContext JSON for AI review.
+     * Set by ReviewContextAssembler after context assembly.
+     * Nullable (only set after context assembly completes).
+     */
+    @Column(name = "code_context", columnDefinition = "TEXT")
+    private String codeContext;
+
+    /**
      * Task creation timestamp (when webhook was received).
      * Auto-populated by JPA auditing.
      * Immutable after creation.

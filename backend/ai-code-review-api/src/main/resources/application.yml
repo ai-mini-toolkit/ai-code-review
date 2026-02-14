@@ -19,6 +19,13 @@ aicodereview:
   task:
     max-retries: ${REVIEW_TASK_MAX_RETRIES:3}
 
+# Review context assembly configuration
+review:
+  context:
+    max-context-tokens: ${REVIEW_MAX_CONTEXT_TOKENS:100000}
+    max-file-tokens: ${REVIEW_MAX_FILE_TOKENS:10000}
+    max-files: ${REVIEW_MAX_FILES:50}
+
 # Git platform API configuration
 git:
   platform:
