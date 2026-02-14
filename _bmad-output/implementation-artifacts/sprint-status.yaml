@@ -65,19 +65,21 @@ development_status:
   epic-2-retrospective: done
 
   # Epic 3: 代码获取与AI审查上下文组装 (Code Fetching & AI Review Context Assembly)
-  epic-3: in-progress
+  epic-3: done
   3-1-diff-metadata-extraction: done
   3-2-git-platform-api-client: done
   3-3-ai-review-context-assembly: done
-  epic-3-retrospective: optional
+  epic-3-retrospective: done
 
   # Epic 4: AI 智能审查引擎 (AI Smart Code Review Engine)
-  epic-4: backlog
-  4-1-ai-provider-abstraction-layer: backlog
-  4-2-openai-provider-integration: backlog
-  4-3-anthropic-claude-provider-integration: backlog
-  4-4-custom-openapi-provider-integration: backlog
-  4-5-six-dimension-review-orchestration: backlog
+  # Restructured from 5→4 stories per Epic 3 retrospective decisions:
+  # - Merged original 4.2 (OpenAI) + 4.4 (Custom OpenAPI) into unified 4.2
+  # - Simplified original 4.5 → new 4.4 (single-call architecture, no concurrency framework)
+  epic-4: in-progress
+  4-1-ai-provider-abstraction-layer: done
+  4-2-openai-compatible-provider: backlog
+  4-3-anthropic-claude-provider: backlog
+  4-4-review-orchestration-and-fallback: backlog
   epic-4-retrospective: optional
 
   # Epic 5: 审查报告与结果存储 (Review Reports & Result Storage)

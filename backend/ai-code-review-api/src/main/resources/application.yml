@@ -26,6 +26,11 @@ review:
     max-file-tokens: ${REVIEW_MAX_FILE_TOKENS:10000}
     max-files: ${REVIEW_MAX_FILES:50}
 
+# AI provider configuration
+ai:
+  provider:
+    default: ${AI_PROVIDER_DEFAULT:openai}
+
 # Git platform API configuration
 git:
   platform:

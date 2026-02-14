@@ -253,13 +253,19 @@
 
 ### Epic 4: AI 智能审查引擎
 
-**用户价值**：系统使用多种 AI 提供商（OpenAI、Anthropic、自定义 OpenAPI）对代码进行六维度智能审查，识别安全漏洞、性能问题、可维护性问题等。
+> **Epic 3 回顾决策（2026-02-14）**：从5个Story重构为4个Story。
+> - 采用单次API调用覆盖六维度（非并发6次），大幅降低成本和复杂度
+> - 合并原Story 4.2 (OpenAI) + 4.4 (Custom OpenAPI) 为统一的OpenAI兼容提供商
+> - 使用原生 java.net.http.HttpClient（复用Story 3.2模式，不引入SDK）
+> - 移除并发执行框架（CompletableFuture/Semaphore/ExecutorService）
+
+**用户价值**：系统使用多种 AI 提供商（OpenAI兼容、Anthropic）对代码进行六维度智能审查，识别安全漏洞、性能问题、可维护性问题等。
 
 **用户成果**：
 - 实现 AI 提供商抽象层（策略模式 + 工厂模式）
-- 集成 OpenAI、Anthropic Claude 和自定义 OpenAPI 提供商
-- 执行六维度代码分析（安全性、性能、可维护性、正确性、代码风格、最佳实践）
-- 实现降级策略（主模型 → 备用模型 → 错误）
+- 集成 OpenAI 兼容提供商（官方 OpenAI + 自定义 endpoint）和 Anthropic Claude 提供商
+- 单次 API 调用执行六维度代码分析（安全性、性能、可维护性、正确性、代码风格、最佳实践）
+- 实现模型降级策略（主模型 → 备用模型 → 失败）
 - 输出结构化审查结果（JSON 格式：severity, category, line, message, suggestion）
 
 **覆盖的功能需求**：FR 1.4（AI 智能审查）
@@ -953,7 +959,13 @@ review:
 
 ### Epic 4: AI 智能审查引擎 - Stories
 
-#### Story 4.1: 实现 AI 提供商抽象层（策略模式）
+> **重构说明（Epic 3 回顾决策 2026-02-14）**：
+> - 原5个Story重构为4个Story
+> - 原Story 4.2 (OpenAI) + 4.4 (Custom OpenAPI) 合并为新 Story 4.2（OpenAI兼容提供商）
+> - 原Story 4.5 简化为新 Story 4.4（移除并发框架，采用单次API调用架构）
+> - 技术栈：原生 java.net.http.HttpClient（复用Story 3.2模式），不引入AI SDK
+
+#### Story 4.1: AI 提供商抽象层
 
 **用户故事**：
 作为系统架构师，
@@ -962,7 +974,7 @@ review:
 
 **验收标准**：
 
-**Given** 代码上下文提取服务已实现
+**Given** 代码上下文提取服务已实现（Epic 3 CodeContext）
 **When** 设计 AI 提供商抽象
 **Then** 创建 AIProvider 接口：
 ```java
@@ -974,55 +986,87 @@ interface AIProvider {
 }
 ```
 
-**And** 创建 AIProviderFactory 工厂类：
-- getProvider(String providerId): AIProvider
-- registerProvider(AIProvider provider)
+**And** 创建 AIProviderFactory 工厂类（复用 GitPlatformClientFactory 模式）：
+- 通过 `List<AIProvider>` 构造器注入自动发现所有 `@Component` 实现
+- `getProvider(String providerId): AIProvider`
+- `getDefaultProvider(): AIProvider`（从配置获取默认提供商ID）
 
-**And** 创建 ReviewResult 类：
-- List<Issue> issues
-- Map<String, Object> metadata（模型、耗时、token 数）
-- Issue 包含：severity、category、line、message、suggestion
+**And** 创建 ReviewResult 数据模型：
+- `List<ReviewIssue> issues` — 审查发现的问题列表
+- `ReviewMetadata metadata` — 模型信息、耗时、token 数、降级事件
+- ReviewIssue 包含：`severity`（CRITICAL/HIGH/MEDIUM/LOW/INFO）、`category`（security/performance/maintainability/correctness/style/best_practices）、`filePath`、`line`（nullable）、`message`、`suggestion`
 
-**And** 编写单元测试验证工厂模式
-**And** 文档说明如何添加新提供商
+**And** 创建相关异常类：
+- `AIProviderException`（基类）
+- `RateLimitException`（429）
+- `AIAuthenticationException`（401）
+- `AITimeoutException`（超时）
+
+**And** 编写单元测试验证工厂模式和数据模型
 
 ---
 
-#### Story 4.2: 实现 OpenAI 提供商集成
+#### Story 4.2: OpenAI 兼容提供商（含自定义 Endpoint）
+
+> **合并说明**：本Story合并了原Story 4.2 (OpenAI) 和原Story 4.4 (Custom OpenAPI)。
+> 两者使用相同的 OpenAI Chat Completions API 格式，仅 baseUrl 不同。
 
 **用户故事**：
 作为系统，
-我想要集成 OpenAI API 进行代码审查，
-以便使用 GPT 模型分析代码。
+我想要集成 OpenAI 兼容的 API 进行代码审查，
+以便使用 GPT 模型或任何 OpenAI 兼容的私有部署模型分析代码。
 
 **验收标准**：
 
 **Given** AI 提供商抽象层已实现
-**When** 实现 OpenAI 提供商
-**Then** 创建 OpenAIProvider 实现 AIProvider
-**And** 集成 OpenAI Java SDK 或 HTTP 客户端
+**When** 实现 OpenAI 兼容提供商
+**Then** 创建 OpenAICompatibleProvider 实现 AIProvider
+**And** 使用原生 `java.net.http.HttpClient`（复用 Story 3.2 的 GitClientConfig HttpClient Bean）
+**And** 支持可配置的 baseUrl：
+- 官方 OpenAI：`https://api.openai.com`（默认）
+- 自定义 endpoint：任意 OpenAI 兼容的 API 地址（如私有部署、Azure OpenAI等）
+
 **And** 从 AIModelConfig 加载配置：
-- API Key、Model Name（如 gpt-4）
+- API Key（`Authorization: Bearer {key}`）
+- Base URL（默认 `https://api.openai.com`）
+- Model Name（如 `gpt-4`、`gpt-4o`）
 - Max Tokens、Temperature、Timeout
 
-**And** 构建 ChatCompletion 请求：
-- System Prompt：审查维度说明
-- User Prompt：代码上下文 + 变更 Diff
-- 使用 Prompt Template 渲染
+**And** 构建 Chat Completions 请求：
+- `POST {baseUrl}/v1/chat/completions`
+- Request Body：`messages`（system + user）、`model`、`max_tokens`、`temperature`
+- System Message：六维度审查指令（从 PromptTemplate 渲染）
+- User Message：CodeContext 内容（rawDiff + 文件列表 + 统计 + taskMeta）
+- Response Format：要求 JSON 输出（`response_format: { type: "json_object" }`）
 
-**And** 解析 JSON 响应提取问题列表
-**And** 映射到 ReviewResult 格式
+**And** 解析 JSON 响应：
+- 提取 `choices[0].message.content`
+- 解析内容为结构化 ReviewIssue 列表
+- 提取 `usage.prompt_tokens`、`usage.completion_tokens` 到 metadata
+
 **And** 处理 API 错误：
-- 限流（429）：抛出 RateLimitException
-- 超时：抛出 TimeoutException
-- 认证错误（401）：抛出 AuthenticationException
+- 429 Rate Limit → 抛出 `RateLimitException`
+- 401 Unauthorized → 抛出 `AIAuthenticationException`
+- 408/504 Timeout → 抛出 `AITimeoutException`
+- 500/502/503 Server Error → 抛出 `AIProviderException`
+- 网络超时 `HttpTimeoutException` → 包装为 `AITimeoutException`
 
-**And** 记录 API 调用指标（耗时、token 数）
-**And** 编写单元测试使用 Mock API 响应
+**And** 实现重试逻辑（复用 Story 3.2 模式）：
+- 429/5xx：最多2次重试，指数退避（1s, 2s）
+- 401/403/404：不重试
+- 网络超时：不自动重试（交给上层降级策略）
+
+**And** 记录 API 调用指标（耗时、token 数、模型名称）
+**And** 编写单元测试（Mock HttpClient 响应）：
+- 测试请求 URL 和 Header 构建（官方 + 自定义 endpoint）
+- 测试成功响应解析（JSON → ReviewResult）
+- 测试各种错误码处理
+- 测试重试逻辑
+- 测试空 token / 无效配置处理
 
 ---
 
-#### Story 4.3: 实现 Anthropic Claude 提供商集成
+#### Story 4.3: Anthropic Claude 提供商
 
 **用户故事**：
 作为系统，
@@ -1031,60 +1075,46 @@ interface AIProvider {
 
 **验收标准**：
 
-**Given** OpenAI 提供商已实现
+**Given** OpenAI 兼容提供商已实现
 **When** 实现 Anthropic 提供商
 **Then** 创建 AnthropicProvider 实现 AIProvider
-**And** 集成 Anthropic Java SDK 或 HTTP 客户端
+**And** 使用原生 `java.net.http.HttpClient`
 **And** 从 AIModelConfig 加载配置：
-- API Key、Model Name（如 claude-sonnet-4）
+- API Key（`x-api-key: {key}` header）
+- Model Name（如 `claude-sonnet-4-5-20250929`）
 - Max Tokens、Temperature、Timeout
+- Anthropic API Version（`anthropic-version: 2023-06-01`）
 
 **And** 构建 Messages API 请求：
-- System Prompt：审查维度说明
-- User Message：代码上下文 + 变更 Diff
+- `POST https://api.anthropic.com/v1/messages`
+- Headers：`x-api-key`、`anthropic-version`、`content-type: application/json`
+- Request Body：`model`、`max_tokens`、`system`（审查指令）、`messages`（user message）
+- User Message：CodeContext 内容
 
-**And** 解析 JSON 响应提取问题列表
-**And** 映射到 ReviewResult 格式
-**And** 处理 API 错误（同 OpenAI）
+**And** 解析 JSON 响应：
+- 提取 `content[0].text`
+- 解析内容为结构化 ReviewIssue 列表
+- 提取 `usage.input_tokens`、`usage.output_tokens` 到 metadata
+
+**And** 处理 API 错误（与 OpenAI 提供商相同的异常层次）
+**And** 实现重试逻辑（同 OpenAI 提供商模式）
 **And** 记录 API 调用指标
-**And** 编写单元测试使用 Mock API 响应
+**And** 编写单元测试（Mock HttpClient 响应）：
+- 测试 Anthropic 特有的 Header 格式（x-api-key vs Authorization: Bearer）
+- 测试 Messages API 请求/响应格式
+- 测试错误处理和重试
 
 ---
 
-#### Story 4.4: 实现自定义 OpenAPI 提供商集成
+#### Story 4.4: 审查编排与 Prompt 管理与降级策略
 
-**用户故事**：
-作为系统管理员，
-我想要集成符合 OpenAPI 标准的自定义 AI 提供商，
-以便支持私有部署或其他兼容模型。
-
-**验收标准**：
-
-**Given** OpenAI 和 Anthropic 提供商已实现
-**When** 实现自定义 OpenAPI 提供商
-**Then** 创建 CustomOpenAPIProvider 实现 AIProvider
-**And** 从 AIModelConfig 加载配置：
-- API Endpoint（自定义 URL）
-- API Key、Model Name
-- OpenAPI Spec 路径（可选，用于验证）
-
-**And** 支持 OpenAI 兼容的 API 格式：
-- POST {endpoint}/v1/chat/completions
-- Request Body：messages、model、max_tokens、temperature
-
-**And** 解析 JSON 响应（OpenAI 格式）
-**And** 映射到 ReviewResult 格式
-**And** 验证 API Spec（如提供）
-**And** 处理 API 错误
-**And** 编写单元测试使用本地 Mock 服务器
-
----
-
-#### Story 4.5: 实现六维度审查编排与降级策略
+> **简化说明**：原Story 4.5采用6维度并发执行（CompletableFuture + Semaphore）。
+> 基于 Epic 3 回顾决策，改为**单次 API 调用覆盖全部六维度**。
+> AI 模型完全有能力在一次调用中完成多维度分析，大幅降低成本和复杂度。
 
 **用户故事**：
 作为系统，
-我想要编排六维度审查流程并实现降级策略，
+我想要编排代码审查流程、管理 Prompt 渲染并实现降级策略，
 以便可靠地完成代码审查。
 
 **验收标准**：
@@ -1092,96 +1122,65 @@ interface AIProvider {
 **Given** 所有 AI 提供商已实现
 **When** 执行代码审查
 **Then** 创建 ReviewOrchestrator 服务：
-- review(ReviewTask task): ReviewResult
+- `review(ReviewTask task): ReviewResult`
 - 六维度：security、performance、maintainability、correctness、style、best_practices
 
-**And** 从项目配置加载审查维度配置
-**And** 为每个维度：
-- 选择 AI 模型（从 AI 模型配置）
-- 加载 Prompt 模板（从模板管理）
-- 调用 AI Provider 分析
-- 聚合结果到 ReviewResult
+**And** 实现单次调用审查流程：
+1. 通过 `ReviewContextAssembler.assembleContext(task)` 获取 CodeContext
+2. 从项目配置加载 AI 模型选择（主模型 + 备用模型）
+3. 从 PromptTemplate 加载审查模板
+4. 渲染 Prompt（注入 CodeContext 内容：rawDiff、files、statistics、taskMeta）
+5. 调用 AIProvider.analyze(codeContext, renderedTemplate)
+6. 解析响应为 ReviewResult（包含六维度的全部 issue）
+7. 持久化结果
 
-**And** 实现六维度并发执行策略（详细规范见 architecture.md）：
-- 使用 Semaphore 限制最大并发数 = 3（避免 AI API 限流）
-- 使用 ExecutorService 固定线程池（6 个线程，每个维度一个）
-- 使用 CompletableFuture 并行执行所有维度
-- 单个维度超时时间: 45 秒
-- 总审查超时时间: 60 秒
-- 任意维度失败不阻塞其他维度（错误隔离）
+**And** 实现 Prompt 渲染：
+- 简单字符串替换：`{{rawDiff}}`、`{{files}}`、`{{statistics}}`、`{{taskMeta}}`
+- Prompt 模板要求 AI 输出结构化 JSON，包含 `issues` 数组
+- 每个 issue 必须包含 `category`（六维度之一）、`severity`、`message`、`suggestion`
 
-**And** 实现完整降级策略（详细规范见 architecture.md）：
+**And** 实现模型降级策略（简化版，无并发）：
 
-**Level 0: 主 AI 模型（GPT-4 / Claude Opus）**
-- 429 Rate Limit → 指数退避重试（1s, 2s, 4s, 8s，最多 4 次）
-- 503 Service Unavailable → 指数退避重试（1s, 2s, 4s，最多 3 次）
-- Timeout (> 30s) → 立即重试 1 次
-- 401 Authentication Failed → 不重试，立即告警管理员，标记失败
+**Level 0: 主 AI 模型（如 GPT-4 / Claude Sonnet 4.5）**
+- 429 Rate Limit → 指数退避重试（1s, 2s, 4s，最多 3 次）
+- 503 Service Unavailable → 指数退避重试（1s, 2s，最多 2 次）
+- Timeout → 重试 1 次
+- 401 Authentication Failed → 不重试，标记失败，记录错误
 - 所有重试失败 → 降级到 Level 1
 
-**Level 1: 备用 AI 模型（GPT-3.5 / Claude Sonnet）**
+**Level 1: 备用 AI 模型（如 GPT-4o-mini / Claude Haiku）**
 - 相同的重试策略
 - 所有重试失败 → 降级到 Level 2
 
-**Level 2: 简化审查（快速模型 + 3 维度）**
-- 仅审查 Security、Bugs、Performance 三个维度
-- 使用 GPT-3.5 Turbo（最快模型）
-- 失败 → 降级到 Level 3
-
-**Level 3: 静态分析（无 AI）**
-- 使用规则引擎进行基础检查（null pointer, SQL injection patterns）
-- 返回结果并附加警告："AI 审查不可用，仅显示静态分析结果"
-- 失败 → Level 4
-
-**Level 4: 完全失败**
+**Level 2: 完全失败**
 - 标记任务为 FAILED
-- 记录详细错误日志
-- 发送告警通知管理员
+- 记录详细错误日志（包含所有降级尝试记录）
+- ReviewResult 标记为失败，包含降级事件链
 
-**And** 实现错误分类和处理：
-```java
-if (exception instanceof RateLimitException) {
-    // 触发指数退避重试（@Retryable 自动处理）
-    log.warn("Rate limit hit for task {}", task.getId());
-} else if (exception instanceof AuthenticationException) {
-    // 立即失败，发送告警
-    alertService.sendCriticalAlert("AI Authentication Failed", exception);
-    return ReviewResult.failed(task.getId(), "Authentication error");
-} else if (exception instanceof QuotaExceededException) {
-    // 切换到备用模型（触发 Level 1 降级）
-    log.error("AI quota exceeded, switching to secondary model");
-} else if (exception instanceof TimeoutException) {
-    // 单次重试后降级
-    log.warn("AI request timeout for task {}", task.getId());
-}
-```
+**And** 记录降级事件到 ReviewMetadata：
+- 使用的模型（主模型 or 备用模型）
+- 降级原因和次数
+- 每次 API 调用耗时和 token 数
 
-**And** 记录每个维度的审查耗时和降级事件
-**And** 性能验收标准（详细见 architecture.md）：
-- 100 行代码：总审查时间 < 10 秒（6 维度并行）
-- 500 行代码：总审查时间 < 20 秒
-- 1000 行代码：总审查时间 < 30 秒（NFR 要求）
-- 并发控制：同时运行的 AI 请求 ≤ 18（6 维度 × 3 并发）
+**And** 性能验收标准：
+- 100 行代码：单次 API 调用 < 15 秒
+- 500 行代码：单次 API 调用 < 30 秒
+- 1000 行代码：单次 API 调用 < 45 秒
 
 **And** 监控指标（Micrometer）：
-- `review.dimension.latency` - 每个维度的审查耗时
-- `review.total.latency` - 总审查时间
-- `review.concurrency.available` - 可用 Semaphore 许可数
-- `review.dimension.failure_rate` - 维度失败率
-- `ai.degradation.rate` - AI 降级率（Level 1+）
+- `review.total.latency` — 总审查时间
+- `review.model.used` — 使用的模型（标签）
+- `ai.degradation.count` — 降级次数
+- `review.success.rate` — 审查成功率
 
-**And** 编写集成测试模拟各种场景：
-- 测试正常场景（所有维度成功）
-- 测试单个维度失败（其他维度继续）
-- 测试主模型 429 错误（触发重试和降级）
-- 测试主模型 401 错误（立即失败并告警）
-- 测试超时场景（60 秒后返回部分结果）
-- 测试并发控制（验证最多 3 个并发 AI 调用）
-
-**And** 测试并发审查多个维度（验证性能提升）：
-- 串行执行 6 维度：预期 ~180s（6 × 30s）
-- 并行执行 6 维度：预期 ~30s（max of 6 parallel calls）
-- 验证实际并行加速比 ≥ 5x
+**And** 编写单元测试（Mock AIProvider）：
+- 测试正常场景（单次调用成功）
+- 测试主模型 429 → 重试成功
+- 测试主模型全部失败 → 降级到备用模型成功
+- 测试所有模型失败 → FAILED 状态
+- 测试 401 认证错误 → 不重试直接失败
+- 测试 Prompt 渲染（模板变量替换正确性）
+- 测试 ReviewResult 结构完整性
 
 ---
 
