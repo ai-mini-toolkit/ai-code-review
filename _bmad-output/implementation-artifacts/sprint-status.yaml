@@ -67,7 +67,7 @@ development_status:
   # Epic 3: 代码获取与AI审查上下文组装 (Code Fetching & AI Review Context Assembly)
   epic-3: in-progress
   3-1-diff-metadata-extraction: done
-  3-2-git-platform-api-client: backlog
+  3-2-git-platform-api-client: done
   3-3-ai-review-context-assembly: backlog
   epic-3-retrospective: optional
 

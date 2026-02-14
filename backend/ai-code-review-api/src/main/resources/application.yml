@@ -19,6 +19,16 @@ aicodereview:
   task:
     max-retries: ${REVIEW_TASK_MAX_RETRIES:3}
 
+# Git platform API configuration
+git:
+  platform:
+    connect-timeout-seconds: ${GIT_CONNECT_TIMEOUT:5}
+    github:
+      token: ${GIT_GITHUB_TOKEN:}
+    gitlab:
+      token: ${GIT_GITLAB_TOKEN:}
+      base-url: ${GIT_GITLAB_BASE_URL:https://gitlab.com}
+
 # Actuator endpoints
 management:
   endpoints:
