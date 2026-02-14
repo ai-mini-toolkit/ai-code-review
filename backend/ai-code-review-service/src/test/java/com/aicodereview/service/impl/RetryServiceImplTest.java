@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -200,8 +201,8 @@ class RetryServiceImplTest {
     class MaxRetriesTests {
 
         @Test
-        @DisplayName("Max retries reached: FAILED status, NO requeue")
-        void handleFailure_maxRetries_noRequeue() {
+        @DisplayName("Max retries reached: FAILED status, NO requeue, lock released")
+        void handleFailure_maxRetries_noRequeue_lockReleased() {
             ReviewTaskDTO dto = ReviewTaskDTO.builder()
                     .id(1L).status(TaskStatus.FAILED)
                     .priority(TaskPriority.HIGH)
@@ -212,6 +213,38 @@ class RetryServiceImplTest {
 
             verify(reviewTaskService).markTaskFailed(1L, "Third failure");
             verify(queueService, never()).requeueWithDelay(anyLong(), any(), anyInt());
+            verify(queueService).releaseLock(1L);
+        }
+
+        @Test
+        @DisplayName("Max retries reached: Redis lock release failure should not throw")
+        void handleFailure_maxRetries_lockReleaseFailure_noException() {
+            ReviewTaskDTO dto = ReviewTaskDTO.builder()
+                    .id(1L).status(TaskStatus.FAILED)
+                    .priority(TaskPriority.HIGH)
+                    .retryCount(3).maxRetries(3).build();
+            when(reviewTaskService.markTaskFailed(1L, "Third failure")).thenReturn(dto);
+            doThrow(new RuntimeException("Redis connection refused"))
+                    .when(queueService).releaseLock(anyLong());
+
+            // Should NOT throw exception
+            retryService.handleTaskFailure(1L, "Third failure", FailureType.RATE_LIMIT);
+
+            verify(queueService).releaseLock(1L);
+        }
+    }
+
+    @Nested
+    @DisplayName("handleTaskFailure - Input Validation")
+    class InputValidationTests {
+
+        @Test
+        @DisplayName("Null failureType should throw NullPointerException")
+        void handleFailure_nullFailureType_throwsNPE() {
+            assertThatThrownBy(() ->
+                    retryService.handleTaskFailure(1L, "error", null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("failureType must not be null");
         }
     }
 

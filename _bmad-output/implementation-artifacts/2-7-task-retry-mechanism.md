@@ -1,6 +1,6 @@
 # Story 2.7: 任务重试机制 (Task Retry Mechanism)
 
-Status: review
+Status: done
 
 ## Story
 
@@ -387,16 +387,34 @@ Claude Opus 4.6
 ### Completion Notes List
 
 - All 8 ACs implemented and verified
-- 17 unit tests in RetryServiceImplTest (error classification, delay calculation, retry/non-retry flows, Redis resilience)
+- 20 unit tests in RetryServiceImplTest (error classification, delay calculation, retry/non-retry flows, Redis resilience, input validation, lock release)
 - 5 integration tests in RetryIntegrationTest (full lifecycle, non-retryable, max retries, auth error, unknown error)
+- 6 unit tests in FailureTypeTest (size assertion, description, retryable classification, valueOf)
 - 3 new tests added to ReviewTaskServiceImplTest for markTaskFailedPermanently()
 - markTaskFailed() no longer re-enqueues to Redis — RetryService handles requeue via requeueWithDelay()
 - Pre-existing ReviewTaskIntegrationTest failures (webhook auth issues) are unrelated to Story 2.7
+
+### Senior Developer Review (AI)
+
+**Reviewer**: Claude Opus 4.6 (adversarial)
+**Date**: 2026-02-14
+
+**Issues Found**: 2 High, 2 Medium, 2 Low — all HIGH/MEDIUM fixed
+
+| ID | Severity | Issue | Fix |
+|----|----------|-------|-----|
+| H1 | HIGH | `calculateRetryDelaySeconds` jitter 99.8% probability of no effect | Changed to `nextInt(0, 2)` for ~50% jitter |
+| H2 | HIGH | Orphaned Redis lock when max retries exhausted (no `releaseLock()`) | Added `releaseLock()` in else branch + test |
+| M1 | MEDIUM | Missing `FailureTypeTest` in common module | Created FailureTypeTest with 6 tests |
+| M2 | MEDIUM | Null `failureType` parameter causes NPE | Added `Objects.requireNonNull()` + test |
+| L1 | LOW | Duplicate `isRetryable` between RetryService and FailureType | Accepted — provides service-level abstraction |
+| L2 | LOW | Story number in production code comment | Fixed — removed "(Story 2.7)" reference |
 
 ### File List
 
 **New Files:**
 - `backend/ai-code-review-common/src/main/java/com/aicodereview/common/enums/FailureType.java`
+- `backend/ai-code-review-common/src/test/java/com/aicodereview/common/enums/FailureTypeTest.java`
 - `backend/ai-code-review-service/src/main/java/com/aicodereview/service/RetryService.java`
 - `backend/ai-code-review-service/src/main/java/com/aicodereview/service/impl/RetryServiceImpl.java`
 - `backend/ai-code-review-service/src/test/java/com/aicodereview/service/impl/RetryServiceImplTest.java`
@@ -404,7 +422,7 @@ Claude Opus 4.6
 
 **Modified Files:**
 - `backend/ai-code-review-service/src/main/java/com/aicodereview/service/ReviewTaskService.java` — Added markTaskFailedPermanently()
-- `backend/ai-code-review-service/src/main/java/com/aicodereview/service/impl/ReviewTaskServiceImpl.java` — Added markTaskFailedPermanently(), removed enqueue from markTaskFailed()
+- `backend/ai-code-review-service/src/main/java/com/aicodereview/service/impl/ReviewTaskServiceImpl.java` — Added markTaskFailedPermanently(), removed enqueue from markTaskFailed(), cleaned comment
 - `backend/ai-code-review-service/src/test/java/com/aicodereview/service/impl/ReviewTaskServiceImplTest.java` — Updated markTaskFailed tests, added markTaskFailedPermanently tests
 
 ### Change Log
@@ -412,11 +430,12 @@ Claude Opus 4.6
 | Change | File | Description |
 |--------|------|-------------|
 | ADD | FailureType.java | Error classification enum with 6 types (4 retryable, 2 non-retryable) |
+| ADD | FailureTypeTest.java | 6 unit tests for FailureType enum (size, descriptions, classification) |
 | ADD | RetryService.java | Interface: handleTaskFailure(), calculateRetryDelaySeconds(), isRetryable() |
 | ADD | RetryServiceImpl.java | Orchestrates retry: retryable → markTaskFailed + requeueWithDelay; non-retryable → markTaskFailedPermanently |
 | MOD | ReviewTaskService.java | Added markTaskFailedPermanently() method signature |
 | MOD | ReviewTaskServiceImpl.java | Removed enqueue from markTaskFailed(), added markTaskFailedPermanently() with lock release |
-| ADD | RetryServiceImplTest.java | 17 unit tests covering all retry scenarios |
+| ADD | RetryServiceImplTest.java | 20 unit tests covering all retry scenarios + input validation + lock release |
 | MOD | ReviewTaskServiceImplTest.java | Updated markTaskFailed tests (no enqueue), added 3 markTaskFailedPermanently tests |
 | ADD | RetryIntegrationTest.java | 5 integration tests with real Redis + PostgreSQL |
 

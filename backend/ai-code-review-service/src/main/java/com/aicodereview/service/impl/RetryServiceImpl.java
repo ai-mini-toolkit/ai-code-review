@@ -9,6 +9,7 @@ import com.aicodereview.service.ReviewTaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -41,6 +42,8 @@ public class RetryServiceImpl implements RetryService {
 
     @Override
     public void handleTaskFailure(Long taskId, String errorMessage, FailureType failureType) {
+        Objects.requireNonNull(failureType, "failureType must not be null");
+
         if (!isRetryable(failureType)) {
             log.warn("Non-retryable failure for task {}: type={}, error={}", taskId, failureType, errorMessage);
             reviewTaskService.markTaskFailedPermanently(taskId, errorMessage);
@@ -61,16 +64,21 @@ public class RetryServiceImpl implements RetryService {
                 log.error("Failed to requeue task {} to Redis. DB state saved but not queued.", taskId, e);
             }
         } else {
-            // Max retries exhausted → FAILED
+            // Max retries exhausted → FAILED — release lock to prevent orphaned Redis keys
             log.warn("Task {} permanently failed after {} retries: {}", taskId, updated.getRetryCount(), errorMessage);
+            try {
+                queueService.releaseLock(taskId);
+            } catch (Exception e) {
+                log.error("Failed to release lock for max-retried task {}", taskId, e);
+            }
         }
     }
 
     @Override
     public int calculateRetryDelaySeconds(int retryCount) {
         int baseDelay = (int) Math.pow(2, retryCount); // 1, 2, 4
-        int jitterMs = ThreadLocalRandom.current().nextInt(0, 501); // 0-500ms
-        return baseDelay + (jitterMs >= 500 ? 1 : 0);
+        int jitter = ThreadLocalRandom.current().nextInt(0, 2); // 0 or 1 (~50% chance)
+        return baseDelay + jitter;
     }
 
     @Override

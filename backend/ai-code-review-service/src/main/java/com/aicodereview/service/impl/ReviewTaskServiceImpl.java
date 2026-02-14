@@ -242,8 +242,7 @@ public class ReviewTaskServiceImpl implements ReviewTaskService {
 
         ReviewTask updated = reviewTaskRepository.save(task);
 
-        // Note: Requeue responsibility moved to RetryService (Story 2.7)
-        // RetryService.handleTaskFailure() calls requeueWithDelay() with exponential backoff
+        // Requeue responsibility belongs to RetryService, which calls requeueWithDelay() with exponential backoff
 
         return ReviewTaskMapper.toDTO(updated);
     }

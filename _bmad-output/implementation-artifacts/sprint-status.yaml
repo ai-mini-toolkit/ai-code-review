@@ -61,7 +61,7 @@ development_status:
   2-4-webhook-receiving-controller: done
   2-5-code-review-task-creation-persistence: done
   2-6-redis-priority-queue-management: done
-  2-7-task-retry-mechanism: review
+  2-7-task-retry-mechanism: done
   epic-2-retrospective: optional
 
   # Epic 3: 代码解析与上下文提取 (Code Parsing & Context Extraction)
