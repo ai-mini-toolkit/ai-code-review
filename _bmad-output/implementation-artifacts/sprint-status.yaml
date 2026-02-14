@@ -54,7 +54,7 @@ development_status:
   epic-1-retrospective: done
 
   # Epic 2: Webhook 集成与任务队列 (Webhook Integration & Task Queue)
-  epic-2: in-progress
+  epic-2: done
   2-1-webhook-verification-abstraction: done
   2-2-github-webhook-signature-verification: done
   2-3-gitlab-aws-codecommit-webhook-verification: done
@@ -62,15 +62,13 @@ development_status:
   2-5-code-review-task-creation-persistence: done
   2-6-redis-priority-queue-management: done
   2-7-task-retry-mechanism: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: done
 
-  # Epic 3: 代码解析与上下文提取 (Code Parsing & Context Extraction)
+  # Epic 3: 代码获取与AI审查上下文组装 (Code Fetching & AI Review Context Assembly)
   epic-3: backlog
-  3-1-unified-diff-parser: backlog
-  3-2-git-api-client: backlog
-  3-3-programming-language-detection: backlog
-  3-4-java-call-chain-analysis-javaparser: backlog
-  3-5-code-context-extraction-service: backlog
+  3-1-diff-metadata-extraction: backlog
+  3-2-git-platform-api-client: backlog
+  3-3-ai-review-context-assembly: backlog
   epic-3-retrospective: optional
 
   # Epic 4: AI 智能审查引擎 (AI Smart Code Review Engine)

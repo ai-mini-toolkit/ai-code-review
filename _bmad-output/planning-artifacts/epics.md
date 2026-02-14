@@ -26,12 +26,13 @@
   - 重试机制（3 次重试，指数退避：1s、2s、4s）
   - 任务超时处理（单个审查任务 5 分钟超时）
 
-- **FR 1.3: 代码解析与上下文提取**
-  - Diff 内容解析（支持 Unified Diff 格式）
+- **FR 1.3: 代码获取与AI审查上下文组装**
+  - Diff 元数据提取（变更文件、变更类型、统计信息）
   - 完整文件内容获取（通过 Git API）
-  - 编程语言检测（基于文件扩展名和内容特征）
-  - 调用链路分析（Phase 1: JavaParser for Java; Phase 2: Tree-sitter for multi-language）
-  - 上下文提取（变更的函数、类、模块信息）
+  - 编程语言检测（基于文件扩展名）
+  - AI 优化的上下文组装（原始 Diff + 文件内容 + 元数据）
+  - 上下文窗口管理（大 Diff/文件截断策略，适配 AI token 限制）
+  - 利用 AI 原生代码理解能力，无需自建解析器或调用链路分析
 
 - **FR 1.4: AI 智能审查**
   - 六维度分析：
@@ -234,18 +235,17 @@
 
 ---
 
-### Epic 3: 代码解析与上下文提取
+### Epic 3: 代码获取与AI审查上下文组装
 
-**用户价值**：系统能够解析 Git 代码差异、获取完整文件内容、检测编程语言并分析调用链路，为 AI 审查提供丰富的代码上下文。
+**用户价值**：系统能够获取 Git 代码变更和完整文件内容，然后组装 AI 友好的审查上下文。利用 AI 的原生代码理解能力（Unified Diff 格式、代码结构、调用关系），无需自建复杂的代码解析器。
 
 **用户成果**：
-- 解析 Unified Diff 格式的代码差异
-- 通过 Git API 获取完整文件内容
-- 自动检测编程语言（基于扩展名和内容特征）
-- 生成 Java 代码的调用链路图（Phase 1: JavaParser）
-- 提取变更的函数、类、模块信息
+- 提取 Diff 元数据（变更文件、变更类型、统计信息）
+- 通过 Git 平台 API 获取完整文件内容
+- 组装 AI 优化的审查上下文（含上下文窗口管理）
+- 基于文件扩展名自动检测编程语言
 
-**覆盖的功能需求**：FR 1.3（代码解析与上下文提取）
+**覆盖的功能需求**：FR 1.3（代码获取与AI审查上下文组装）
 **覆盖的非功能需求**：NFR 1（性能）
 **覆盖的附加需求**：集成要求（Git API）、数据流要求
 
@@ -762,255 +762,192 @@ interface WebhookVerifier {
 
 ---
 
-### Epic 3: 代码解析与上下文提取 - Stories
+### Epic 3: 代码获取与AI审查上下文组装 - Stories
 
-#### Story 3.1: 实现 Unified Diff 格式解析器
+#### Story 3.1: Diff 元数据提取与变更分析
 
 **用户故事**：
 作为系统，
-我想要解析 Git Diff 内容（Unified Diff 格式），
-以便提取代码变更信息。
+我想要从原始 Diff 中提取基本元数据（变更文件、类型、统计），
+以便了解变更范围，同时保留原始 Diff 供 AI 直接阅读。
+
+**设计理念**：AI 模型原生理解 Unified Diff 格式，无需工程化解析 hunk 内容。
+本 Story 只提取结构化元数据，原始 Diff 内容直接传给 AI。
 
 **验收标准**：
 
-**Given** 审查任务已创建
-**When** 解析 Diff 内容
-**Then** 创建 DiffParser 类：
-- parseDiff(String diffContent): List<FileDiff>
-- FileDiff 包含：oldPath、newPath、changeType（ADD/MODIFY/DELETE）
-- FileDiff 包含：List<Hunk>（变更块）
-- Hunk 包含：oldStart、oldLines、newStart、newLines、lines
+**Given** 审查任务包含原始 Diff 内容
+**When** 提取 Diff 元数据
+**Then** 创建 DiffMetadataExtractor 类：
+- extractMetadata(String rawDiff): DiffMetadata
+- DiffMetadata 包含：List<FileDiffInfo>、DiffStatistics
 
-**And** 解析 diff header（--- a/file +++ b/file）
-**And** 解析 hunk header（@@ -l,s +l,s @@）
-**And** 识别变更行类型（+添加、-删除、 上下文）
-**And** 处理二进制文件（Binary files differ）
-**And** 处理文件重命名（rename from/to）
-**And** 编写单元测试使用真实 Git Diff 示例
-**And** 测试边界情况（空 Diff、大文件、特殊字符）
+**And** FileDiffInfo 包含：
+- oldPath: String（变更前路径）
+- newPath: String（变更后路径）
+- changeType: ChangeType（ADD / MODIFY / DELETE / RENAME）
+- language: Language（基于文件扩展名检测）
+- isBinary: boolean
+
+**And** DiffStatistics 包含：
+- totalFilesChanged: int
+- totalLinesAdded: int
+- totalLinesDeleted: int
+
+**And** 解析 diff header 提取文件路径：
+- `--- a/file` / `+++ b/file` 提取 oldPath / newPath
+- `new file mode` → ADD
+- `deleted file mode` → DELETE
+- `rename from/to` → RENAME
+- 其他 → MODIFY
+
+**And** 统计变更行数：
+- 以 `+` 开头（非 `+++`）→ 添加行
+- 以 `-` 开头（非 `---`）→ 删除行
+
+**And** 基于文件扩展名检测编程语言：
+- .java → JAVA, .py → PYTHON, .js → JAVASCRIPT, .ts → TYPESCRIPT
+- .go → GO, .rs → RUST, .rb → RUBY, .php → PHP, .kt → KOTLIN
+- .c/.cpp/.h → C/CPP, .cs → CSHARP, .swift → SWIFT
+- .yml/.yaml → YAML, .json → JSON, .xml → XML, .md → MARKDOWN
+- .sql → SQL, .sh → SHELL, .dockerfile/Dockerfile → DOCKERFILE
+- 无法识别 → UNKNOWN
+
+**And** 处理二进制文件标识（Binary files ... differ）
+**And** 不解析 hunk 内容（@@ 行仅用于行数统计，不构建 Hunk 对象）
+**And** Language 枚举定义在 common 模块
+**And** ChangeType 枚举定义在 common 模块
+**And** 编写单元测试：
+- 测试各种 changeType 识别（ADD/MODIFY/DELETE/RENAME）
+- 测试行数统计准确性
+- 测试语言检测覆盖所有支持扩展名
+- 测试二进制文件处理
+- 测试边界情况（空 Diff、仅重命名无内容变更）
+- 测试真实 Git Diff 样本
 
 ---
 
-#### Story 3.2: 实现 Git API 客户端（获取完整文件）
+#### Story 3.2: Git 平台 API 客户端
 
 **用户故事**：
 作为系统，
-我想要通过 Git 平台 API 获取完整文件内容，
+我想要通过 Git 平台 API 获取完整文件内容和 Diff 内容，
 以便为 AI 审查提供完整上下文。
 
 **验收标准**：
 
-**Given** Diff 解析器已实现
-**When** 需要获取完整文件
-**Then** 创建 GitClientService 接口：
+**Given** 项目已配置 Git 平台信息和访问令牌
+**When** 需要获取文件内容或 Diff
+**Then** 创建 GitPlatformClient 接口：
 - getFileContent(repoUrl, commitHash, filePath): String
-- getPlatform(): GitPlatform（GITHUB/GITLAB/CODECOMMIT）
+- getDiff(repoUrl, commitHash): String（获取 commit 的完整 diff）
+- getDiff(repoUrl, baseBranch, headBranch): String（获取 PR/MR 的 diff）
+- getPlatform(): GitPlatform
 
-**And** 实现 GitHubClient 使用 GitHub API：
-- GET /repos/{owner}/{repo}/contents/{path}?ref={sha}
-- 解码 Base64 内容
+**And** 实现 GitHubApiClient：
+- 文件内容: GET /repos/{owner}/{repo}/contents/{path}?ref={sha}，解码 Base64
+- Commit diff: GET /repos/{owner}/{repo}/commits/{sha}，Accept: application/vnd.github.diff
+- PR diff: GET /repos/{owner}/{repo}/pulls/{number}，Accept: application/vnd.github.diff
+- 认证: Bearer token（从 Project 配置或全局配置获取）
 
-**And** 实现 GitLabClient 使用 GitLab API：
-- GET /api/v4/projects/{id}/repository/files/{path}/raw?ref={sha}
+**And** 实现 GitLabApiClient：
+- 文件内容: GET /api/v4/projects/{id}/repository/files/{path}/raw?ref={sha}
+- Commit diff: GET /api/v4/projects/{id}/repository/commits/{sha}/diff
+- MR diff: GET /api/v4/projects/{id}/merge_requests/{iid}/changes
+- 认证: Private-Token header
 
-**And** 实现 AWSCodeCommitClient 使用 AWS SDK：
-- codecommit.getFile(repositoryName, filePath, commitSpecifier)
+**And** AWSCodeCommitClient 作为 Stub（TODO 标注）：
+- 与 Story 2.3 webhook 验证保持一致的策略
+- 接口方法抛出 UnsupportedOperationException("AWS CodeCommit support planned for future release")
 
-**And** 使用工厂模式根据平台选择客户端
-**And** 配置 HTTP 超时（10 秒）
-**And** 缓存文件内容到 Redis（TTL 5 分钟）
-**And** 编写单元测试使用 Mock API 响应
+**And** 使用工厂模式 GitPlatformClientFactory 根据 GitPlatform 选择客户端
+**And** API 访问令牌配置：
+- 扩展 Project 实体添加 accessToken 字段（加密存储）
+- 或使用全局配置 application.yml（初期方案，Story 中选择一种实现）
 
----
+**And** HTTP 超时配置（连接超时 5s，读取超时 10s）
+**And** 瞬态失败重试（HTTP 429/5xx，最多 2 次重试，指数退避）
+**And** 缓存文件内容到 Redis（TTL 5 分钟）：
+- key 格式: `git:file:{platform}:{repoUrl}:{commitHash}:{filePath}`
+- Diff 不缓存（每次获取最新）
 
-#### Story 3.3: 实现编程语言检测
-
-**用户故事**：
-作为系统，
-我想要自动检测代码文件的编程语言，
-以便选择合适的解析器和审查策略。
-
-**验收标准**：
-
-**Given** 文件路径或内容可用
-**When** 执行语言检测
-**Then** 创建 LanguageDetector 类：
-- detectByExtension(String filePath): Language
-- detectByContent(String content): Language
-- Language 枚举：JAVA、PYTHON、JAVASCRIPT、TYPESCRIPT、GO、UNKNOWN
-
-**And** 基于文件扩展名检测：
-- .java → JAVA
-- .py → PYTHON
-- .js → JAVASCRIPT
-- .ts → TYPESCRIPT
-- .go → GO
-
-**And** 扩展名不明确时使用内容特征检测：
-- 查找语言特定关键字（package、import、def、const）
-- 查找语言特定语法模式
-
-**And** 无法检测时返回 UNKNOWN
-**And** 编写单元测试覆盖所有支持语言
-**And** 测试边界情况（无扩展名、混合内容）
+**And** 编写单元测试使用 MockRestServiceServer 或 WireMock：
+- 测试各平台 API 调用路径和参数
+- 测试 Base64 解码（GitHub）
+- 测试认证 header 正确设置
+- 测试超时和重试行为
+- 测试 Redis 缓存命中/未命中
+- 测试错误处理（404 文件不存在、403 无权限、500 服务器错误）
 
 ---
 
-#### Story 3.4: 实现 Java 代码调用链路分析（JavaParser）
+#### Story 3.3: AI 审查上下文组装服务
 
 **用户故事**：
 作为系统，
-我想要分析 Java 代码的调用链路，
-以便生成调用图供 AI 审查参考。
+我想要将 Diff 元数据、原始 Diff、完整文件内容组装成 AI 友好的 CodeContext，
+以便 Epic 4 的 AI 审查引擎可以直接使用。
+
+**设计理念**：本 Story 是 Epic 3 的编排层，协调前两个 Story 的能力，
+组装出 AI 可直接消费的上下文。重点是上下文窗口管理——确保不超过 AI token 限制。
 
 **验收标准**：
 
-**Given** Java 文件内容已获取
-**When** 执行调用链路分析
-**Then** 集成 JavaParser 库依赖
-**And** 创建 JavaCallGraphAnalyzer 类：
-- analyze(String javaCode): CallGraph
-- CallGraph 包含：List<CallEdge>
-- CallEdge 包含：fromClass、fromMethod、toClass、toMethod、lineNumber
+**Given** DiffMetadataExtractor 和 GitPlatformClient 已实现
+**When** 为审查任务组装上下文
+**Then** 创建 ReviewContextAssembler 服务：
+- assembleContext(ReviewTask task): CodeContext
 
-**And** 解析类定义和方法声明
-**And** 识别方法调用表达式（MethodCallExpr）
-**And** 解析方法参数和返回类型
-**And** 处理继承和接口实现（符号解析）
-**And** 输出 Mermaid 格式调用图：
-```mermaid
-graph TD
-  ClassA.method1 --> ClassB.method2
-  ClassB.method2 --> ClassC.method3
-```
+**And** 编排流程：
+1. 通过 GitPlatformClient 获取原始 Diff（如果 task 中没有）
+2. 调用 DiffMetadataExtractor 提取元数据
+3. 对每个变更文件，通过 GitPlatformClient 获取完整文件内容
+4. 组装 CodeContext 对象
 
-**And** 性能测试标准（详细测试计划见 poc-javaparser-performance.md）：
+**And** CodeContext 数据模型（定义在 common 模块）：
+- rawDiff: String（原始 Unified Diff，AI 直接阅读）
+- files: List<FileInfo>（文件元数据：path, changeType, language）
+- fileContents: Map<String, String>（filePath → 完整文件内容）
+- statistics: DiffStatistics（变更统计）
+- taskMeta: TaskMetadata（PR title, description, author, branch — 从 ReviewTask 提取）
 
-**性能目标（p95）**:
-| 代码规模 | 总处理时间 | 内存使用 | 调用图准确率 | 验收标准 |
-|---------|-----------|---------|------------|---------|
-| 100 行 | < 1 秒 | < 50 MB | ≥ 95% | ✅ 必须达标 |
-| 500 行 | < 3 秒 | < 150 MB | ≥ 95% | ✅ 必须达标 |
-| 1000 行 | < 5 秒 | < 300 MB | ≥ 90% | ✅ 必须达标（NFR对齐）|
-| 5000 行 | < 20 秒 | < 1 GB | ≥ 85% | ⚠️ 可选目标 |
+**And** 上下文窗口管理（防止超过 AI token 限制）：
+- 可配置 maxContextTokens（默认 100,000 tokens，粗略估算 1 token ≈ 4 字符）
+- 截断策略（按优先级顺序保留）：
+  1. rawDiff（最重要，优先保留完整）
+  2. 变更文件的完整内容（按变更行数降序）
+  3. 未变更文件内容（如果还有空间）
+- 如果 rawDiff 本身超过限制，截断尾部并添加 `[TRUNCATED: diff too large, showing first N files]`
+- 单个文件超过 maxFileTokens（默认 10,000 tokens）时截断并标注
 
-**NFR 对齐**:
-- NFR 要求"单次审查 < 30s per 100 lines"
-- 调用图分析占总时间 ~10-15%
-- 1000 行代码: 5s 调用图 + 23s AI 审查 + 2s 其他 = 30s ✅
-
-**性能分解**:
-```
-Total Time (1000 lines): 5s
-├── AST Parsing: 1s (20%)
-├── Symbol Resolution: 2s (40%)
-├── Call Graph Construction: 1.5s (30%)
-└── Mermaid Generation: 0.5s (10%)
-```
-
-**And** 降级策略（如性能不达标）：
-
-**策略 1: 部分调用图（推荐）**
-- 触发条件: 处理时间 > 5s for 1000 lines 或 内存 > 500 MB
-- 实现: 仅分析变更文件的局部调用图（2 层深度）
-- 性能提升: 70-80%
-- Trade-off: 缺少跨文件调用链（超过 2 层）
-
-**策略 2: 禁用调用图**
-- 触发条件: 总变更行数 > 2000 或 文件数 > 20
-- 实现: 跳过调用图分析，返回占位消息
-- 性能提升: 100%（节省 5s）
-- Trade-off: 无调用图价值
-
-**策略 3: 异步生成（Phase 2 增强）**
-- 实现: 先返回审查结果（无调用图），后台异步生成
-- 通知: WebSocket 实时推送调用图完成通知
-- Trade-off: 需要额外的 WebSocket 基础设施
-
-**And** 配置项：
+**And** 配置项（application.yml）：
 ```yaml
-code-analysis:
-  call-graph:
-    enabled: true
-    timeout: 10s  # 单个文件分析超时
-    max-depth: 10  # 最大调用深度
-    max-nodes: 500  # 最大节点数（防止内存溢出）
-    performance-threshold:
-      max-time-ms: 5000  # 超过 5s 触发降级
-      max-memory-mb: 500  # 超过 500MB 触发降级
-    degradation-mode: partial  # partial / disabled
+review:
+  context:
+    max-context-tokens: 100000
+    max-file-tokens: 10000
+    max-files: 50
 ```
 
-**And** 监控指标：
-- `callgraph.analysis.latency` - 调用图分析耗时
-- `callgraph.analysis.accuracy` - 准确率（对比预期结果）
-- `callgraph.degradation.rate` - 降级触发率
+**And** Flyway 数据库迁移：
+- 添加 `code_context` JSONB 列到 `review_task` 表
+- 迁移版本号按现有序列递增
 
-**And** 编写单元测试使用示例 Java 代码：
-- 测试简单场景（单类、单方法调用）
-- 测试中等场景（3-5 个类、10-20 个方法）
-- 测试复杂场景（递归调用、重载方法、继承多态）
+**And** 组装完成后将 CodeContext 序列化为 JSON 存储到 review_task.code_context
+**And** 处理异常情况：
+- Git API 获取失败（某个文件）→ 跳过该文件，在 CodeContext 中标注
+- 所有文件获取失败 → 仅使用 rawDiff（降级模式）
+- 空 Diff → 返回空 CodeContext 并标注
 
-**And** 性能基准测试（使用 JMH）：
-```java
-@Benchmark
-@BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(TimeUnit.MILLISECONDS)
-public CallGraph benchmarkCallGraphAnalysis() {
-    return analyzer.analyze(javaCode1000Lines);
-}
-```
+**And** 编写单元测试：
+- 测试完整编排流程（mock GitPlatformClient 和 DiffMetadataExtractor）
+- 测试上下文截断逻辑（超大 Diff、超多文件）
+- 测试降级场景（部分文件获取失败）
+- 测试 CodeContext JSON 序列化/反序列化
 
-**And** 准确率验证测试：
-- 使用已知开源项目代码（Spring Boot, Apache Commons）
-- 手动标注预期调用关系（ground truth）
-- 计算准确率 = 正确识别的调用 / 总调用数
-- 目标: Precision ≥ 90%, Recall ≥ 90%
-
-**And** 边界测试：
-- 空类（无方法）
-- 超大类（100+ 方法）
-- 循环依赖（A → B → A）
-- 第三方库调用（仅记录，不深入分析）
-
-**And** 明确 Phase 1 限制（文档化）：
-- ⚠️ Phase 1 仅支持 Java 语言
-- ⚠️ 不支持跨项目依赖分析
-- ⚠️ 第三方库调用仅记录调用点，不分析库内部
-- 📅 Phase 2 计划: 集成 Tree-sitter 支持多语言（Python, JavaScript, Go）
-
----
-
-#### Story 3.5: 实现代码上下文提取服务
-
-**用户故事**：
-作为系统，
-我想要提取代码变更的完整上下文，
-以便为 AI 审查提供丰富的信息。
-
-**验收标准**：
-
-**Given** Diff 解析、文件获取、语言检测、调用链路分析已实现
-**When** 为审查任务提取上下文
-**Then** 创建 CodeContextService：
-- extractContext(ReviewTask task): CodeContext
-- CodeContext 包含：
-  - List<FileChange>（文件变更）
-  - Map<String, String> fullFileContents（完整文件）
-  - Map<String, Language> languages（语言映射）
-  - Map<String, CallGraph> callGraphs（调用图）
-
-**And** 对每个变更文件：
-- 解析 Diff 提取变更行
-- 获取完整文件内容
-- 检测编程语言
-- 如果是 Java，生成调用链路图
-
-**And** 提取变更的函数/类信息
-**And** 计算变更统计（添加行数、删除行数）
-**And** 处理大文件（> 1000 行）时仅提取变更周围的上下文（±20 行）
-**And** 将上下文存储到 `review_task` 表的 JSONB 列
-**And** 编写集成测试使用真实 Git 仓库
+**And** 编写集成测试：
+- 测试 ReviewTask + CodeContext 的数据库存储和查询
+- 测试 JSONB 列的正确存储
 
 ---
 
