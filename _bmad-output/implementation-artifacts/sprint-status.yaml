@@ -77,7 +77,7 @@ development_status:
   # - Simplified original 4.5 → new 4.4 (single-call architecture, no concurrency framework)
   epic-4: in-progress
   4-1-ai-provider-abstraction-layer: done
-  4-2-openai-compatible-provider: backlog
+  4-2-openai-compatible-provider: done
   4-3-anthropic-claude-provider: backlog
   4-4-review-orchestration-and-fallback: backlog
   epic-4-retrospective: optional

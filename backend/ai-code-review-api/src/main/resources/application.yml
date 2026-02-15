@@ -30,6 +30,13 @@ review:
 ai:
   provider:
     default: ${AI_PROVIDER_DEFAULT:openai}
+    openai:
+      api-key: ${AI_OPENAI_API_KEY:}
+      api-endpoint: ${AI_OPENAI_API_ENDPOINT:https://api.openai.com}
+      model: ${AI_OPENAI_MODEL:gpt-4}
+      max-tokens: ${AI_OPENAI_MAX_TOKENS:4000}
+      temperature: ${AI_OPENAI_TEMPERATURE:0.3}
+      timeout-seconds: ${AI_OPENAI_TIMEOUT:30}
 
 # Git platform API configuration
 git:
