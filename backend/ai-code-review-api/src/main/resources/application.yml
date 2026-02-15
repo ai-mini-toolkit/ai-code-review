@@ -37,6 +37,14 @@ ai:
       max-tokens: ${AI_OPENAI_MAX_TOKENS:4000}
       temperature: ${AI_OPENAI_TEMPERATURE:0.3}
       timeout-seconds: ${AI_OPENAI_TIMEOUT:30}
+    anthropic:
+      api-key: ${AI_ANTHROPIC_API_KEY:}
+      api-endpoint: ${AI_ANTHROPIC_API_ENDPOINT:https://api.anthropic.com}
+      model: ${AI_ANTHROPIC_MODEL:claude-sonnet-4-5-20250929}
+      max-tokens: ${AI_ANTHROPIC_MAX_TOKENS:4000}
+      temperature: ${AI_ANTHROPIC_TEMPERATURE:0.3}
+      timeout-seconds: ${AI_ANTHROPIC_TIMEOUT:60}
+      api-version: ${AI_ANTHROPIC_API_VERSION:2023-06-01}
 
 # Git platform API configuration
 git:
