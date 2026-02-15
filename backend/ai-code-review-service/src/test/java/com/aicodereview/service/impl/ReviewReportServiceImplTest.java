@@ -69,15 +69,9 @@ class ReviewReportServiceImplTest {
                 .author("developer@test.com")
                 .build();
 
+        // NOTE: HIGH is intentionally placed BEFORE CRITICAL for UserService.java
+        // to verify that sortBySeverityDesc() actually reorders them
         testIssues = List.of(
-                ReviewIssue.builder()
-                        .severity(IssueSeverity.CRITICAL)
-                        .category(IssueCategory.SECURITY)
-                        .filePath("UserService.java")
-                        .line(42)
-                        .message("SQL injection vulnerability")
-                        .suggestion("Use PreparedStatement")
-                        .build(),
                 ReviewIssue.builder()
                         .severity(IssueSeverity.HIGH)
                         .category(IssueCategory.PERFORMANCE)
@@ -87,12 +81,12 @@ class ReviewReportServiceImplTest {
                         .suggestion("Use batch query")
                         .build(),
                 ReviewIssue.builder()
-                        .severity(IssueSeverity.MEDIUM)
-                        .category(IssueCategory.MAINTAINABILITY)
-                        .filePath("Controller.java")
-                        .line(15)
-                        .message("Method too complex")
-                        .suggestion("Extract helper method")
+                        .severity(IssueSeverity.CRITICAL)
+                        .category(IssueCategory.SECURITY)
+                        .filePath("UserService.java")
+                        .line(42)
+                        .message("SQL injection vulnerability")
+                        .suggestion("Use PreparedStatement")
                         .build(),
                 ReviewIssue.builder()
                         .severity(IssueSeverity.LOW)
@@ -101,6 +95,14 @@ class ReviewReportServiceImplTest {
                         .line(30)
                         .message("Inconsistent naming")
                         .suggestion("Use camelCase")
+                        .build(),
+                ReviewIssue.builder()
+                        .severity(IssueSeverity.MEDIUM)
+                        .category(IssueCategory.MAINTAINABILITY)
+                        .filePath("Controller.java")
+                        .line(15)
+                        .message("Method too complex")
+                        .suggestion("Extract helper method")
                         .build()
         );
 
@@ -165,9 +167,15 @@ class ReviewReportServiceImplTest {
             assertThat(report.getIssuesByFile().get("Controller.java")).hasSize(2);
 
             // Verify sorted by severity descending within file group
+            // Input has HIGH before CRITICAL — sort must reorder
             List<ReviewIssue> userServiceIssues = report.getIssuesByFile().get("UserService.java");
             assertThat(userServiceIssues.get(0).getSeverity()).isEqualTo(IssueSeverity.CRITICAL);
             assertThat(userServiceIssues.get(1).getSeverity()).isEqualTo(IssueSeverity.HIGH);
+
+            // Input has LOW before MEDIUM — sort must reorder
+            List<ReviewIssue> controllerIssues = report.getIssuesByFile().get("Controller.java");
+            assertThat(controllerIssues.get(0).getSeverity()).isEqualTo(IssueSeverity.MEDIUM);
+            assertThat(controllerIssues.get(1).getSeverity()).isEqualTo(IssueSeverity.LOW);
         }
 
         @Test

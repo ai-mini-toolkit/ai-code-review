@@ -87,7 +87,7 @@ development_status:
   # renumbered original 5.4 → 5.3. CallGraph/AST parsing was removed in Epic 3.
   epic-5: in-progress
   5-1-review-result-persistence-storage: done
-  5-2-review-report-generation-service: review
+  5-2-review-report-generation-service: done
   5-3-review-result-query-api: backlog
   epic-5-retrospective: optional
 
@@ -108,8 +108,8 @@ development_status:
   epic-7-retrospective: optional
 
   # Epic 8: Web 管理界面 (Web Management Interface)
-  epic-8: backlog
-  8-1-project-management-interface: backlog
+  epic-8: in-progress
+  8-1-project-management-interface: ready-for-dev
   8-2-review-history-viewing-interface: backlog
   8-3-ai-model-configuration-interface: backlog
   8-4-prompt-template-editor: backlog

@@ -91,9 +91,9 @@ public class ReviewReportServiceImpl implements ReviewReportService {
                 .append(" | **Branch:** ").append(report.getBranch())
                 .append(" | **Author:** ").append(report.getAuthor()).append("\n");
         sb.append("**Reviewed:** ").append(formatInstant(report.getReviewedAt()))
-                .append(" | **Status:** ").append(report.getSuccess() ? "Passed" : "Failed").append("\n\n");
+                .append(" | **Status:** ").append(Boolean.TRUE.equals(report.getSuccess()) ? "Passed" : "Failed").append("\n\n");
 
-        if (!report.getSuccess()) {
+        if (!Boolean.TRUE.equals(report.getSuccess())) {
             sb.append("## Error\n\n");
             sb.append(report.getErrorMessage()).append("\n\n");
             return sb.toString();
@@ -125,10 +125,10 @@ public class ReviewReportServiceImpl implements ReviewReportService {
                 .append(" | <strong>Author:</strong> ").append(escapeHtml(report.getAuthor())).append("</p>\n");
         sb.append("<p><strong>Reviewed:</strong> ").append(formatInstant(report.getReviewedAt()))
                 .append(" | <strong>Status:</strong> <span style=\"color:")
-                .append(report.getSuccess() ? "#28a745" : "#dc3545").append(";font-weight:bold;\">")
-                .append(report.getSuccess() ? "Passed" : "Failed").append("</span></p>\n");
+                .append(Boolean.TRUE.equals(report.getSuccess()) ? "#28a745" : "#dc3545").append(";font-weight:bold;\">")
+                .append(Boolean.TRUE.equals(report.getSuccess()) ? "Passed" : "Failed").append("</span></p>\n");
 
-        if (!report.getSuccess()) {
+        if (!Boolean.TRUE.equals(report.getSuccess())) {
             sb.append("<div style=\"background:#f8d7da;border:1px solid #f5c6cb;padding:12px;border-radius:4px;margin:16px 0;\">\n");
             sb.append("<strong>Error:</strong> ").append(escapeHtml(report.getErrorMessage())).append("\n</div>\n");
             sb.append("</body>\n</html>");
@@ -230,8 +230,8 @@ public class ReviewReportServiceImpl implements ReviewReportService {
                         .append(" | ").append(issue.getSeverity() != null ? issue.getSeverity().name() : "-")
                         .append(" | ").append(issue.getCategory() != null ? issue.getCategory().name() : "-")
                         .append(" | ").append(issue.getLine() != null ? issue.getLine() : "-")
-                        .append(" | ").append(issue.getMessage() != null ? issue.getMessage() : "-")
-                        .append(" | ").append(issue.getSuggestion() != null ? issue.getSuggestion() : "-")
+                        .append(" | ").append(escapeMarkdownCell(issue.getMessage() != null ? issue.getMessage() : "-"))
+                        .append(" | ").append(escapeMarkdownCell(issue.getSuggestion() != null ? issue.getSuggestion() : "-"))
                         .append(" |\n");
             }
             sb.append("\n");
@@ -339,6 +339,13 @@ public class ReviewReportServiceImpl implements ReviewReportService {
             return "-";
         }
         return DATETIME_FORMATTER.format(instant);
+    }
+
+    private String escapeMarkdownCell(String text) {
+        if (text == null) {
+            return "";
+        }
+        return text.replace("|", "\\|");
     }
 
     private String escapeHtml(String text) {

@@ -1,6 +1,6 @@
 # Story 5.2: 实现审查报告生成服务
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
