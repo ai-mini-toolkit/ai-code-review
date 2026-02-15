@@ -83,11 +83,12 @@ development_status:
   epic-4-retrospective: optional
 
   # Epic 5: 审查报告与结果存储 (Review Reports & Result Storage)
-  epic-5: backlog
-  5-1-review-result-persistence-storage: backlog
+  # Updated per Epic 4 retrospective (2026-02-15): removed Story 5.3 (call-graph visualization),
+  # renumbered original 5.4 → 5.3. CallGraph/AST parsing was removed in Epic 3.
+  epic-5: in-progress
+  5-1-review-result-persistence-storage: done
   5-2-review-report-generation-service: backlog
-  5-3-call-chain-diagram-visualization: backlog
-  5-4-review-result-query-api: backlog
+  5-3-review-result-query-api: backlog
   epic-5-retrospective: optional
 
   # Epic 6: 质量阈值与 PR/MR 拦截 (Quality Thresholds & PR/MR Blocking)
