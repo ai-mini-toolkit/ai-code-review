@@ -30,6 +30,7 @@ review:
 ai:
   provider:
     default: ${AI_PROVIDER_DEFAULT:openai}
+    fallback: ${AI_PROVIDER_FALLBACK:anthropic}
     openai:
       api-key: ${AI_OPENAI_API_KEY:}
       api-endpoint: ${AI_OPENAI_API_ENDPOINT:https://api.openai.com}

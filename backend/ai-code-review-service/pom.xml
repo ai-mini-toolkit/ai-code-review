@@ -45,6 +45,12 @@
             <artifactId>spring-context</artifactId>
         </dependency>
 
+        <!-- Micrometer Core (metrics instrumentation) -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>

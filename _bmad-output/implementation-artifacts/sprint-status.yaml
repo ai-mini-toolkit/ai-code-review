@@ -79,7 +79,7 @@ development_status:
   4-1-ai-provider-abstraction-layer: done
   4-2-openai-compatible-provider: done
   4-3-anthropic-claude-provider: done
-  4-4-review-orchestration-and-fallback: backlog
+  4-4-review-orchestration-and-fallback: done
   epic-4-retrospective: optional
 
   # Epic 5: 审查报告与结果存储 (Review Reports & Result Storage)
