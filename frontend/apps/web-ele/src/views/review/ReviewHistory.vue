@@ -10,6 +10,7 @@ import {
   ElOption,
   ElPagination,
   ElSelect,
+  ElSkeleton,
   ElSpace,
   ElTable,
   ElTableColumn,
@@ -43,9 +44,13 @@ function handleViewDetail(row: ReviewTask) {
 }
 
 // 复制提交哈希
-function handleCopyCommitHash(commitHash: string) {
-  navigator.clipboard.writeText(commitHash);
-  ElMessage.success($t('review.messages.commitHashCopied'));
+async function handleCopyCommitHash(commitHash: string) {
+  try {
+    await navigator.clipboard.writeText(commitHash);
+    ElMessage.success($t('review.messages.commitHashCopied'));
+  } catch (error) {
+    ElMessage.error('复制失败');
+  }
 }
 
 // 刷新列表
@@ -140,6 +145,14 @@ onMounted(() => {
     <!-- 搜索工具栏 -->
     <div class="mb-4 flex flex-wrap items-center gap-3">
       <ElInput
+        :model-value="reviewStore.filters.projectId"
+        type="number"
+        :placeholder="$t('review.search.projectPlaceholder')"
+        clearable
+        class="!w-36"
+        @update:model-value="(val) => handleFilterChange('projectId', val ? Number(val) : undefined)"
+      />
+      <ElInput
         :model-value="reviewStore.filters.searchText"
         :placeholder="$t('review.search.placeholder')"
         clearable
@@ -173,8 +186,12 @@ onMounted(() => {
       {{ error }}
     </div>
 
+    <!-- 骨架屏加载 -->
+    <ElSkeleton v-if="loading && filteredReviews.length === 0" :rows="8" animated />
+
     <!-- 审查任务表格 -->
     <ElTable
+      v-else
       v-loading="loading"
       :data="filteredReviews"
       stripe
@@ -267,6 +284,7 @@ onMounted(() => {
         prop="createdAt"
         :label="$t('review.fields.createdAt')"
         width="180"
+        sortable
       >
         <template #default="{ row }">
           {{ formatDate(row.createdAt) }}

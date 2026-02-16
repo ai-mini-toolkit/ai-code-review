@@ -5,8 +5,8 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import {
-  getReviewIssuesApi,
   getReviewResultApi,
+  getReviewTaskApi,
   getReviewTasksApi,
 } from '#/api/review';
 import type {
@@ -19,6 +19,7 @@ export const useReviewStore = defineStore('review', () => {
   // State
   const reviews = ref<ReviewTask[]>([]);
   const currentReview = ref<ReviewResult | null>(null);
+  const currentTask = ref<ReviewTask | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
   const pagination = ref({
@@ -35,22 +36,9 @@ export const useReviewStore = defineStore('review', () => {
 
   // Getters
   const filteredReviews = computed(() => {
-    let result = reviews.value;
-
-    if (filters.value.status !== 'all') {
-      result = result.filter(r => r.status === filters.value.status);
-    }
-
-    if (filters.value.searchText) {
-      const search = filters.value.searchText.toLowerCase();
-      result = result.filter(r =>
-        r.commitHash.toLowerCase().includes(search) ||
-        r.author.toLowerCase().includes(search) ||
-        r.branch.toLowerCase().includes(search)
-      );
-    }
-
-    return result;
+    // Server-side filtering now handles status and searchText
+    // This getter just returns the server-filtered results
+    return reviews.value;
   });
 
   const errorCount = computed(() =>
@@ -73,6 +61,7 @@ export const useReviewStore = defineStore('review', () => {
       const params = {
         projectId: filters.value.projectId,
         status: filters.value.status === 'all' ? undefined : filters.value.status,
+        searchText: filters.value.searchText || undefined,
         page: pagination.value.page,
         pageSize: pagination.value.pageSize,
       };
@@ -98,6 +87,18 @@ export const useReviewStore = defineStore('review', () => {
       currentReview.value = await getReviewResultApi(resultId);
     } catch (e: any) {
       error.value = e.message || '加载审查详情失败';
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function fetchTask(taskId: number) {
+    loading.value = true;
+    error.value = null;
+    try {
+      currentTask.value = await getReviewTaskApi(taskId);
+    } catch (e: any) {
+      error.value = e.message || '加载任务详情失败';
     } finally {
       loading.value = false;
     }
@@ -130,6 +131,7 @@ export const useReviewStore = defineStore('review', () => {
     // State
     reviews,
     currentReview,
+    currentTask,
     loading,
     error,
     pagination,
@@ -142,6 +144,7 @@ export const useReviewStore = defineStore('review', () => {
     // Actions
     fetchReviews,
     fetchReviewDetail,
+    fetchTask,
     setFilter,
     resetFilters,
     setPage,

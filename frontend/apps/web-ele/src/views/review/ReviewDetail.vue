@@ -15,13 +15,14 @@ import {
   ElRow,
   ElSelect,
   ElOption,
+  ElSkeleton,
   ElTag,
   ElTabs,
   ElTabPane,
 } from 'element-plus';
 import { useReviewStore } from '#/stores/review';
-import { getReviewIssuesApi, getReviewTaskApi } from '#/api/review';
-import type { ReviewIssue, ReviewTask, IssueSeverity, IssueCategory } from '#/types/review';
+import { getReviewIssuesApi } from '#/api/review';
+import type { ReviewIssue, IssueSeverity, IssueCategory } from '#/types/review';
 
 const route = useRoute();
 const router = useRouter();
@@ -29,6 +30,7 @@ const reviewStore = useReviewStore();
 
 const resultId = Number(route.params.id);
 const currentReview = computed(() => reviewStore.currentReview);
+const currentTask = computed(() => reviewStore.currentTask);
 const loading = computed(() => reviewStore.loading);
 const error = computed(() => reviewStore.error);
 
@@ -37,9 +39,6 @@ const issues = ref<ReviewIssue[]>([]);
 const issuesLoading = ref(false);
 const filterSeverity = ref<IssueSeverity | 'all'>('all');
 const filterCategory = ref<IssueCategory | 'all'>('all');
-
-// 任务详情（用于显示基本信息）
-const taskDetail = ref<ReviewTask | null>(null);
 
 // 过滤后的问题列表
 const filteredIssues = computed(() => {
@@ -79,11 +78,7 @@ async function fetchReviewDetail() {
 
   // 同时加载关联的任务详情
   if (currentReview.value) {
-    try {
-      taskDetail.value = await getReviewTaskApi(currentReview.value.taskId);
-    } catch (e) {
-      console.error('Failed to load task detail:', e);
-    }
+    await reviewStore.fetchTask(currentReview.value.taskId);
   }
 }
 
@@ -102,11 +97,6 @@ async function fetchIssues() {
 // 返回列表
 function handleBack() {
   router.push({ name: 'ReviewHistory' });
-}
-
-// 导出报告
-function handleExportReport() {
-  ElMessage.info('报告导出功能开发中');
 }
 
 // 格式化时间
@@ -170,14 +160,17 @@ onMounted(() => {
       {{ error }}
     </div>
 
-    <div v-if="!loading && currentReview" class="review-detail">
+    <!-- 骨架屏加载 -->
+    <div v-if="loading && !currentReview">
+      <ElSkeleton :rows="5" animated class="mb-4" />
+      <ElSkeleton :rows="10" animated />
+    </div>
+
+    <div v-else-if="currentReview" class="review-detail">
       <!-- 顶部操作栏 -->
-      <div class="mb-4 flex items-center justify-between">
+      <div class="mb-4">
         <ElButton @click="handleBack">
           ← {{ $t('common.back') }}
-        </ElButton>
-        <ElButton type="primary" @click="handleExportReport">
-          {{ $t('review.actions.exportReport') }}
         </ElButton>
       </div>
 
@@ -231,25 +224,25 @@ onMounted(() => {
         </ElRow>
 
         <!-- 任务基本信息 -->
-        <div v-if="taskDetail" class="mt-4 border-t pt-4">
+        <div v-if="currentTask" class="mt-4 border-t pt-4">
           <ElDescriptions :column="3" size="small">
             <ElDescriptionsItem :label="$t('review.fields.branch')">
-              {{ taskDetail.branch }}
+              {{ currentTask.branch }}
             </ElDescriptionsItem>
             <ElDescriptionsItem :label="$t('review.fields.commitHash')">
-              {{ taskDetail.commitHash.substring(0, 8) }}
+              {{ currentTask.commitHash.substring(0, 8) }}
             </ElDescriptionsItem>
             <ElDescriptionsItem :label="$t('review.fields.author')">
-              {{ taskDetail.author }}
+              {{ currentTask.author }}
             </ElDescriptionsItem>
-            <ElDescriptionsItem v-if="taskDetail.prTitle" :label="$t('review.fields.prTitle')" :span="3">
-              {{ taskDetail.prTitle }}
+            <ElDescriptionsItem v-if="currentTask.prTitle" :label="$t('review.fields.prTitle')" :span="3">
+              {{ currentTask.prTitle }}
             </ElDescriptionsItem>
             <ElDescriptionsItem :label="$t('review.fields.createdAt')">
-              {{ formatDate(taskDetail.createdAt) }}
+              {{ formatDate(currentTask.createdAt) }}
             </ElDescriptionsItem>
             <ElDescriptionsItem :label="$t('review.fields.completedAt')">
-              {{ formatDate(taskDetail.completedAt) }}
+              {{ formatDate(currentTask.completedAt) }}
             </ElDescriptionsItem>
           </ElDescriptions>
         </div>
