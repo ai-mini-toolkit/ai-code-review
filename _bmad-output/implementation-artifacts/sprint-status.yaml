@@ -109,7 +109,7 @@ development_status:
 
   # Epic 8: Web 管理界面 (Web Management Interface)
   epic-8: in-progress
-  8-1-project-management-interface: ready-for-dev
+  8-1-project-management-interface: done
   8-2-review-history-viewing-interface: backlog
   8-3-ai-model-configuration-interface: backlog
   8-4-prompt-template-editor: backlog

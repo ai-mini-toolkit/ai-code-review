@@ -323,6 +323,7 @@ const filteredProjects = computed(() => {
 
 ### Change Log
 
+- **2026-02-16:** 代码审查完成 — 修复 4 个 HIGH + 3 个 MEDIUM 问题，包括 API 响应适配回归、缺失国际化 key、成功消息缺失、help 文本响应性、错误处理改进、webhook URL 修正。构建验证通过（26.03s）。
 - **2026-02-15:** Story 8.1 实施完成 — 项目管理界面全部 7 个任务完成，包括 API 响应适配、CRUD API 层、路由配置、列表页面（过滤/操作/删除确认）、创建编辑表单Drawer、详情页面（Webhook URL复制）、中英文国际化。
 
 ### File List
@@ -338,3 +339,63 @@ const filteredProjects = computed(() => {
 
 **修改文件：**
 - `frontend/apps/web-ele/src/api/request.ts` — 适配后端 ApiResponse 格式（codeField/successCode/错误处理）
+- `frontend/packages/locales/src/langs/en-US/common.json` — 添加 inputRequired, selectRequired
+- `frontend/packages/locales/src/langs/zh-CN/common.json` — 添加 inputRequired, selectRequired
+
+## Senior Developer Review (AI)
+
+**Reviewer:** ethan (Claude Opus 4.6)
+**Date:** 2026-02-16
+**Type:** Adversarial Code Review
+**Outcome:** ✅ **APPROVED** (with fixes applied)
+
+### Critical Finding: Regression Issue
+
+**🔴 H0 - API 响应适配代码被还原回 mock 格式** (已修复)
+- `request.ts` 中的 `defaultResponseInterceptor` 和 `errorMessageResponseInterceptor` 被还原为 mock 后端配置
+- 会导致所有后端 API 调用失败（`success` 字段无法识别）
+- **修复:** 恢复 `codeField: 'success'`, `successCode: (code) => code === true`，以及嵌套错误解析
+
+### Issues Found & Fixed
+
+#### HIGH Issues (4)
+1. ✅ **H1 - 缺少国际化 key** — `common.inputRequired` 和 `common.selectRequired` 不存在，验证消息显示为原始 key
+   - **修复:** 添加到 `en-US/common.json` 和 `zh-CN/common.json`
+
+2. ✅ **H2 - 创建/编辑成功后无提示** — `ProjectFormDrawer.onConfirm` 中缺少 `ElMessage.success()`，违反 AC #7
+   - **修复:** 添加成功消息（创建 + 编辑）
+
+3. ✅ **H3 - Webhook Secret help 文本非响应式** — `help: computed(...).value` 立即求值，编辑模式下永远不显示提示
+   - **修复:** 将 `help` 移入 `dependencies.help` 函数
+
+4. ✅ **H4 - handleDelete catch 吞掉所有错误** — 用户取消和 API 错误都被同一个 catch 捕获
+   - **修复:** 分离确认对话框和 API 调用的 try/catch
+
+#### MEDIUM Issues (3)
+5. ✅ **M1 - handleToggleEnabled 缺少 try/catch** — 未捕获的 promise rejection
+   - **修复:** 添加 try/catch 包裹 API 调用
+
+6. ✅ **M2 - Webhook URL 使用前端 origin** — `window.location.origin` 在开发环境指向前端地址（5666），对外部 webhook 无效
+   - **修复:** 使用 `useAppConfig` 获取后端 `apiURL`
+
+7. ✅ **M3 - URL 正则验证消息硬编码英文** — "URL must start with http:// or https://" 未国际化
+   - **修复:** 添加 `project.form.repoUrlInvalid` 到 locale 文件
+
+#### LOW Issues (informational, not fixed)
+- L1: `detail.vue` 路由参数未校验 `Number(undefined)` → `NaN`
+- L2: `fetchProjects` 缺少错误处理（全局拦截器已处理）
+
+### Test Results
+- ✅ 生产构建通过：`pnpm run build:ele` 成功（26.03s）
+- ✅ 无 TypeScript 编译错误
+- ✅ 所有修复已验证
+
+### Architecture Compliance
+- ✅ Vben Admin 模式正确：useVbenDrawer + useVbenForm + connectedComponent
+- ✅ 路由自动加载机制正确：`modules/*.ts` 通过 glob 自动发现
+- ✅ API 服务层模式正确：namespace + 独立函数
+- ✅ i18n 结构正确：`apps/web-ele/src/locales/langs/{locale}/*.json`
+- ✅ 错误处理符合后端 `ApiResponse<T>` 格式
+
+### Recommendation
+**APPROVED** — 所有 HIGH 和 MEDIUM 问题已修复并验证通过。Story 8.1 可进入 Done 状态。
