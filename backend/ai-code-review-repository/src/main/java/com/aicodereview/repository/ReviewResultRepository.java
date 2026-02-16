@@ -1,6 +1,9 @@
 package com.aicodereview.repository;
 
 import com.aicodereview.repository.entity.ReviewResultEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -46,4 +49,21 @@ public interface ReviewResultRepository extends JpaRepository<ReviewResultEntity
      */
     @Query("SELECT r FROM ReviewResultEntity r JOIN FETCH r.reviewTask WHERE r.success = :success ORDER BY r.createdAt DESC")
     List<ReviewResultEntity> findBySuccess(@Param("success") Boolean success);
+
+    // --- Paginated query methods for Story 5.3 ---
+
+    @EntityGraph(attributePaths = {"reviewTask", "reviewTask.project"})
+    @Query("SELECT r FROM ReviewResultEntity r")
+    Page<ReviewResultEntity> findAllWithAssociations(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"reviewTask", "reviewTask.project"})
+    Page<ReviewResultEntity> findByReviewTaskProjectId(@Param("projectId") Long projectId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"reviewTask", "reviewTask.project"})
+    @Query("SELECT r FROM ReviewResultEntity r WHERE r.success = :success")
+    Page<ReviewResultEntity> findPageBySuccess(@Param("success") Boolean success, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"reviewTask", "reviewTask.project"})
+    @Query("SELECT r FROM ReviewResultEntity r WHERE r.reviewTask.project.id = :projectId AND r.success = :success")
+    Page<ReviewResultEntity> findByProjectIdAndSuccess(@Param("projectId") Long projectId, @Param("success") Boolean success, Pageable pageable);
 }

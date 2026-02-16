@@ -4,7 +4,7 @@
 spring:
   # PostgreSQL DataSource Configuration (Docker network)
   datasource:
-    url: jdbc:postgresql://postgres:5432/aicodereview_dev
+    url: jdbc:postgresql://postgres:5432/aicodereview_dev?stringtype=unspecified
     username: ${DB_USERNAME:aicodereview}
     password: ${DB_PASSWORD:dev_password_123}
     driver-class-name: org.postgresql.Driver

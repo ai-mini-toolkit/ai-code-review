@@ -85,10 +85,10 @@ development_status:
   # Epic 5: 审查报告与结果存储 (Review Reports & Result Storage)
   # Updated per Epic 4 retrospective (2026-02-15): removed Story 5.3 (call-graph visualization),
   # renumbered original 5.4 → 5.3. CallGraph/AST parsing was removed in Epic 3.
-  epic-5: in-progress
+  epic-5: done
   5-1-review-result-persistence-storage: done
   5-2-review-report-generation-service: done
-  5-3-review-result-query-api: backlog
+  5-3-review-result-query-api: done
   epic-5-retrospective: optional
 
   # Epic 6: 质量阈值与 PR/MR 拦截 (Quality Thresholds & PR/MR Blocking)
@@ -110,11 +110,11 @@ development_status:
   # Epic 8: Web 管理界面 (Web Management Interface)
   epic-8: in-progress
   8-1-project-management-interface: done
-  8-2-review-history-viewing-interface: backlog
-  8-3-ai-model-configuration-interface: backlog
-  8-4-prompt-template-editor: backlog
-  8-5-review-report-visualization-components: backlog
-  8-6-user-authentication-authorization-jwt: backlog
+  8-2-review-history-viewing-interface: ready-for-dev
+  8-3-ai-model-configuration-interface: ready-for-dev
+  8-4-prompt-template-editor: ready-for-dev
+  8-5-review-report-visualization-components: ready-for-dev
+  8-6-user-authentication-authorization-jwt: ready-for-dev
   epic-8-retrospective: optional
 
   # Epic 9: 端到端测试与集成验证 (End-to-End Testing & Integration Verification)

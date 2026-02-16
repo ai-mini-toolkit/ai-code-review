@@ -2,7 +2,7 @@
 spring:
   # PostgreSQL DataSource Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5432/aicodereview_dev
+    url: jdbc:postgresql://localhost:5432/aicodereview_dev?stringtype=unspecified
     username: ${DB_USERNAME:aicodereview}
     password: ${DB_PASSWORD:dev_password_123}
     driver-class-name: org.postgresql.Driver

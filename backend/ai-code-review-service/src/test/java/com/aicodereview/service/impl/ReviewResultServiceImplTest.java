@@ -1,6 +1,7 @@
 package com.aicodereview.service.impl;
 
 import com.aicodereview.common.dto.result.ReviewResultDTO;
+import com.aicodereview.common.dto.result.ReviewSummaryDTO;
 import com.aicodereview.common.dto.review.ReviewIssue;
 import com.aicodereview.common.dto.review.ReviewMetadata;
 import com.aicodereview.common.dto.review.ReviewResult;
@@ -16,12 +17,17 @@ import com.aicodereview.repository.entity.ReviewResultEntity;
 import com.aicodereview.repository.entity.ReviewTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
 import java.util.List;
@@ -30,6 +36,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -254,5 +261,99 @@ class ReviewResultServiceImplTest {
 
         assertThatThrownBy(() -> reviewResultService.getResultByTaskId(999L))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Nested
+    @DisplayName("listResults - Paginated Query Tests")
+    class ListResultsTests {
+
+        private ReviewResultEntity createEntity(Long id, Long taskId, String projectName, boolean success) {
+            Project project = Project.builder().id(taskId).name(projectName).build();
+            ReviewTask task = ReviewTask.builder().id(taskId).project(project).branch("main").author("dev@test.com").build();
+            return ReviewResultEntity.builder()
+                    .id(id)
+                    .reviewTask(task)
+                    .statistics("{\"total\":2,\"bySeverity\":{},\"byCategory\":{}}")
+                    .success(success)
+                    .createdAt(Instant.now())
+                    .build();
+        }
+
+        @Test
+        @DisplayName("Should call findAll when no filters provided")
+        void shouldCallFindAllWhenNoFilters() {
+            Pageable pageable = PageRequest.of(0, 20);
+            Page<ReviewResultEntity> page = new PageImpl<>(
+                    List.of(createEntity(1L, 100L, "Project A", true)),
+                    pageable, 1);
+            when(reviewResultRepository.findAllWithAssociations(pageable)).thenReturn(page);
+
+            Page<ReviewSummaryDTO> result = reviewResultService.listResults(null, null, pageable);
+
+            assertThat(result.getTotalElements()).isEqualTo(1);
+            assertThat(result.getContent().get(0).getProjectName()).isEqualTo("Project A");
+            verify(reviewResultRepository).findAllWithAssociations(pageable);
+            verify(reviewResultRepository, never()).findByReviewTaskProjectId(any(), any());
+        }
+
+        @Test
+        @DisplayName("Should call findByReviewTaskProjectId when only projectId provided")
+        void shouldFilterByProjectIdOnly() {
+            Pageable pageable = PageRequest.of(0, 20);
+            Page<ReviewResultEntity> page = new PageImpl<>(
+                    List.of(createEntity(1L, 100L, "Project A", true)),
+                    pageable, 1);
+            when(reviewResultRepository.findByReviewTaskProjectId(eq(1L), eq(pageable))).thenReturn(page);
+
+            Page<ReviewSummaryDTO> result = reviewResultService.listResults(1L, null, pageable);
+
+            assertThat(result.getTotalElements()).isEqualTo(1);
+            verify(reviewResultRepository).findByReviewTaskProjectId(1L, pageable);
+        }
+
+        @Test
+        @DisplayName("Should call findPageBySuccess when only success provided")
+        void shouldFilterBySuccessOnly() {
+            Pageable pageable = PageRequest.of(0, 20);
+            Page<ReviewResultEntity> page = new PageImpl<>(
+                    List.of(createEntity(1L, 100L, "Project A", true)),
+                    pageable, 1);
+            when(reviewResultRepository.findPageBySuccess(eq(true), eq(pageable))).thenReturn(page);
+
+            Page<ReviewSummaryDTO> result = reviewResultService.listResults(null, true, pageable);
+
+            assertThat(result.getTotalElements()).isEqualTo(1);
+            assertThat(result.getContent().get(0).getSuccess()).isTrue();
+            verify(reviewResultRepository).findPageBySuccess(true, pageable);
+        }
+
+        @Test
+        @DisplayName("Should call findByProjectIdAndSuccess when both filters provided")
+        void shouldFilterByBothProjectIdAndSuccess() {
+            Pageable pageable = PageRequest.of(0, 20);
+            Page<ReviewResultEntity> page = new PageImpl<>(
+                    List.of(createEntity(1L, 100L, "Project A", false)),
+                    pageable, 1);
+            when(reviewResultRepository.findByProjectIdAndSuccess(eq(1L), eq(false), eq(pageable))).thenReturn(page);
+
+            Page<ReviewSummaryDTO> result = reviewResultService.listResults(1L, false, pageable);
+
+            assertThat(result.getTotalElements()).isEqualTo(1);
+            assertThat(result.getContent().get(0).getSuccess()).isFalse();
+            verify(reviewResultRepository).findByProjectIdAndSuccess(1L, false, pageable);
+        }
+
+        @Test
+        @DisplayName("Should return empty page when no results match")
+        void shouldReturnEmptyPageWhenNoResults() {
+            Pageable pageable = PageRequest.of(0, 20);
+            Page<ReviewResultEntity> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+            when(reviewResultRepository.findByReviewTaskProjectId(eq(999L), eq(pageable))).thenReturn(emptyPage);
+
+            Page<ReviewSummaryDTO> result = reviewResultService.listResults(999L, null, pageable);
+
+            assertThat(result.getTotalElements()).isZero();
+            assertThat(result.getContent()).isEmpty();
+        }
     }
 }

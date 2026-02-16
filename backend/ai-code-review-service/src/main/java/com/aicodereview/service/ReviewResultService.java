@@ -1,8 +1,11 @@
 package com.aicodereview.service;
 
 import com.aicodereview.common.dto.result.ReviewResultDTO;
+import com.aicodereview.common.dto.result.ReviewSummaryDTO;
 import com.aicodereview.common.dto.review.ReviewResult;
 import com.aicodereview.common.exception.ResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service interface for persisting and retrieving AI code review results.
@@ -41,4 +44,14 @@ public interface ReviewResultService {
      * @throws ResourceNotFoundException if no result exists for the task
      */
     ReviewResultDTO getResultByTaskId(Long taskId);
+
+    /**
+     * Lists review results with pagination and optional filtering.
+     *
+     * @param projectId optional project ID filter (null for all projects)
+     * @param success   optional success status filter (null for all statuses)
+     * @param pageable  pagination and sorting parameters
+     * @return paginated list of lightweight review summaries
+     */
+    Page<ReviewSummaryDTO> listResults(Long projectId, Boolean success, Pageable pageable);
 }

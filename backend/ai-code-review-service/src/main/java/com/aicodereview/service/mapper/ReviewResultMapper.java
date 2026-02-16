@@ -2,6 +2,7 @@ package com.aicodereview.service.mapper;
 
 import com.aicodereview.common.dto.result.ReviewResultDTO;
 import com.aicodereview.common.dto.result.ReviewStatisticsDTO;
+import com.aicodereview.common.dto.result.ReviewSummaryDTO;
 import com.aicodereview.common.dto.review.ReviewIssue;
 import com.aicodereview.common.dto.review.ReviewMetadata;
 import com.aicodereview.common.enums.IssueCategory;
@@ -208,6 +209,31 @@ public final class ReviewResultMapper {
                 .total(0)
                 .bySeverity(bySeverity)
                 .byCategory(byCategory)
+                .build();
+    }
+
+    /**
+     * Converts a ReviewResultEntity to a lightweight ReviewSummaryDTO for paginated listing.
+     * <p>
+     * Requires the entity's reviewTask and reviewTask.project to be eagerly loaded
+     * (e.g., via {@code @EntityGraph}).
+     * </p>
+     *
+     * @param entity the entity to convert (must not be null, with reviewTask.project loaded)
+     * @return the ReviewSummaryDTO
+     */
+    public static ReviewSummaryDTO toSummaryDTO(ReviewResultEntity entity) {
+        ReviewStatisticsDTO stats = deserializeStatistics(entity.getStatistics());
+        return ReviewSummaryDTO.builder()
+                .resultId(entity.getId())
+                .taskId(entity.getReviewTask().getId())
+                .projectName(entity.getReviewTask().getProject().getName())
+                .branch(entity.getReviewTask().getBranch())
+                .author(entity.getReviewTask().getAuthor())
+                .success(entity.getSuccess())
+                .errorMessage(entity.getErrorMessage())
+                .totalIssues(stats != null ? stats.getTotal() : 0)
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 

@@ -2,6 +2,7 @@ package com.aicodereview.service.impl;
 
 import com.aicodereview.common.dto.result.ReviewResultDTO;
 import com.aicodereview.common.dto.result.ReviewStatisticsDTO;
+import com.aicodereview.common.dto.result.ReviewSummaryDTO;
 import com.aicodereview.common.dto.review.ReviewIssue;
 import com.aicodereview.common.dto.review.ReviewMetadata;
 import com.aicodereview.common.dto.review.ReviewResult;
@@ -15,6 +16,8 @@ import com.aicodereview.repository.entity.ReviewTask;
 import com.aicodereview.service.ReviewResultService;
 import com.aicodereview.service.mapper.ReviewResultMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,6 +101,25 @@ public class ReviewResultServiceImpl implements ReviewResultService {
 
         // 8. Build and return DTO
         return ReviewResultMapper.toDTO(saved, issues, statistics, reviewResult.getMetadata());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ReviewSummaryDTO> listResults(Long projectId, Boolean success, Pageable pageable) {
+        log.debug("Listing review results: projectId={}, success={}, pageable={}", projectId, success, pageable);
+
+        Page<ReviewResultEntity> page;
+        if (projectId != null && success != null) {
+            page = reviewResultRepository.findByProjectIdAndSuccess(projectId, success, pageable);
+        } else if (projectId != null) {
+            page = reviewResultRepository.findByReviewTaskProjectId(projectId, pageable);
+        } else if (success != null) {
+            page = reviewResultRepository.findPageBySuccess(success, pageable);
+        } else {
+            page = reviewResultRepository.findAllWithAssociations(pageable);
+        }
+
+        return page.map(ReviewResultMapper::toSummaryDTO);
     }
 
     @Override

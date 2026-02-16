@@ -1,14 +1,19 @@
 package com.aicodereview.service.mapper;
 
 import com.aicodereview.common.dto.result.ReviewStatisticsDTO;
+import com.aicodereview.common.dto.result.ReviewSummaryDTO;
 import com.aicodereview.common.dto.review.ReviewIssue;
 import com.aicodereview.common.dto.review.ReviewMetadata;
 import com.aicodereview.common.enums.IssueCategory;
 import com.aicodereview.common.enums.IssueSeverity;
+import com.aicodereview.repository.entity.Project;
+import com.aicodereview.repository.entity.ReviewResultEntity;
+import com.aicodereview.repository.entity.ReviewTask;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -149,6 +154,61 @@ class ReviewResultMapperTest {
             assertThat(deserialized.getTotal()).isEqualTo(5);
             assertThat(deserialized.getBySeverity().get("CRITICAL")).isEqualTo(1);
             assertThat(deserialized.getBySeverity().get("HIGH")).isEqualTo(2);
+        }
+    }
+
+    @Nested
+    @DisplayName("toSummaryDTO Mapping")
+    class ToSummaryDTOTests {
+
+        @Test
+        @DisplayName("Should map successful result entity to summary DTO")
+        void shouldMapSuccessfulEntityToSummaryDTO() {
+            Project project = Project.builder().id(1L).name("My Project").build();
+            ReviewTask task = ReviewTask.builder().id(100L).project(project).branch("main").author("dev@test.com").build();
+            Instant now = Instant.now();
+            ReviewResultEntity entity = ReviewResultEntity.builder()
+                    .id(10L)
+                    .reviewTask(task)
+                    .statistics("{\"total\":5,\"bySeverity\":{\"CRITICAL\":1,\"HIGH\":2,\"MEDIUM\":2},\"byCategory\":{}}")
+                    .success(true)
+                    .errorMessage(null)
+                    .createdAt(now)
+                    .build();
+
+            ReviewSummaryDTO dto = ReviewResultMapper.toSummaryDTO(entity);
+
+            assertThat(dto.getResultId()).isEqualTo(10L);
+            assertThat(dto.getTaskId()).isEqualTo(100L);
+            assertThat(dto.getProjectName()).isEqualTo("My Project");
+            assertThat(dto.getBranch()).isEqualTo("main");
+            assertThat(dto.getAuthor()).isEqualTo("dev@test.com");
+            assertThat(dto.getSuccess()).isTrue();
+            assertThat(dto.getErrorMessage()).isNull();
+            assertThat(dto.getTotalIssues()).isEqualTo(5);
+            assertThat(dto.getCreatedAt()).isEqualTo(now);
+        }
+
+        @Test
+        @DisplayName("Should map failed result entity to summary DTO with zero issues")
+        void shouldMapFailedEntityToSummaryDTO() {
+            Project project = Project.builder().id(2L).name("Other Project").build();
+            ReviewTask task = ReviewTask.builder().id(200L).project(project).branch("feature").author("dev2@test.com").build();
+            ReviewResultEntity entity = ReviewResultEntity.builder()
+                    .id(20L)
+                    .reviewTask(task)
+                    .statistics("{}")
+                    .success(false)
+                    .errorMessage("API timeout")
+                    .createdAt(Instant.now())
+                    .build();
+
+            ReviewSummaryDTO dto = ReviewResultMapper.toSummaryDTO(entity);
+
+            assertThat(dto.getResultId()).isEqualTo(20L);
+            assertThat(dto.getSuccess()).isFalse();
+            assertThat(dto.getErrorMessage()).isEqualTo("API timeout");
+            assertThat(dto.getTotalIssues()).isZero();
         }
     }
 
