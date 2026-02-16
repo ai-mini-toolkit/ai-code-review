@@ -1,0 +1,60 @@
+{
+  "title": "项目管理",
+  "list": "项目列表",
+  "detail": "项目详情",
+  "create": "创建项目",
+  "edit": "编辑项目",
+  "fields": {
+    "name": "项目名称",
+    "description": "描述",
+    "gitPlatform": "Git 平台",
+    "repoUrl": "仓库地址",
+    "webhookSecret": "Webhook 密钥",
+    "enabled": "状态",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "webhookSecretConfigured": "密钥已配置",
+    "operations": "操作"
+  },
+  "status": {
+    "enabled": "启用",
+    "disabled": "禁用"
+  },
+  "platform": {
+    "github": "GitHub",
+    "gitlab": "GitLab",
+    "codecommit": "CodeCommit"
+  },
+  "actions": {
+    "enable": "启用",
+    "disable": "禁用",
+    "viewDetail": "查看详情",
+    "copyWebhookUrl": "复制 Webhook URL"
+  },
+  "messages": {
+    "createSuccess": "项目创建成功",
+    "updateSuccess": "项目更新成功",
+    "deleteSuccess": "项目删除成功",
+    "deleteConfirm": "确定要删除项目「{name}」吗？",
+    "deleteTitle": "确认删除",
+    "enableSuccess": "项目已启用",
+    "disableSuccess": "项目已禁用",
+    "webhookUrlCopied": "Webhook URL 已复制到剪贴板"
+  },
+  "search": {
+    "namePlaceholder": "按项目名称搜索",
+    "platformPlaceholder": "按平台过滤",
+    "statusPlaceholder": "按状态过滤",
+    "allPlatforms": "所有平台",
+    "allStatus": "所有状态"
+  },
+  "form": {
+    "namePlaceholder": "请输入项目名称",
+    "descriptionPlaceholder": "请输入项目描述（选填）",
+    "repoUrlPlaceholder": "如 https://github.com/org/repo",
+    "webhookSecretPlaceholder": "请输入 Webhook 密钥",
+    "webhookSecretEditHint": "留空则保持当前密钥不变",
+    "repoUrlInvalid": "URL 必须以 http:// 或 https:// 开头"
+  },
+  "webhookUrl": "Webhook URL"
+}

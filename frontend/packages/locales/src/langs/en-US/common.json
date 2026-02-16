@@ -20,5 +20,7 @@
   "yes": "Yes",
   "no": "No",
   "showSearchPanel": "Show search panel",
-  "hideSearchPanel": "Hide search panel"
+  "hideSearchPanel": "Hide search panel",
+  "inputRequired": "This field is required",
+  "selectRequired": "Please select an option"
 }

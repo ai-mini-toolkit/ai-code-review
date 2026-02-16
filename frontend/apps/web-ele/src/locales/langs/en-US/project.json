@@ -1,0 +1,60 @@
+{
+  "title": "Project Management",
+  "list": "Project List",
+  "detail": "Project Detail",
+  "create": "Create Project",
+  "edit": "Edit Project",
+  "fields": {
+    "name": "Project Name",
+    "description": "Description",
+    "gitPlatform": "Git Platform",
+    "repoUrl": "Repository URL",
+    "webhookSecret": "Webhook Secret",
+    "enabled": "Status",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "webhookSecretConfigured": "Secret Configured",
+    "operations": "Operations"
+  },
+  "status": {
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "platform": {
+    "github": "GitHub",
+    "gitlab": "GitLab",
+    "codecommit": "CodeCommit"
+  },
+  "actions": {
+    "enable": "Enable",
+    "disable": "Disable",
+    "viewDetail": "View Detail",
+    "copyWebhookUrl": "Copy Webhook URL"
+  },
+  "messages": {
+    "createSuccess": "Project created successfully",
+    "updateSuccess": "Project updated successfully",
+    "deleteSuccess": "Project deleted successfully",
+    "deleteConfirm": "Are you sure you want to delete project \"{name}\"?",
+    "deleteTitle": "Confirm Delete",
+    "enableSuccess": "Project enabled successfully",
+    "disableSuccess": "Project disabled successfully",
+    "webhookUrlCopied": "Webhook URL copied to clipboard"
+  },
+  "search": {
+    "namePlaceholder": "Search by project name",
+    "platformPlaceholder": "Filter by platform",
+    "statusPlaceholder": "Filter by status",
+    "allPlatforms": "All Platforms",
+    "allStatus": "All Status"
+  },
+  "form": {
+    "namePlaceholder": "Enter project name",
+    "descriptionPlaceholder": "Enter project description (optional)",
+    "repoUrlPlaceholder": "e.g. https://github.com/org/repo",
+    "webhookSecretPlaceholder": "Enter webhook secret",
+    "webhookSecretEditHint": "Leave empty to keep current secret",
+    "repoUrlInvalid": "URL must start with http:// or https://"
+  },
+  "webhookUrl": "Webhook URL"
+}
