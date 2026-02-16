@@ -1,0 +1,116 @@
+{
+  "title": "审查历史",
+  "history": "审查历史",
+  "detail": "审查详情",
+  "list": "审查列表",
+  "fields": {
+    "taskId": "任务 ID",
+    "type": "类型",
+    "status": "状态",
+    "priority": "优先级",
+    "projectName": "项目名称",
+    "repoUrl": "仓库地址",
+    "branch": "分支",
+    "commitHash": "提交哈希",
+    "author": "作者",
+    "prNumber": "PR/MR 编号",
+    "prTitle": "PR/MR 标题",
+    "createdAt": "创建时间",
+    "completedAt": "完成时间",
+    "processingTime": "处理耗时",
+    "totalFiles": "文件数",
+    "totalLines": "代码行数",
+    "totalIssues": "问题总数",
+    "score": "评分",
+    "thresholdStatus": "阈值状态"
+  },
+  "status": {
+    "PENDING": "等待中",
+    "RUNNING": "运行中",
+    "COMPLETED": "已完成",
+    "FAILED": "失败",
+    "all": "全部状态"
+  },
+  "type": {
+    "PR": "Pull Request",
+    "MR": "Merge Request",
+    "PUSH": "推送"
+  },
+  "thresholdStatus": {
+    "pass": "通过",
+    "blocked": "拦截",
+    "warning": "警告"
+  },
+  "severity": {
+    "Critical": "严重",
+    "High": "高",
+    "Medium": "中",
+    "Low": "低",
+    "Info": "信息"
+  },
+  "category": {
+    "security": "安全",
+    "performance": "性能",
+    "quality": "质量",
+    "style": "风格",
+    "bug": "缺陷",
+    "best_practice": "最佳实践"
+  },
+  "actions": {
+    "viewDetail": "查看详情",
+    "refresh": "刷新",
+    "resetFilters": "重置筛选",
+    "exportReport": "导出报告",
+    "copyCommitHash": "复制哈希"
+  },
+  "search": {
+    "placeholder": "搜索提交哈希、作者或分支",
+    "projectPlaceholder": "按项目过滤",
+    "statusPlaceholder": "按状态过滤",
+    "allProjects": "所有项目"
+  },
+  "summary": {
+    "title": "审查摘要",
+    "overview": "总览",
+    "issues": "问题列表",
+    "dimensions": "六维度分析",
+    "callGraph": "调用链路图",
+    "errorCount": "错误",
+    "warningCount": "警告",
+    "infoCount": "信息",
+    "issuesFound": "发现 {count} 个问题"
+  },
+  "issue": {
+    "title": "问题标题",
+    "description": "描述",
+    "filePath": "文件路径",
+    "lineNumber": "行号",
+    "codeSnippet": "代码片段",
+    "fixSuggestion": "修复建议",
+    "referenceLinks": "参考链接"
+  },
+  "filters": {
+    "severity": "按严重性筛选",
+    "category": "按类别筛选",
+    "allSeverities": "所有严重性",
+    "allCategories": "所有类别"
+  },
+  "messages": {
+    "loadFailed": "加载审查历史失败",
+    "loadDetailFailed": "加载审查详情失败",
+    "noResults": "暂无审查记录",
+    "commitHashCopied": "提交哈希已复制到剪贴板",
+    "reportExported": "报告导出成功"
+  },
+  "tabs": {
+    "overview": "总览",
+    "issues": "问题",
+    "dimensions": "维度分析",
+    "callGraph": "调用链路"
+  },
+  "empty": {
+    "noReviews": "暂无审查记录",
+    "noIssues": "未发现问题",
+    "startReview": "开始审查"
+  }
+}

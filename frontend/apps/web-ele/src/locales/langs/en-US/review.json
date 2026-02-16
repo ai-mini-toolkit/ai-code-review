@@ -1,0 +1,116 @@
+{
+  "title": "Review History",
+  "history": "Review History",
+  "detail": "Review Detail",
+  "list": "Review List",
+  "fields": {
+    "taskId": "Task ID",
+    "type": "Type",
+    "status": "Status",
+    "priority": "Priority",
+    "projectName": "Project Name",
+    "repoUrl": "Repository URL",
+    "branch": "Branch",
+    "commitHash": "Commit Hash",
+    "author": "Author",
+    "prNumber": "PR/MR Number",
+    "prTitle": "PR/MR Title",
+    "createdAt": "Created At",
+    "completedAt": "Completed At",
+    "processingTime": "Processing Time",
+    "totalFiles": "Files",
+    "totalLines": "Lines of Code",
+    "totalIssues": "Total Issues",
+    "score": "Score",
+    "thresholdStatus": "Threshold Status"
+  },
+  "status": {
+    "PENDING": "Pending",
+    "RUNNING": "Running",
+    "COMPLETED": "Completed",
+    "FAILED": "Failed",
+    "all": "All Status"
+  },
+  "type": {
+    "PR": "Pull Request",
+    "MR": "Merge Request",
+    "PUSH": "Push"
+  },
+  "thresholdStatus": {
+    "pass": "Pass",
+    "blocked": "Blocked",
+    "warning": "Warning"
+  },
+  "severity": {
+    "Critical": "Critical",
+    "High": "High",
+    "Medium": "Medium",
+    "Low": "Low",
+    "Info": "Info"
+  },
+  "category": {
+    "security": "Security",
+    "performance": "Performance",
+    "quality": "Quality",
+    "style": "Style",
+    "bug": "Bug",
+    "best_practice": "Best Practice"
+  },
+  "actions": {
+    "viewDetail": "View Detail",
+    "refresh": "Refresh",
+    "resetFilters": "Reset Filters",
+    "exportReport": "Export Report",
+    "copyCommitHash": "Copy Hash"
+  },
+  "search": {
+    "placeholder": "Search by commit hash, author or branch",
+    "projectPlaceholder": "Filter by project",
+    "statusPlaceholder": "Filter by status",
+    "allProjects": "All Projects"
+  },
+  "summary": {
+    "title": "Review Summary",
+    "overview": "Overview",
+    "issues": "Issues",
+    "dimensions": "Six Dimensions Analysis",
+    "callGraph": "Call Graph",
+    "errorCount": "Errors",
+    "warningCount": "Warnings",
+    "infoCount": "Info",
+    "issuesFound": "{count} issues found"
+  },
+  "issue": {
+    "title": "Issue Title",
+    "description": "Description",
+    "filePath": "File Path",
+    "lineNumber": "Line Number",
+    "codeSnippet": "Code Snippet",
+    "fixSuggestion": "Fix Suggestion",
+    "referenceLinks": "Reference Links"
+  },
+  "filters": {
+    "severity": "Filter by Severity",
+    "category": "Filter by Category",
+    "allSeverities": "All Severities",
+    "allCategories": "All Categories"
+  },
+  "messages": {
+    "loadFailed": "Failed to load review history",
+    "loadDetailFailed": "Failed to load review detail",
+    "noResults": "No review records found",
+    "commitHashCopied": "Commit hash copied to clipboard",
+    "reportExported": "Report exported successfully"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "issues": "Issues",
+    "dimensions": "Dimensions",
+    "callGraph": "Call Graph"
+  },
+  "empty": {
+    "noReviews": "No review records",
+    "noIssues": "No issues found",
+    "startReview": "Start Review"
+  }
+}
