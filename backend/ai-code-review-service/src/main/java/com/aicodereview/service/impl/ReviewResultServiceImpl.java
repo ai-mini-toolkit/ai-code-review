@@ -6,6 +6,7 @@ import com.aicodereview.common.dto.result.ReviewSummaryDTO;
 import com.aicodereview.common.dto.review.ReviewIssue;
 import com.aicodereview.common.dto.review.ReviewMetadata;
 import com.aicodereview.common.dto.review.ReviewResult;
+import com.aicodereview.common.dto.threshold.ThresholdValidationResultDTO;
 import com.aicodereview.common.enums.TaskStatus;
 import com.aicodereview.common.exception.DuplicateResourceException;
 import com.aicodereview.common.exception.ResourceNotFoundException;
@@ -14,7 +15,9 @@ import com.aicodereview.repository.ReviewTaskRepository;
 import com.aicodereview.repository.entity.ReviewResultEntity;
 import com.aicodereview.repository.entity.ReviewTask;
 import com.aicodereview.service.ReviewResultService;
+import com.aicodereview.service.ThresholdValidationService;
 import com.aicodereview.service.mapper.ReviewResultMapper;
+import com.aicodereview.service.mapper.ThresholdMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,11 +43,14 @@ public class ReviewResultServiceImpl implements ReviewResultService {
 
     private final ReviewResultRepository reviewResultRepository;
     private final ReviewTaskRepository reviewTaskRepository;
+    private final ThresholdValidationService thresholdValidationService;
 
     public ReviewResultServiceImpl(ReviewResultRepository reviewResultRepository,
-                                    ReviewTaskRepository reviewTaskRepository) {
+                                    ReviewTaskRepository reviewTaskRepository,
+                                    ThresholdValidationService thresholdValidationService) {
         this.reviewResultRepository = reviewResultRepository;
         this.reviewTaskRepository = reviewTaskRepository;
+        this.thresholdValidationService = thresholdValidationService;
     }
 
     @Override
@@ -75,17 +81,24 @@ public class ReviewResultServiceImpl implements ReviewResultService {
         List<ReviewIssue> issues = reviewResult.getIssues() != null ? reviewResult.getIssues() : List.of();
         ReviewStatisticsDTO statistics = ReviewResultMapper.calculateStatistics(issues);
 
-        // 5. Serialize JSONB fields
+        // 5. Threshold validation (after statistics, before task status update)
+        ThresholdValidationResultDTO thresholdResult =
+                thresholdValidationService.validate(task.getProject().getId(), statistics);
+        log.info("Threshold validation for task {}: passed={}", taskId, thresholdResult.isPassed());
+
+        // 6. Serialize JSONB fields
         String issuesJson = ReviewResultMapper.serializeIssues(issues);
         String statisticsJson = ReviewResultMapper.serializeStatistics(statistics);
         String metadataJson = ReviewResultMapper.serializeMetadata(reviewResult.getMetadata());
+        String thresholdResultJson = ThresholdMapper.serializeValidationResult(thresholdResult);
 
-        // 6. Build and persist entity
+        // 7. Build and persist entity
         ReviewResultEntity entity = ReviewResultEntity.builder()
                 .reviewTask(task)
                 .issues(issuesJson)
                 .statistics(statisticsJson)
                 .metadata(metadataJson)
+                .thresholdResult(thresholdResultJson)
                 .success(reviewResult.isSuccess())
                 .errorMessage(reviewResult.getErrorMessage())
                 .build();
@@ -93,13 +106,13 @@ public class ReviewResultServiceImpl implements ReviewResultService {
         ReviewResultEntity saved = reviewResultRepository.save(entity);
         log.info("Review result persisted with id: {} for task: {}", saved.getId(), taskId);
 
-        // 7. Update task status to COMPLETED
+        // 8. Update task status to COMPLETED
         task.setStatus(TaskStatus.COMPLETED);
         task.setCompletedAt(Instant.now());
         reviewTaskRepository.save(task);
         log.info("ReviewTask {} status updated to COMPLETED", taskId);
 
-        // 8. Build and return DTO
+        // 9. Build and return DTO
         return ReviewResultMapper.toDTO(saved, issues, statistics, reviewResult.getMetadata());
     }
 

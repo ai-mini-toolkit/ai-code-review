@@ -77,6 +77,15 @@ public class ReviewResultEntity {
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
+    /**
+     * JSONB object with threshold validation result (passed, violations, action).
+     * Nullable: historical review results don't have threshold validation.
+     *
+     * @since 6.2.0
+     */
+    @Column(name = "threshold_result", columnDefinition = "jsonb")
+    private String thresholdResult;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

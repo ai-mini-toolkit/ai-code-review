@@ -5,6 +5,8 @@ import com.aicodereview.common.dto.result.ReviewSummaryDTO;
 import com.aicodereview.common.dto.review.ReviewIssue;
 import com.aicodereview.common.dto.review.ReviewMetadata;
 import com.aicodereview.common.dto.review.ReviewResult;
+import com.aicodereview.common.dto.threshold.ThresholdValidationResultDTO;
+import com.aicodereview.common.dto.threshold.ThresholdViolationDTO;
 import com.aicodereview.common.enums.IssueCategory;
 import com.aicodereview.common.enums.IssueSeverity;
 import com.aicodereview.common.enums.TaskStatus;
@@ -15,6 +17,7 @@ import com.aicodereview.repository.ReviewTaskRepository;
 import com.aicodereview.repository.entity.Project;
 import com.aicodereview.repository.entity.ReviewResultEntity;
 import com.aicodereview.repository.entity.ReviewTask;
+import com.aicodereview.service.ThresholdValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -55,10 +58,15 @@ class ReviewResultServiceImplTest {
     @Mock
     private ReviewTaskRepository reviewTaskRepository;
 
+    @Mock
+    private ThresholdValidationService thresholdValidationService;
+
     @InjectMocks
     private ReviewResultServiceImpl reviewResultService;
 
     private ReviewTask testTask;
+    private static final ThresholdValidationResultDTO PASSED_RESULT = ThresholdValidationResultDTO.builder()
+            .passed(true).violations(List.of()).action(null).build();
 
     @BeforeEach
     void setUp() {
@@ -111,6 +119,7 @@ class ReviewResultServiceImplTest {
 
         when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
         when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+        when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
         when(reviewResultRepository.save(any(ReviewResultEntity.class)))
                 .thenAnswer(invocation -> {
                     ReviewResultEntity entity = invocation.getArgument(0);
@@ -158,6 +167,7 @@ class ReviewResultServiceImplTest {
 
         when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
         when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+        when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
         when(reviewResultRepository.save(any(ReviewResultEntity.class)))
                 .thenAnswer(invocation -> {
                     ReviewResultEntity entity = invocation.getArgument(0);
@@ -354,6 +364,99 @@ class ReviewResultServiceImplTest {
 
             assertThat(result.getTotalElements()).isZero();
             assertThat(result.getContent()).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("Threshold Validation Integration (Story 6.2)")
+    class ThresholdValidationIntegration {
+
+        @Test
+        @DisplayName("Should invoke threshold validation during saveResult and persist result")
+        void shouldInvokeThresholdValidationAndPersistResult() {
+            // Given - threshold validation returns violations
+            ThresholdValidationResultDTO thresholdResult = ThresholdValidationResultDTO.builder()
+                    .passed(false)
+                    .violations(List.of(
+                            ThresholdViolationDTO.builder()
+                                    .rule("CRITICAL <= 0")
+                                    .actual(1)
+                                    .threshold(0)
+                                    .build()
+                    ))
+                    .action("BLOCK_MERGE")
+                    .build();
+
+            List<ReviewIssue> issues = List.of(
+                    ReviewIssue.builder()
+                            .severity(IssueSeverity.CRITICAL)
+                            .category(IssueCategory.SECURITY)
+                            .filePath("Vuln.java")
+                            .line(10)
+                            .message("SQL injection")
+                            .suggestion("Use parameterized query")
+                            .build()
+            );
+            ReviewResult reviewResult = ReviewResult.success(issues, ReviewMetadata.builder()
+                    .providerId("openai").model("gpt-4").build());
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(thresholdResult);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(10L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+
+            // When
+            ReviewResultDTO result = reviewResultService.saveResult(100L, reviewResult);
+
+            // Then - threshold validation was invoked
+            verify(thresholdValidationService).validate(eq(1L), any());
+
+            // Entity stored with thresholdResult JSON
+            ArgumentCaptor<ReviewResultEntity> entityCaptor = ArgumentCaptor.forClass(ReviewResultEntity.class);
+            verify(reviewResultRepository).save(entityCaptor.capture());
+            ReviewResultEntity savedEntity = entityCaptor.getValue();
+            assertThat(savedEntity.getThresholdResult()).isNotNull();
+            assertThat(savedEntity.getThresholdResult()).contains("BLOCK_MERGE");
+            assertThat(savedEntity.getThresholdResult()).contains("CRITICAL <= 0");
+
+            // DTO contains deserialized threshold result
+            assertThat(result.getThresholdResult()).isNotNull();
+            assertThat(result.getThresholdResult().isPassed()).isFalse();
+            assertThat(result.getThresholdResult().getViolations()).hasSize(1);
+            assertThat(result.getThresholdResult().getAction()).isEqualTo("BLOCK_MERGE");
+        }
+
+        @Test
+        @DisplayName("Should persist null thresholdResult for passed validation with no action")
+        void shouldHandlePassedValidation() {
+            ReviewResult reviewResult = ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(11L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+
+            ReviewResultDTO result = reviewResultService.saveResult(100L, reviewResult);
+
+            // Even passed result is persisted (not null — the validation ran)
+            ArgumentCaptor<ReviewResultEntity> entityCaptor = ArgumentCaptor.forClass(ReviewResultEntity.class);
+            verify(reviewResultRepository).save(entityCaptor.capture());
+            assertThat(entityCaptor.getValue().getThresholdResult()).isNotNull();
+            assertThat(entityCaptor.getValue().getThresholdResult()).contains("\"passed\":true");
         }
     }
 }

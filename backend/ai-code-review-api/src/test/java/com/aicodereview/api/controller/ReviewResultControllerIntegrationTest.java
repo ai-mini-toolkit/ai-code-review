@@ -3,6 +3,8 @@ package com.aicodereview.api.controller;
 import com.aicodereview.common.dto.review.ReviewIssue;
 import com.aicodereview.common.dto.review.ReviewMetadata;
 import com.aicodereview.common.dto.review.ReviewResult;
+import com.aicodereview.common.dto.threshold.ThresholdConfigDTO;
+import com.aicodereview.common.dto.threshold.ThresholdRuleDTO;
 import com.aicodereview.common.enums.IssueCategory;
 import com.aicodereview.common.enums.IssueSeverity;
 import com.aicodereview.common.enums.TaskPriority;
@@ -13,6 +15,7 @@ import com.aicodereview.repository.ReviewResultRepository;
 import com.aicodereview.repository.ReviewTaskRepository;
 import com.aicodereview.repository.entity.Project;
 import com.aicodereview.repository.entity.ReviewTask;
+import com.aicodereview.service.ProjectService;
 import com.aicodereview.service.ReviewResultService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -448,5 +451,119 @@ class ReviewResultControllerIntegrationTest {
         List<Map<String, Object>> content = (List<Map<String, Object>>) data.get("content");
         assertThat(content).isEmpty();
         assertThat(((Number) data.get("totalElements")).intValue()).isEqualTo(0);
+    }
+
+    // ===== Threshold Validation Integration (Story 6.2) =====
+
+    @Test
+    @Order(30)
+    @DisplayName("GET /result should include thresholdResult for review with disabled thresholds")
+    void shouldIncludeThresholdResultForDisabledThresholds() {
+        // Projects created in @BeforeAll have default thresholds (enabled=false)
+        ResponseEntity<Map> response = restTemplate.getForEntity(
+                "/api/v1/reviews/" + taskId1 + "/result", Map.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Map<String, Object> data = getData(response.getBody());
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> thresholdResult = (Map<String, Object>) data.get("thresholdResult");
+        assertThat(thresholdResult).isNotNull();
+        assertThat(thresholdResult.get("passed")).isEqualTo(true);
+        assertThat((List<?>) thresholdResult.get("violations")).isEmpty();
+        assertThat(thresholdResult.get("action")).isNull();
+    }
+
+    @Test
+    @Order(31)
+    @DisplayName("Should persist threshold violations for project with enabled thresholds")
+    @SuppressWarnings("unchecked")
+    void shouldPersistThresholdViolationsForEnabledThresholds(
+            @Autowired ProjectService projectService,
+            @Autowired ProjectRepository projectRepository,
+            @Autowired ReviewTaskRepository reviewTaskRepository,
+            @Autowired ReviewResultService reviewResultService) {
+
+        // Create project with strict thresholds enabled
+        Project project = projectRepository.save(Project.builder()
+                .name("Threshold Test Project")
+                .repoUrl("https://github.com/test/threshold-proj")
+                .gitPlatform("GitHub")
+                .webhookSecret("thresh-secret")
+                .enabled(true)
+                .build());
+
+        // Enable thresholds via service (which uses cache-aware method)
+        ThresholdConfigDTO thresholdConfig = ThresholdConfigDTO.builder()
+                .enabled(true)
+                .rules(List.of(
+                        ThresholdRuleDTO.builder().severity("CRITICAL").maxCount(0).build(),
+                        ThresholdRuleDTO.builder().severity("HIGH").maxCount(2).build(),
+                        ThresholdRuleDTO.builder().totalIssues(10).build()
+                ))
+                .action("BLOCK_MERGE")
+                .build();
+        projectService.updateThresholds(project.getId(), thresholdConfig);
+
+        // Create a RUNNING task
+        ReviewTask task = reviewTaskRepository.save(ReviewTask.builder()
+                .project(project).repoUrl(project.getRepoUrl())
+                .branch("feature/violations").commitHash("viol123").author("dev@test.com")
+                .taskType(TaskType.PULL_REQUEST).priority(TaskPriority.HIGH)
+                .status(TaskStatus.RUNNING).retryCount(0).maxRetries(3)
+                .build());
+
+        // Save review result with issues that violate thresholds
+        List<ReviewIssue> issues = List.of(
+                ReviewIssue.builder()
+                        .severity(IssueSeverity.CRITICAL).category(IssueCategory.SECURITY)
+                        .filePath("Auth.java").line(1).message("Hardcoded password")
+                        .suggestion("Use environment variable").build(),
+                ReviewIssue.builder()
+                        .severity(IssueSeverity.HIGH).category(IssueCategory.PERFORMANCE)
+                        .filePath("Db.java").line(10).message("N+1 query")
+                        .suggestion("Use JOIN FETCH").build(),
+                ReviewIssue.builder()
+                        .severity(IssueSeverity.HIGH).category(IssueCategory.PERFORMANCE)
+                        .filePath("Db.java").line(20).message("Missing index")
+                        .suggestion("Add index").build(),
+                ReviewIssue.builder()
+                        .severity(IssueSeverity.HIGH).category(IssueCategory.STYLE)
+                        .filePath("Code.java").line(5).message("Long method")
+                        .suggestion("Refactor").build()
+        );
+        reviewResultService.saveResult(task.getId(), ReviewResult.success(issues,
+                ReviewMetadata.builder().providerId("openai").model("gpt-4")
+                        .promptTokens(100).completionTokens(50).durationMs(500L)
+                        .degradationEvents(List.of()).build()));
+
+        // Fetch via API and verify threshold result
+        ResponseEntity<Map> response = restTemplate.getForEntity(
+                "/api/v1/reviews/" + task.getId() + "/result", Map.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Map<String, Object> data = getData(response.getBody());
+
+        Map<String, Object> thresholdResult = (Map<String, Object>) data.get("thresholdResult");
+        assertThat(thresholdResult).isNotNull();
+        assertThat(thresholdResult.get("passed")).isEqualTo(false);
+        assertThat(thresholdResult.get("action")).isEqualTo("BLOCK_MERGE");
+
+        List<Map<String, Object>> violations = (List<Map<String, Object>>) thresholdResult.get("violations");
+        assertThat(violations).isNotEmpty();
+
+        // CRITICAL <= 0 violated (actual: 1)
+        assertThat(violations.stream().anyMatch(v ->
+                "CRITICAL <= 0".equals(v.get("rule"))
+                        && ((Number) v.get("actual")).intValue() == 1
+                        && ((Number) v.get("threshold")).intValue() == 0
+        )).isTrue();
+
+        // HIGH <= 2 violated (actual: 3)
+        assertThat(violations.stream().anyMatch(v ->
+                "HIGH <= 2".equals(v.get("rule"))
+                        && ((Number) v.get("actual")).intValue() == 3
+                        && ((Number) v.get("threshold")).intValue() == 2
+        )).isTrue();
     }
 }

@@ -256,6 +256,7 @@ public final class ReviewResultMapper {
                 .issues(issues)
                 .statistics(statistics)
                 .metadata(metadata)
+                .thresholdResult(ThresholdMapper.deserializeValidationResult(entity.getThresholdResult()))
                 .success(entity.getSuccess())
                 .errorMessage(entity.getErrorMessage())
                 .createdAt(entity.getCreatedAt())

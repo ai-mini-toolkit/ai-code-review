@@ -2,6 +2,7 @@ package com.aicodereview.common.dto.result;
 
 import com.aicodereview.common.dto.review.ReviewIssue;
 import com.aicodereview.common.dto.review.ReviewMetadata;
+import com.aicodereview.common.dto.threshold.ThresholdValidationResultDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +31,7 @@ public class ReviewResultDTO {
     private List<ReviewIssue> issues;
     private ReviewStatisticsDTO statistics;
     private ReviewMetadata metadata;
+    private ThresholdValidationResultDTO thresholdResult;
     private Boolean success;
     private String errorMessage;
     private Instant createdAt;

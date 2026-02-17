@@ -94,7 +94,7 @@ development_status:
   # Epic 6: 质量阈值与 PR/MR 拦截 (Quality Thresholds & PR/MR Blocking)
   epic-6: in-progress
   6-1-threshold-configuration-management: done
-  6-2-threshold-validation-engine: in-progress
+  6-2-threshold-validation-engine: review
   6-3-github-check-runs-status-update: backlog
   6-4-gitlab-aws-codecommit-status-update: backlog
   epic-6-retrospective: optional

@@ -2,6 +2,7 @@ package com.aicodereview.service.mapper;
 
 import com.aicodereview.common.dto.threshold.ThresholdConfigDTO;
 import com.aicodereview.common.dto.threshold.ThresholdRuleDTO;
+import com.aicodereview.common.dto.threshold.ThresholdValidationResultDTO;
 import com.aicodereview.common.enums.IssueSeverity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -133,6 +134,46 @@ public final class ThresholdMapper {
                 throw new IllegalArgumentException(
                         "Rule[" + index + "]: 'totalIssues' must be >= 0, got: " + rule.getTotalIssues());
             }
+        }
+    }
+
+    /**
+     * Serializes a ThresholdValidationResultDTO to a JSON string for JSONB storage.
+     *
+     * @param result the validation result (may be null)
+     * @return JSON string representation, or null if input is null
+     * @throws IllegalStateException if serialization fails
+     * @since 6.2.0
+     */
+    public static String serializeValidationResult(ThresholdValidationResultDTO result) {
+        if (result == null) {
+            return null;
+        }
+        try {
+            return OBJECT_MAPPER.writeValueAsString(result);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize threshold validation result to JSON", e);
+            throw new IllegalStateException("Failed to serialize threshold validation result to JSON", e);
+        }
+    }
+
+    /**
+     * Deserializes a JSON string to a ThresholdValidationResultDTO.
+     *
+     * @param json the JSON string from JSONB column (may be null)
+     * @return ThresholdValidationResultDTO object, or null if input is null/blank
+     * @throws IllegalStateException if deserialization fails
+     * @since 6.2.0
+     */
+    public static ThresholdValidationResultDTO deserializeValidationResult(String json) {
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+        try {
+            return OBJECT_MAPPER.readValue(json, ThresholdValidationResultDTO.class);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to deserialize threshold validation result from JSON: {}", json, e);
+            throw new IllegalStateException("Failed to deserialize threshold validation result from JSON", e);
         }
     }
 
