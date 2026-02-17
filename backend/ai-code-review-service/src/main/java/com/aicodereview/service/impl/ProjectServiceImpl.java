@@ -7,11 +7,14 @@ import com.aicodereview.common.exception.DuplicateResourceException;
 import com.aicodereview.common.exception.ResourceNotFoundException;
 import com.aicodereview.repository.ProjectRepository;
 import com.aicodereview.repository.entity.Project;
+import com.aicodereview.common.dto.threshold.ThresholdConfigDTO;
 import com.aicodereview.service.ProjectService;
+import com.aicodereview.service.mapper.ThresholdMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -134,6 +137,34 @@ public class ProjectServiceImpl implements ProjectService {
         return toDTO(project);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "thresholds", key = "#p0")
+    public ThresholdConfigDTO getThresholds(Long projectId) {
+        log.debug("Getting thresholds for project: {}", projectId);
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project", projectId));
+        return ThresholdMapper.deserialize(project.getThresholds());
+    }
+
+    @Override
+    @Caching(evict = {
+            @CacheEvict(value = "thresholds", key = "#p0"),
+            @CacheEvict(value = "projects", key = "#p0")
+    })
+    public ThresholdConfigDTO updateThresholds(Long projectId, ThresholdConfigDTO config) {
+        log.info("Updating thresholds for project: {}", projectId);
+        ThresholdMapper.validate(config);
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project", projectId));
+
+        project.setThresholds(ThresholdMapper.serialize(config));
+        projectRepository.save(project);
+        log.info("Thresholds updated for project: {}", projectId);
+        return ThresholdMapper.deserialize(project.getThresholds());
+    }
+
     private ProjectDTO toDTO(Project project) {
         return ProjectDTO.builder()
                 .id(project.getId())
@@ -143,6 +174,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .gitPlatform(project.getGitPlatform())
                 .repoUrl(project.getRepoUrl())
                 .webhookSecretConfigured(project.getWebhookSecret() != null && !project.getWebhookSecret().isEmpty())
+                .thresholds(ThresholdMapper.deserialize(project.getThresholds()))
                 .createdAt(project.getCreatedAt())
                 .updatedAt(project.getUpdatedAt())
                 .build();

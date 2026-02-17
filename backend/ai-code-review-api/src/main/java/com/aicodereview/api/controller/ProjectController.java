@@ -4,6 +4,7 @@ import com.aicodereview.common.dto.ApiResponse;
 import com.aicodereview.common.dto.project.CreateProjectRequest;
 import com.aicodereview.common.dto.project.ProjectDTO;
 import com.aicodereview.common.dto.project.UpdateProjectRequest;
+import com.aicodereview.common.dto.threshold.ThresholdConfigDTO;
 import com.aicodereview.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -60,5 +61,22 @@ public class ProjectController {
         log.info("DELETE /api/v1/projects/{} - Deleting project", id);
         projectService.deleteProject(id);
         return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @GetMapping("/{id}/thresholds")
+    public ResponseEntity<ApiResponse<ThresholdConfigDTO>> getThresholds(
+            @PathVariable("id") Long id) {
+        log.debug("GET /api/v1/projects/{}/thresholds - Getting thresholds", id);
+        ThresholdConfigDTO config = projectService.getThresholds(id);
+        return ResponseEntity.ok(ApiResponse.success(config));
+    }
+
+    @PutMapping("/{id}/thresholds")
+    public ResponseEntity<ApiResponse<ThresholdConfigDTO>> updateThresholds(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody ThresholdConfigDTO config) {
+        log.info("PUT /api/v1/projects/{}/thresholds - Updating thresholds", id);
+        ThresholdConfigDTO updated = projectService.updateThresholds(id, config);
+        return ResponseEntity.ok(ApiResponse.success(updated));
     }
 }

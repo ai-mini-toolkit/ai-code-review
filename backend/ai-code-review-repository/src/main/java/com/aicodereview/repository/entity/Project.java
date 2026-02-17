@@ -48,6 +48,10 @@ public class Project {
     @Column(name = "webhook_secret", nullable = false, length = 500)
     private String webhookSecret;
 
+    @Column(name = "thresholds", columnDefinition = "jsonb", nullable = false)
+    @Builder.Default
+    private String thresholds = "{}";
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

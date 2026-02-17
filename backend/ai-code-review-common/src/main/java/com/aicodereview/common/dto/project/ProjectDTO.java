@@ -1,5 +1,6 @@
 package com.aicodereview.common.dto.project;
 
+import com.aicodereview.common.dto.threshold.ThresholdConfigDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class ProjectDTO {
     private String gitPlatform;
     private String repoUrl;
     private Boolean webhookSecretConfigured;
+    private ThresholdConfigDTO thresholds;
     private Instant createdAt;
     private Instant updatedAt;
 }
