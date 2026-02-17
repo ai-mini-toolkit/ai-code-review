@@ -46,7 +46,12 @@
     "High": "高",
     "Medium": "中",
     "Low": "低",
-    "Info": "信息"
+    "Info": "信息",
+    "critical": "严重",
+    "high": "高",
+    "medium": "中",
+    "low": "低",
+    "info": "信息"
   },
   "category": {
     "security": "安全",
@@ -54,7 +59,14 @@
     "quality": "质量",
     "style": "风格",
     "bug": "缺陷",
-    "best_practice": "最佳实践"
+    "best_practice": "最佳实践",
+    "SECURITY": "安全",
+    "PERFORMANCE": "性能",
+    "QUALITY": "质量",
+    "STYLE": "风格",
+    "BUG": "缺陷",
+    "BEST_PRACTICE": "最佳实践",
+    "bestPractice": "最佳实践"
   },
   "actions": {
     "viewDetail": "查看详情",
@@ -112,5 +124,21 @@
     "noReviews": "暂无审查记录",
     "noIssues": "未发现问题",
     "startReview": "开始审查"
+  },
+  "codeSnippet": {
+    "copy": "复制",
+    "copied": "已复制",
+    "copyFailed": "复制失败"
+  },
+  "chart": {
+    "noData": "暂无数据",
+    "issueCount": "问题数",
+    "fixSuggestion": "修复建议",
+    "expand": "查看详情",
+    "collapse": "收起"
+  },
+  "callGraph": {
+    "noData": "暂无调用链路数据",
+    "renderError": "调用链路图渲染失败"
   }
 }

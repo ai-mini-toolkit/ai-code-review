@@ -46,7 +46,12 @@
     "High": "High",
     "Medium": "Medium",
     "Low": "Low",
-    "Info": "Info"
+    "Info": "Info",
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "info": "Info"
   },
   "category": {
     "security": "Security",
@@ -54,7 +59,14 @@
     "quality": "Quality",
     "style": "Style",
     "bug": "Bug",
-    "best_practice": "Best Practice"
+    "best_practice": "Best Practice",
+    "SECURITY": "Security",
+    "PERFORMANCE": "Performance",
+    "QUALITY": "Quality",
+    "STYLE": "Style",
+    "BUG": "Bug",
+    "BEST_PRACTICE": "Best Practice",
+    "bestPractice": "Best Practice"
   },
   "actions": {
     "viewDetail": "View Detail",
@@ -112,5 +124,21 @@
     "noReviews": "No review records",
     "noIssues": "No issues found",
     "startReview": "Start Review"
+  },
+  "codeSnippet": {
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFailed": "Copy failed"
+  },
+  "chart": {
+    "noData": "No data available",
+    "issueCount": "Issue Count",
+    "fixSuggestion": "Fix Suggestion",
+    "expand": "View Details",
+    "collapse": "Collapse"
+  },
+  "callGraph": {
+    "noData": "No call graph data",
+    "renderError": "Failed to render call graph"
   }
 }
