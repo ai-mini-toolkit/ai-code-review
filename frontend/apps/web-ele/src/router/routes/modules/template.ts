@@ -27,7 +27,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('#/views/template/editor.vue'),
         meta: {
           hideInMenu: true,
-          title: $t('template.editor'),
+          title: $t('template.editor.title'),
         },
       },
     ],

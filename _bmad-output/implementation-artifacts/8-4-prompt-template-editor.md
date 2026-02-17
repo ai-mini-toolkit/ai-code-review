@@ -754,6 +754,21 @@ claude-sonnet-4-5-20250929
 5. `showRestoreDefault` computed — only shows "Restore Default" button for existing default templates (`isDefault: true`)
 6. All 7 pnpm packages added: `@codemirror/autocomplete`, `@codemirror/commands`, `@codemirror/language`, `@codemirror/state`, `@codemirror/view`, `codemirror`, `mustache`
 
+### Code Review Record
+
+**Review Date:** 2026-02-17
+**Issues Fixed (4):** H1, M1, M2, M2+L3 side-fix (previewPlaceholder i18n)
+
+| ID | Severity | Description | Fix Applied |
+|----|----------|-------------|-------------|
+| H1 | HIGH | 两个 locale 文件中 `template.editor` 键重复定义（字符串被对象覆盖），`$t('template.editor')` 返回 `[object Object]` | 删除顶层字符串 key；router 和 editor.vue 改用 `$t('template.editor.title')` |
+| H2 | HIGH | AC7 "支持查看历史版本" 未实现；后端无 `/templates/{id}/versions` 端点 | 添加 backlog follow-up task；前端已展示版本 badge，历史功能等后端 API 支持 |
+| M1 | MEDIUM | `previewTemplateApi` 是死代码；Task 5.4 明确要求"调用预览 API" | `updatePreview()` 改为调用 `previewTemplateApi`，加客户端降级；增加 `previewing` loading 状态 |
+| M2 | MEDIUM | `index.vue:102` 硬编码 `' - 副本'`，英文界面也显示中文 | 添加 `template.messages.copySuffix` i18n key（"- Copy" / "- 副本"），index.vue 改用 `$t` |
+
+**Follow-up Tasks (not yet backended):**
+- [ ] [AI-Review][HIGH] AC7 版本历史查看需要后端 `/api/v1/templates/{id}/versions` 端点支持后才可实现 [editor.vue:296]
+
 ### File List
 
 - `frontend/apps/web-ele/src/types/template.ts` (created)

@@ -30,6 +30,7 @@ import { useRoute, useRouter } from 'vue-router';
 import {
   createTemplateApi,
   getTemplateApi,
+  previewTemplateApi,
   restoreDefaultTemplateApi,
   updateTemplateApi,
 } from '#/api/template';
@@ -51,6 +52,7 @@ const content = ref('');
 const previewContent = ref('');
 const loading = ref(false);
 const saving = ref(false);
+const previewing = ref(false);
 const activeTab = ref<'editor' | 'preview'>('editor');
 
 const categories: Array<{ label: string; value: TemplateCategory }> = [
@@ -102,7 +104,7 @@ const templateVariables = [
 ];
 
 const pageTitle = computed(
-  () => template.value?.name || (isNew ? $t('template.create') : $t('template.editor')),
+  () => template.value?.name || (isNew ? $t('template.create') : $t('template.editor.title')),
 );
 
 const showRestoreDefault = computed(
@@ -135,15 +137,27 @@ function schedulePreview() {
   }, 500);
 }
 
-function updatePreview() {
+async function updatePreview() {
   if (!content.value) {
     previewContent.value = '';
     return;
   }
+  previewing.value = true;
   try {
-    previewContent.value = renderMustacheTemplate(content.value, sampleData);
-  } catch (error: any) {
-    previewContent.value = `[${$t('template.form.syntaxError')}]: ${error.message}`;
+    const response = await previewTemplateApi({
+      templateContent: content.value,
+      sampleData: sampleData as any,
+    });
+    previewContent.value = response.renderedContent;
+  } catch {
+    // Backend unavailable: fall back to client-side rendering
+    try {
+      previewContent.value = renderMustacheTemplate(content.value, sampleData);
+    } catch (renderError: any) {
+      previewContent.value = `[${$t('template.form.syntaxError')}]: ${renderError.message}`;
+    }
+  } finally {
+    previewing.value = false;
   }
 }
 
@@ -334,11 +348,11 @@ onUnmounted(() => {
 
       <!-- 右侧：实时预览 -->
       <ElCol :span="12">
-        <ElCard>
+        <ElCard v-loading="previewing">
           <template #header>
             <span>{{ $t('template.editor.previewTitle') }}</span>
           </template>
-          <pre class="preview-content">{{ previewContent || '...' }}</pre>
+          <pre class="preview-content">{{ previewContent || $t('template.editor.previewPlaceholder') }}</pre>
         </ElCard>
       </ElCol>
     </ElRow>
@@ -371,7 +385,9 @@ onUnmounted(() => {
           </ElCollapse>
         </ElTabPane>
         <ElTabPane :label="$t('template.editor.previewTab')" name="preview">
-          <pre class="preview-content">{{ previewContent || '...' }}</pre>
+          <div v-loading="previewing">
+            <pre class="preview-content">{{ previewContent || $t('template.editor.previewPlaceholder') }}</pre>
+          </div>
         </ElTabPane>
       </ElTabs>
     </ElCard>

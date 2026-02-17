@@ -2,7 +2,6 @@
   "template": {
     "title": "Prompt Templates",
     "list": "Template List",
-    "editor": "Template Editor",
     "create": "New Template",
     "edit": "Edit Template",
     "fields": {
@@ -49,6 +48,7 @@
       "updateSuccess": "Template saved successfully",
       "deleteSuccess": "Template deleted successfully",
       "copySuccess": "Template copied successfully",
+      "copySuffix": " - Copy",
       "restoreSuccess": "Restored to default template",
       "deleteConfirm": "Are you sure to delete template \"{name}\"?",
       "deleteTitle": "Confirm Delete",
@@ -71,7 +71,8 @@
       "variableName": "Variable",
       "variableDesc": "Description",
       "editTab": "Edit",
-      "previewTab": "Preview"
+      "previewTab": "Preview",
+      "previewPlaceholder": "Enter template content to see preview..."
     },
     "variables": {
       "fileName": "File name (e.g. UserService.java)",

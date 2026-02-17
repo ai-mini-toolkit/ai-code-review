@@ -99,7 +99,7 @@ async function handleDelete(row: TemplateApi.TemplateDTO) {
 async function handleCopy(row: TemplateApi.TemplateDTO) {
   try {
     await createTemplateApi({
-      name: `${row.name} - 副本`,
+      name: `${row.name}${$t('template.messages.copySuffix')}`,
       category: row.category,
       content: row.content,
       enabled: true,

@@ -2,7 +2,6 @@
   "template": {
     "title": "Prompt 模板",
     "list": "模板列表",
-    "editor": "模板编辑器",
     "create": "新建模板",
     "edit": "编辑模板",
     "fields": {
@@ -49,6 +48,7 @@
       "updateSuccess": "模板保存成功",
       "deleteSuccess": "模板删除成功",
       "copySuccess": "模板复制成功",
+      "copySuffix": " - 副本",
       "restoreSuccess": "已恢复到默认模板",
       "deleteConfirm": "确定要删除模板「{name}」吗？",
       "deleteTitle": "删除确认",
@@ -71,7 +71,8 @@
       "variableName": "变量名",
       "variableDesc": "说明",
       "editTab": "编辑",
-      "previewTab": "预览"
+      "previewTab": "预览",
+      "previewPlaceholder": "输入模板内容后即可预览..."
     },
     "variables": {
       "fileName": "文件名（如 UserService.java）",
