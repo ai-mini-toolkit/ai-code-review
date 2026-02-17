@@ -14,6 +14,7 @@ import com.aicodereview.repository.ReviewResultRepository;
 import com.aicodereview.repository.ReviewTaskRepository;
 import com.aicodereview.repository.entity.ReviewResultEntity;
 import com.aicodereview.repository.entity.ReviewTask;
+import com.aicodereview.integration.git.GitHubCheckRunService;
 import com.aicodereview.service.ReviewResultService;
 import com.aicodereview.service.ThresholdValidationService;
 import com.aicodereview.service.mapper.ReviewResultMapper;
@@ -44,13 +45,16 @@ public class ReviewResultServiceImpl implements ReviewResultService {
     private final ReviewResultRepository reviewResultRepository;
     private final ReviewTaskRepository reviewTaskRepository;
     private final ThresholdValidationService thresholdValidationService;
+    private final GitHubCheckRunService gitHubCheckRunService;
 
     public ReviewResultServiceImpl(ReviewResultRepository reviewResultRepository,
                                     ReviewTaskRepository reviewTaskRepository,
-                                    ThresholdValidationService thresholdValidationService) {
+                                    ThresholdValidationService thresholdValidationService,
+                                    GitHubCheckRunService gitHubCheckRunService) {
         this.reviewResultRepository = reviewResultRepository;
         this.reviewTaskRepository = reviewTaskRepository;
         this.thresholdValidationService = thresholdValidationService;
+        this.gitHubCheckRunService = gitHubCheckRunService;
     }
 
     @Override
@@ -112,7 +116,18 @@ public class ReviewResultServiceImpl implements ReviewResultService {
         reviewTaskRepository.save(task);
         log.info("ReviewTask {} status updated to COMPLETED", taskId);
 
-        // 9. Build and return DTO
+        // 9. GitHub Check Run status update (non-blocking)
+        if ("GitHub".equalsIgnoreCase(task.getProject().getGitPlatform())
+                && Boolean.TRUE.equals(reviewResult.isSuccess())) {
+            try {
+                gitHubCheckRunService.createCompletedCheckRun(
+                        task.getRepoUrl(), task.getCommitHash(), statistics, thresholdResult);
+            } catch (Exception e) {
+                log.warn("Failed to create GitHub Check Run for task {}: {}", taskId, e.getMessage());
+            }
+        }
+
+        // 10. Build and return DTO
         return ReviewResultMapper.toDTO(saved, issues, statistics, reviewResult.getMetadata());
     }
 

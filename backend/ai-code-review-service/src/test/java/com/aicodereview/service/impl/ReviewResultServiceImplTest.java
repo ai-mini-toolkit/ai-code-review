@@ -12,6 +12,7 @@ import com.aicodereview.common.enums.IssueSeverity;
 import com.aicodereview.common.enums.TaskStatus;
 import com.aicodereview.common.exception.DuplicateResourceException;
 import com.aicodereview.common.exception.ResourceNotFoundException;
+import com.aicodereview.integration.git.GitHubCheckRunService;
 import com.aicodereview.repository.ReviewResultRepository;
 import com.aicodereview.repository.ReviewTaskRepository;
 import com.aicodereview.repository.entity.Project;
@@ -60,6 +61,9 @@ class ReviewResultServiceImplTest {
 
     @Mock
     private ThresholdValidationService thresholdValidationService;
+
+    @Mock
+    private GitHubCheckRunService gitHubCheckRunService;
 
     @InjectMocks
     private ReviewResultServiceImpl reviewResultService;
@@ -488,6 +492,127 @@ class ReviewResultServiceImplTest {
             assertThat(result.getThresholdResult().getViolations().get(0).getRule()).isEqualTo("CRITICAL <= 0");
             assertThat(result.getThresholdResult().getViolations().get(0).getActual()).isEqualTo(2);
             assertThat(result.getThresholdResult().getViolations().get(0).getThreshold()).isEqualTo(0);
+        }
+    }
+
+    @Nested
+    @DisplayName("GitHub Check Run Integration (Story 6.3)")
+    class GitHubCheckRunIntegration {
+
+        @Test
+        @DisplayName("Should create GitHub Check Run for successful GitHub project review")
+        void shouldCreateCheckRunForGitHubProject() {
+            // Given - GitHub project with successful review
+            testTask.getProject().setGitPlatform("GitHub");
+            testTask.setRepoUrl("https://github.com/test/repo");
+            testTask.setCommitHash("abc123");
+
+            ReviewResult reviewResult = ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(30L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+
+            // When
+            reviewResultService.saveResult(100L, reviewResult);
+
+            // Then - Check Run service was called
+            verify(gitHubCheckRunService).createCompletedCheckRun(
+                    eq("https://github.com/test/repo"), eq("abc123"), any(), any());
+        }
+
+        @Test
+        @DisplayName("Should NOT create Check Run for non-GitHub platform")
+        void shouldNotCreateCheckRunForNonGitHubPlatform() {
+            // Given - GitLab project
+            testTask.getProject().setGitPlatform("GitLab");
+
+            ReviewResult reviewResult = ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(31L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+
+            // When
+            reviewResultService.saveResult(100L, reviewResult);
+
+            // Then - Check Run service NOT called
+            verifyNoInteractions(gitHubCheckRunService);
+        }
+
+        @Test
+        @DisplayName("Should NOT create Check Run when review result is failure")
+        void shouldNotCreateCheckRunWhenReviewFailed() {
+            // Given - GitHub project but failed review
+            testTask.getProject().setGitPlatform("GitHub");
+
+            ReviewResult failedResult = ReviewResult.failed("Provider timeout");
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(32L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+
+            // When
+            reviewResultService.saveResult(100L, failedResult);
+
+            // Then - Check Run service NOT called (review was not successful)
+            verifyNoInteractions(gitHubCheckRunService);
+        }
+
+        @Test
+        @DisplayName("Should swallow Check Run exception without affecting saveResult")
+        void shouldSwallowCheckRunException() {
+            // Given - GitHub project but Check Run throws exception
+            testTask.getProject().setGitPlatform("GitHub");
+            testTask.setRepoUrl("https://github.com/test/repo");
+            testTask.setCommitHash("abc123");
+
+            ReviewResult reviewResult = ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(33L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+            when(gitHubCheckRunService.createCompletedCheckRun(any(), any(), any(), any()))
+                    .thenThrow(new RuntimeException("GitHub API unavailable"));
+
+            // When - should not throw
+            ReviewResultDTO result = reviewResultService.saveResult(100L, reviewResult);
+
+            // Then - result is still returned successfully
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(33L);
         }
     }
 }
