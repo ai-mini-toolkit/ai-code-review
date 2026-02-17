@@ -56,6 +56,10 @@ const [Form, formApi] = useVbenForm({
         placeholder: $t('aiModel.form.providerTypePlaceholder'),
         onChange: (value: ProviderType) => {
           selectedProviderType.value = value;
+          // M3 fix: clear apiEndpoint when switching away from CUSTOM_OPENAPI
+          if (value !== 'CUSTOM_OPENAPI') {
+            formApi.setFieldValue('apiEndpoint', '');
+          }
         },
       },
     },
@@ -154,6 +158,9 @@ const [Form, formApi] = useVbenForm({
   showDefaultActions: false,
 });
 
+// M1 fix: saving state for confirm button loading indicator
+const saving = ref(false);
+
 // Test connection state
 const testing = ref(false);
 const testResult = ref<TestConnectionResponse | null>(null);
@@ -202,6 +209,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
 
     const values = await formApi.getValues();
     drawerApi.lock();
+    saving.value = true;
 
     try {
       if (isEdit.value && formData.value?.id) {
@@ -237,6 +245,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
       emit('success');
       drawerApi.close();
     } finally {
+      saving.value = false;
       drawerApi.unlock();
     }
   },
@@ -300,7 +309,7 @@ const drawerTitle = computed(() =>
         <ElButton @click="drawerApi.close()">
           {{ $t('common.cancel') }}
         </ElButton>
-        <ElButton type="primary" @click="drawerApi.confirm()">
+        <ElButton type="primary" :loading="saving" @click="drawerApi.confirm()">
           {{ $t('common.confirm') }}
         </ElButton>
       </ElSpace>

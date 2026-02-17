@@ -58,6 +58,7 @@
       "testSuccess": "Connection successful",
       "testFailed": "Connection failed",
       "testError": "Test error",
+      "testFromForm": "Testing requires an API Key — please use the edit form to test connection",
       "validateFirst": "Please fill in required fields first",
       "loadFailed": "Failed to load AI model list"
     },

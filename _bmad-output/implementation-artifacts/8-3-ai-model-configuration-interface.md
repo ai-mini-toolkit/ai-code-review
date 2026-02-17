@@ -1,6 +1,6 @@
 # Story 8.3: 实现 AI 模型配置界面
 
-Status: review
+Status: done
 
 ## Story
 
@@ -656,12 +656,32 @@ N/A - Build passed on first attempt (31.55s)
 ### Completion Notes List
 
 1. Implemented all 6 tasks following the useVbenDrawer/useVbenForm pattern from Story 8.1
-2. API Key security: never displayed in list (shows "Configured"/"Not Configured" badge), form field type="password", edit mode shows empty with hint text
+2. API Key security: list displays `••••••••` masked (AC6 compliant), form field type="password", edit mode shows empty with hint text
 3. Dynamic CUSTOM_OPENAPI endpoint field using `dependencies.show` with `selectedProviderType` reactive ref
 4. Test connection in drawer shows inline result with ElTag (success/danger) + response time
-5. Test connection in list uses `__USE_STORED__` as apiKey sentinel - backend should use stored key; rowId-based loading state
-6. Local client-side filtering (name/provider/status) since backend returns full list
-7. Build verified: 31.55s, no TypeScript errors
+5. Test connection from list redirects to edit form with info message (backend requires API Key in TestConnectionRequest)
+6. filteredModels uses `computed()` for fully reactive filtering — no manual sync required
+7. Responsive layout: desktop table + mobile card layout using `useMediaQuery('(max-width: 768px)')`
+8. Confirm button has `:loading="saving"` state
+9. apiEndpoint cleared when switching away from CUSTOM_OPENAPI provider
+10. Build verified (post code review fixes): 31.76s, no TypeScript errors
+
+### Code Review Record
+
+**Code Review performed after initial implementation**
+
+**Issues Fixed (6 HIGH/MEDIUM)**:
+- [H1-Fixed] Added mobile card layout with `useMediaQuery` for responsive design (AC11)
+- [H2-Fixed] Removed `__USE_STORED__` hack; test-from-list now opens edit form with info message
+- [H3-Fixed] API Key column now shows `••••••••` masked text per AC6 spec
+- [M1-Fixed] Added `saving` ref with `:loading="saving"` on confirm button in custom footer
+- [M2-Fixed] Changed `filteredModels` from manual `ref` to `computed()` — fully reactive
+- [M3-Fixed] `apiEndpoint` cleared when providerType switches away from CUSTOM_OPENAPI
+
+**Review Follow-ups (LOW, deferred)**:
+- [L1] 409 conflict specific error handling for duplicate model name
+- [L2] No `enabled` toggle in create form (always creates as enabled)
+- [L3] InputNumber fields could show default values instead of placeholder text
 
 ### File List
 

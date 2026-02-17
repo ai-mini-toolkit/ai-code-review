@@ -58,6 +58,7 @@
       "testSuccess": "连接成功",
       "testFailed": "连接失败",
       "testError": "测试出错",
+      "testFromForm": "测试连接需要输入 API Key，请在编辑表单中进行测试",
       "validateFirst": "请先填写必填字段",
       "loadFailed": "加载 AI 模型列表失败"
     },

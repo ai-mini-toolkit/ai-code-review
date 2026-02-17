@@ -1,8 +1,10 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { $t } from '@vben/locales';
+
+import { useMediaQuery } from '@vueuse/core';
 
 import {
   ElButton,
@@ -22,11 +24,10 @@ import {
 import {
   deleteAIModelApi,
   getAIModelsApi,
-  testConnectionApi,
   type AIModelApi,
   updateAIModelApi,
 } from '#/api/aiModel';
-import type { ProviderType, TestConnectionResponse } from '#/types/aiModel';
+import type { ProviderType } from '#/types/aiModel';
 import AIModelFormDrawer from './modules/AIModelFormDrawer.vue';
 
 const models = ref<AIModelApi.AIModelDTO[]>([]);
@@ -36,45 +37,39 @@ const searchName = ref('');
 const filterProvider = ref<ProviderType | ''>('');
 const filterEnabled = ref<boolean | undefined>(undefined);
 
+// M2 fix: computed instead of manual ref — auto-reactive to all filter changes
+const filteredModels = computed(() =>
+  models.value.filter((m) => {
+    const nameMatch =
+      !searchName.value ||
+      m.name.toLowerCase().includes(searchName.value.toLowerCase()) ||
+      m.modelName.toLowerCase().includes(searchName.value.toLowerCase());
+    const providerMatch =
+      !filterProvider.value || m.providerType === filterProvider.value;
+    const enabledMatch =
+      filterEnabled.value === undefined || m.enabled === filterEnabled.value;
+    return nameMatch && providerMatch && enabledMatch;
+  }),
+);
+
+// H1 fix: responsive mobile detection
+const isMobile = useMediaQuery('(max-width: 768px)');
+
 // Drawer connection
 const [FormDrawer, formDrawerApi] = useVbenDrawer({
   connectedComponent: AIModelFormDrawer,
   destroyOnClose: true,
 });
 
-// Test connection result dialog state
-const testingId = ref<number | null>(null);
-
-// Filter models locally (backend returns full list)
-function getFilteredModels() {
-  return models.value.filter((m) => {
-    const nameMatch =
-      !searchName.value ||
-      m.name.toLowerCase().includes(searchName.value.toLowerCase()) ||
-      m.modelName.toLowerCase().includes(searchName.value.toLowerCase());
-    const providerMatch = !filterProvider.value || m.providerType === filterProvider.value;
-    const enabledMatch =
-      filterEnabled.value === undefined || m.enabled === filterEnabled.value;
-    return nameMatch && providerMatch && enabledMatch;
-  });
-}
-
-const filteredModels = ref<AIModelApi.AIModelDTO[]>([]);
-
 async function fetchModels() {
   loading.value = true;
   try {
     models.value = (await getAIModelsApi()) as AIModelApi.AIModelDTO[];
-    filteredModels.value = getFilteredModels();
   } catch (error: any) {
     ElMessage.error(error.message || $t('aiModel.messages.loadFailed'));
   } finally {
     loading.value = false;
   }
-}
-
-function applyFilters() {
-  filteredModels.value = getFilteredModels();
 }
 
 function handleCreate() {
@@ -120,36 +115,11 @@ async function handleToggleEnabled(row: AIModelApi.AIModelDTO) {
   }
 }
 
-async function handleTestConnection(row: AIModelApi.AIModelDTO) {
-  if (!row.apiKeyConfigured) {
-    ElMessage.warning($t('aiModel.status.notConfigured'));
-    return;
-  }
-
-  testingId.value = row.id;
-  try {
-    // Test with existing config (backend will use stored API key)
-    const result = (await testConnectionApi({
-      providerType: row.providerType as ProviderType,
-      modelName: row.modelName,
-      apiEndpoint: row.apiEndpoint,
-      apiKey: '__USE_STORED__',
-    })) as TestConnectionResponse;
-
-    if (result.success) {
-      ElMessage.success(
-        `${$t('aiModel.messages.testSuccess')} (${result.responseTimeMs}ms)`,
-      );
-    } else {
-      ElMessage.error(
-        `${$t('aiModel.messages.testFailed')}: ${result.message}`,
-      );
-    }
-  } catch (error: any) {
-    ElMessage.error(`${$t('aiModel.messages.testError')}: ${error.message}`);
-  } finally {
-    testingId.value = null;
-  }
+// H2 fix: test connection from list requires entering the API Key —
+// redirect user to edit form where they can test with the key they supply
+function handleTestConnection(row: AIModelApi.AIModelDTO) {
+  ElMessage.info($t('aiModel.messages.testFromForm'));
+  formDrawerApi.setData(row).open();
 }
 
 function onFormSuccess() {
@@ -160,7 +130,6 @@ function handleResetFilter() {
   searchName.value = '';
   filterProvider.value = '';
   filterEnabled.value = undefined;
-  filteredModels.value = models.value;
 }
 
 function getProviderTagType(
@@ -202,14 +171,12 @@ onMounted(() => {
         :placeholder="$t('aiModel.search.namePlaceholder')"
         clearable
         class="!w-64"
-        @update:model-value="applyFilters"
       />
       <ElSelect
         v-model="filterProvider"
         :placeholder="$t('aiModel.search.providerPlaceholder')"
         clearable
         class="!w-44"
-        @update:model-value="applyFilters"
       >
         <ElOption label="OpenAI" value="OPENAI" />
         <ElOption label="Anthropic" value="ANTHROPIC" />
@@ -220,7 +187,6 @@ onMounted(() => {
         :placeholder="$t('aiModel.search.statusPlaceholder')"
         clearable
         class="!w-36"
-        @update:model-value="applyFilters"
       >
         <ElOption :label="$t('aiModel.status.enabled')" :value="true" />
         <ElOption :label="$t('aiModel.status.disabled')" :value="false" />
@@ -234,8 +200,9 @@ onMounted(() => {
       </ElButton>
     </div>
 
-    <!-- AI 模型表格 -->
+    <!-- 桌面端：表格布局 -->
     <ElTable
+      v-if="!isMobile"
       v-loading="loading"
       :data="filteredModels"
       stripe
@@ -266,19 +233,20 @@ onMounted(() => {
         min-width="180"
         show-overflow-tooltip
       />
+      <!-- H3 fix: display masked API Key as *** per AC6 spec -->
       <ElTableColumn
         prop="apiKeyConfigured"
-        :label="$t('aiModel.fields.apiKeyStatus')"
+        :label="$t('aiModel.fields.apiKey')"
         width="120"
         align="center"
       >
         <template #default="{ row }">
-          <ElTag v-if="row.apiKeyConfigured" type="success" size="small">
-            {{ $t('aiModel.status.configured') }}
-          </ElTag>
-          <ElTag v-else type="info" size="small">
+          <span v-if="row.apiKeyConfigured" class="font-mono tracking-widest text-gray-500">
+            ••••••••
+          </span>
+          <span v-else class="text-gray-400 text-sm">
             {{ $t('aiModel.status.notConfigured') }}
-          </ElTag>
+          </span>
         </template>
       </ElTableColumn>
       <ElTableColumn
@@ -318,16 +286,11 @@ onMounted(() => {
             <ElButton
               size="small"
               type="warning"
-              :loading="testingId === row.id"
               @click="handleTestConnection(row)"
             >
               {{ $t('aiModel.actions.testConnection') }}
             </ElButton>
-            <ElButton
-              size="small"
-              type="danger"
-              @click="handleDelete(row)"
-            >
+            <ElButton size="small" type="danger" @click="handleDelete(row)">
               {{ $t('common.delete') }}
             </ElButton>
           </ElSpace>
@@ -335,8 +298,69 @@ onMounted(() => {
       </ElTableColumn>
     </ElTable>
 
-    <!-- 空状态 -->
-    <ElCard v-if="!loading && filteredModels.length === 0" class="mt-4">
+    <!-- H1 fix: 移动端卡片布局 -->
+    <div v-else v-loading="loading" class="model-cards flex flex-col gap-4">
+      <ElCard
+        v-for="model in filteredModels"
+        :key="model.id"
+        class="model-card"
+      >
+        <template #header>
+          <div class="flex items-center justify-between">
+            <span class="text-base font-semibold">{{ model.name }}</span>
+            <ElSwitch
+              :model-value="model.enabled"
+              @change="() => handleToggleEnabled(model)"
+            />
+          </div>
+        </template>
+
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="font-medium text-gray-500">{{ $t('aiModel.fields.providerType') }}:</span>
+            <ElTag :type="getProviderTagType(model.providerType)" size="small">
+              {{ $t(`aiModel.provider.${model.providerType}`) }}
+            </ElTag>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-medium text-gray-500">{{ $t('aiModel.fields.modelName') }}:</span>
+            <span>{{ model.modelName }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-medium text-gray-500">{{ $t('aiModel.fields.apiKey') }}:</span>
+            <span v-if="model.apiKeyConfigured" class="font-mono tracking-widest text-gray-500">••••••••</span>
+            <span v-else class="text-gray-400">{{ $t('aiModel.status.notConfigured') }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-medium text-gray-500">{{ $t('aiModel.fields.createdAt') }}:</span>
+            <span>{{ formatDate(model.createdAt) }}</span>
+          </div>
+        </div>
+
+        <template #footer>
+          <ElSpace wrap>
+            <ElButton size="small" type="primary" @click="handleEdit(model)">
+              {{ $t('common.edit') }}
+            </ElButton>
+            <ElButton size="small" type="warning" @click="handleTestConnection(model)">
+              {{ $t('aiModel.actions.testConnection') }}
+            </ElButton>
+            <ElButton size="small" type="danger" @click="handleDelete(model)">
+              {{ $t('common.delete') }}
+            </ElButton>
+          </ElSpace>
+        </template>
+      </ElCard>
+
+      <ElCard v-if="!loading && filteredModels.length === 0">
+        <div class="py-8 text-center text-gray-400">
+          {{ $t('aiModel.empty.noModels') }}
+        </div>
+      </ElCard>
+    </div>
+
+    <!-- 桌面端空状态 -->
+    <ElCard v-if="!isMobile && !loading && filteredModels.length === 0" class="mt-4">
       <div class="py-8 text-center text-gray-400">
         {{ $t('aiModel.empty.noModels') }}
       </div>
