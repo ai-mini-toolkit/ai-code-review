@@ -47,6 +47,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .gitPlatform(request.getGitPlatform())
                 .repoUrl(request.getRepoUrl())
                 .webhookSecret(request.getWebhookSecret())
+                .thresholds(ThresholdMapper.serialize(ThresholdMapper.defaultConfig()))
                 .build();
 
         Project saved = projectRepository.save(project);

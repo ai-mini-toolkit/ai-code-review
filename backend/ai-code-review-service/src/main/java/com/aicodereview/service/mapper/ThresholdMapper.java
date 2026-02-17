@@ -84,6 +84,9 @@ public final class ThresholdMapper {
         }
 
         List<ThresholdRuleDTO> rules = config.getRules();
+        if (rules.isEmpty()) {
+            throw new IllegalArgumentException("Threshold 'rules' must not be empty");
+        }
         for (int i = 0; i < rules.size(); i++) {
             validateRule(rules.get(i), i);
         }

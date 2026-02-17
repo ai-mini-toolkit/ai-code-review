@@ -196,6 +196,20 @@ class ThresholdMapperTest {
         }
 
         @Test
+        @DisplayName("Should reject empty rules list")
+        void shouldRejectEmptyRulesList() {
+            ThresholdConfigDTO config = ThresholdConfigDTO.builder()
+                    .enabled(true)
+                    .rules(List.of())
+                    .action("BLOCK_MERGE")
+                    .build();
+
+            assertThatThrownBy(() -> ThresholdMapper.validate(config))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("must not be empty");
+        }
+
+        @Test
         @DisplayName("Should reject severity rule without maxCount")
         void shouldRejectSeverityWithoutMaxCount() {
             ThresholdConfigDTO config = ThresholdConfigDTO.builder()

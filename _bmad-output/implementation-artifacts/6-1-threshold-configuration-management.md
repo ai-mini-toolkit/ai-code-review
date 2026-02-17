@@ -1,6 +1,6 @@
 # Story 6.1: 实现质量阈值配置管理
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -352,10 +352,29 @@ Claude Opus 4.6 (claude-opus-4-6)
 ### Completion Notes List
 
 - All 7 tasks completed successfully
-- Unit tests: ThresholdMapperTest (14 pass) + ProjectServiceImplThresholdTest (6 pass) = 20 new tests
+- Unit tests: ThresholdMapperTest (15 pass) + ProjectServiceImplThresholdTest (6 pass) = 21 new tests
 - Integration tests: 6 new threshold tests added to ProjectControllerIntegrationTest (total 16 pass)
 - Pre-existing failures in ReviewTaskIntegrationTest (ResourceAccess) and WebhookControllerIntegrationTest (1 assertion) are unrelated to Story 6.1
-- Total test count across all modules: ~347 tests
+- Total test count across all modules: ~348 tests
+
+### Senior Developer Review (AI)
+
+**Reviewer**: Claude Opus 4.6 (adversarial code review)
+**Date**: 2026-02-17
+**Result**: APPROVED with 2 fixes applied
+
+**Issues Found**: 0 Critical, 2 Medium, 5 Low
+
+**Fixed Issues:**
+- **M1**: `@Builder.Default thresholds = "{}"` 与 DB DEFAULT 不匹配 — 在 `createProject()` 中显式设置 `ThresholdMapper.serialize(ThresholdMapper.defaultConfig())`，确保新项目的 JSONB 值与 V9 迁移默认值一致
+- **M2**: `ThresholdConfigDTO.rules` 允许空列表 — 在 `ThresholdMapper.validate()` 中添加 `rules.isEmpty()` 校验，新增 1 个单元测试
+
+**Accepted Low Issues (不需修复):**
+- L1: `updateThresholds()` 中多余的反序列化（性能影响微不足道）
+- L2: Story Dev Notes 中文件名描述不一致（文档非代码问题）
+- L3: AC1 中 `total_issues` vs `totalIssues` 命名（文档与代码不同步，实现正确）
+- L4: GIN 索引暂未使用（为未来查询预留，合理）
+- L5: ObjectMapper 默认忽略未知属性（前向兼容性好）
 
 ### File List
 
@@ -385,3 +404,5 @@ Claude Opus 4.6 (claude-opus-4-6)
 |------|--------|--------|
 | 2026-02-16 | Initial implementation of all 7 tasks | Story 6.1 development |
 | 2026-02-16 | Fixed integration test @Order(14) assertion | Jakarta @Min(0) fires before ThresholdMapper.validate() |
+| 2026-02-17 | M1 fix: createProject() 显式设置默认阈值 | Code review: @Builder.Default "{}" 与 DB DEFAULT 不一致 |
+| 2026-02-17 | M2 fix: validate() 拒绝空规则列表 + 新增测试 | Code review: 空 rules 列表语义无意义 |
