@@ -1,6 +1,6 @@
 # Story 8.4: 实现 Prompt 模板编辑器
 
-Status: review
+Status: done
 
 ## Story
 

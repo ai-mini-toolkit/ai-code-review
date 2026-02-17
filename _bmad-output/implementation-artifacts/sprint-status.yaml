@@ -112,7 +112,7 @@ development_status:
   8-1-project-management-interface: done
   8-2-review-history-viewing-interface: review
   8-3-ai-model-configuration-interface: done
-  8-4-prompt-template-editor: review
+  8-4-prompt-template-editor: done
   8-5-review-report-visualization-components: ready-for-dev
   8-6-user-authentication-authorization-jwt: ready-for-dev
   epic-8-retrospective: optional
