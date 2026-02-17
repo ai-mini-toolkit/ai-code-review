@@ -39,6 +39,7 @@ public class GitHubCheckRunServiceImpl implements GitHubCheckRunService {
     private static final String ACCEPT_JSON = "application/vnd.github+json";
     private static final String CHECK_RUN_NAME = "AI Code Review";
     private static final int READ_TIMEOUT_SECONDS = 10;
+    private static final int MAX_SUMMARY_LENGTH = 65535;
 
     private final HttpClient httpClient;
     private final String accessToken;
@@ -74,6 +75,7 @@ public class GitHubCheckRunServiceImpl implements GitHubCheckRunService {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Accept", ACCEPT_JSON)
+                    .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + accessToken)
                     .timeout(Duration.ofSeconds(READ_TIMEOUT_SECONDS))
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -155,9 +157,14 @@ public class GitHubCheckRunServiceImpl implements GitHubCheckRunService {
             summary.append("\n**Action:** ").append(thresholdResult.getAction()).append("\n");
         }
 
+        String summaryText = summary.toString();
+        if (summaryText.length() > MAX_SUMMARY_LENGTH) {
+            summaryText = summaryText.substring(0, MAX_SUMMARY_LENGTH - 3) + "...";
+        }
+
         return CheckRunOutputDTO.builder()
                 .title(title)
-                .summary(summary.toString())
+                .summary(summaryText)
                 .text("")
                 .build();
     }
@@ -199,23 +206,9 @@ public class GitHubCheckRunServiceImpl implements GitHubCheckRunService {
 
     /**
      * Extracts "owner/repo" from a GitHub repository URL.
-     * Same logic as GitHubApiClient.parseOwnerRepo().
+     * Delegates to shared utility {@link GitHubUrlUtils#parseOwnerRepo(String)}.
      */
     String parseOwnerRepo(String repoUrl) {
-        if (repoUrl == null || repoUrl.isEmpty()) {
-            throw new IllegalArgumentException("Repository URL must not be null or empty");
-        }
-        URI uri = URI.create(repoUrl);
-        String path = uri.getPath();
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        if (path.endsWith(".git")) {
-            path = path.substring(0, path.length() - 4);
-        }
-        if (path.isEmpty() || !path.contains("/")) {
-            throw new IllegalArgumentException("Invalid GitHub repository URL: " + repoUrl);
-        }
-        return path;
+        return GitHubUrlUtils.parseOwnerRepo(repoUrl);
     }
 }

@@ -95,7 +95,7 @@ development_status:
   epic-6: in-progress
   6-1-threshold-configuration-management: done
   6-2-threshold-validation-engine: done
-  6-3-github-check-runs-status-update: review
+  6-3-github-check-runs-status-update: done
   6-4-gitlab-aws-codecommit-status-update: backlog
   epic-6-retrospective: optional
 

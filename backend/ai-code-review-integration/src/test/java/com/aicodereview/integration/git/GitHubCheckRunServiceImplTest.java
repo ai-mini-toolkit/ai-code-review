@@ -151,6 +151,30 @@ class GitHubCheckRunServiceImplTest {
             assertThat(output.getSummary()).doesNotContain("| CRITICAL |");
             assertThat(output.getSummary()).doesNotContain("| LOW |");
         }
+
+        @Test
+        @DisplayName("Should truncate summary when exceeding 65535 characters")
+        void shouldTruncateLongSummary() {
+            // Build a stats map with many entries to generate a very long summary
+            Map<String, Integer> largeSeverityMap = new LinkedHashMap<>();
+            for (int i = 0; i < 10000; i++) {
+                largeSeverityMap.put("SEVERITY_" + String.format("%05d", i), i + 1);
+            }
+            ReviewStatisticsDTO stats = buildStats(50000, largeSeverityMap);
+
+            List<ThresholdViolationDTO> manyViolations = new java.util.ArrayList<>();
+            for (int i = 0; i < 5000; i++) {
+                manyViolations.add(ThresholdViolationDTO.builder()
+                        .rule("RULE_" + i + " <= 0").actual(i + 1).threshold(0).build());
+            }
+            ThresholdValidationResultDTO threshold = ThresholdValidationResultDTO.builder()
+                    .passed(false).violations(manyViolations).action("BLOCK_MERGE").build();
+
+            CheckRunOutputDTO output = service.buildOutput(stats, threshold);
+
+            assertThat(output.getSummary().length()).isLessThanOrEqualTo(65535);
+            assertThat(output.getSummary()).endsWith("...");
+        }
     }
 
     @Nested
@@ -185,6 +209,10 @@ class GitHubCheckRunServiceImplTest {
             assertThat(sentRequest.uri().toString())
                     .isEqualTo("https://api.github.com/repos/test/repo/check-runs");
             assertThat(sentRequest.method()).isEqualTo("POST");
+            assertThat(sentRequest.headers().firstValue("Content-Type"))
+                    .isPresent().hasValue("application/json");
+            assertThat(sentRequest.headers().firstValue("Accept"))
+                    .isPresent().hasValue("application/vnd.github+json");
         }
 
         @Test
@@ -253,6 +281,25 @@ class GitHubCheckRunServiceImplTest {
                     REPO_URL, COMMIT_HASH, stats, threshold);
 
             assertThat(result).isNull();
+        }
+
+        @Test
+        @DisplayName("Should return null on InterruptedException and restore interrupt flag")
+        void shouldReturnNullOnInterruptedException() throws Exception {
+            ReviewStatisticsDTO stats = buildStats(0, Map.of());
+            ThresholdValidationResultDTO threshold = ThresholdValidationResultDTO.builder()
+                    .passed(true).action(null).build();
+
+            when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                    .thenThrow(new InterruptedException("Thread interrupted"));
+
+            CheckRunResponseDTO result = service.createCompletedCheckRun(
+                    REPO_URL, COMMIT_HASH, stats, threshold);
+
+            assertThat(result).isNull();
+            assertThat(Thread.currentThread().isInterrupted()).isTrue();
+            // Clear interrupt flag for test cleanup
+            Thread.interrupted();
         }
 
         @Test

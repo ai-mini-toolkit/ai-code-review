@@ -1,6 +1,6 @@
 # Story 6.3: 实现 GitHub Check Runs 状态更新
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -318,18 +318,19 @@ Claude Opus 4.6 (claude-opus-4-6)
 |------|--------|------|
 | common | 43 | 不变 |
 | repository | 14 | 不变 |
-| integration | 191 | +14（GitHubCheckRunServiceImplTest） |
+| integration | 193 | +16（GitHubCheckRunServiceImplTest 16个测试） |
 | service | 223 | +4（GitHubCheckRunIntegration 嵌套类） |
 | api | 71 | 不变 |
-| **总计** | **542+** | **+18** |
+| **总计** | **544+** | **+20** |
 
 ### File List
 
-**新增文件（5个）**:
+**新增文件（6个）**:
 - `backend/ai-code-review-common/src/main/java/com/aicodereview/common/dto/checkrun/CheckRunOutputDTO.java`
 - `backend/ai-code-review-common/src/main/java/com/aicodereview/common/dto/checkrun/CheckRunResponseDTO.java`
 - `backend/ai-code-review-integration/src/main/java/com/aicodereview/integration/git/GitHubCheckRunService.java`
 - `backend/ai-code-review-integration/src/main/java/com/aicodereview/integration/git/GitHubCheckRunServiceImpl.java`
+- `backend/ai-code-review-integration/src/main/java/com/aicodereview/integration/git/GitHubUrlUtils.java`
 - `backend/ai-code-review-integration/src/test/java/com/aicodereview/integration/git/GitHubCheckRunServiceImplTest.java`
 
 **修改文件（2个）**:
@@ -338,4 +339,5 @@ Claude Opus 4.6 (claude-opus-4-6)
 
 ### Change Log
 
-- 2026-02-17: Story 6.3 实现完成，所有 AC 满足，542+ 测试全部通过
+- 2026-02-17: Story 6.3 实现完成，所有 AC 满足，544+ 测试全部通过
+- 2026-02-17: Code review 修复 — 添加 Content-Type 头、summary 截断、提取 GitHubUrlUtils 共享工具类、InterruptedException 测试
