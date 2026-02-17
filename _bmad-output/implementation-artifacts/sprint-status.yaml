@@ -111,7 +111,7 @@ development_status:
   epic-8: in-progress
   8-1-project-management-interface: done
   8-2-review-history-viewing-interface: review
-  8-3-ai-model-configuration-interface: in-progress
+  8-3-ai-model-configuration-interface: review
   8-4-prompt-template-editor: ready-for-dev
   8-5-review-report-visualization-components: ready-for-dev
   8-6-user-authentication-authorization-jwt: ready-for-dev

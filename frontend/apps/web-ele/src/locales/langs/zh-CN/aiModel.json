@@ -1,0 +1,73 @@
+{
+  "aiModel": {
+    "title": "AI 模型配置",
+    "list": "AI 模型列表",
+    "create": "新建模型",
+    "edit": "编辑模型",
+    "fields": {
+      "name": "配置名称",
+      "providerType": "提供商类型",
+      "modelName": "模型名称",
+      "apiEndpoint": "API 端点",
+      "apiKey": "API Key",
+      "apiKeyStatus": "API Key 状态",
+      "enabled": "状态",
+      "timeoutSeconds": "超时时间（秒）",
+      "maxTokens": "最大 Token 数",
+      "temperature": "温度参数",
+      "createdAt": "创建时间",
+      "operations": "操作"
+    },
+    "provider": {
+      "OPENAI": "OpenAI",
+      "ANTHROPIC": "Anthropic",
+      "CUSTOM_OPENAPI": "自定义 OpenAPI"
+    },
+    "status": {
+      "enabled": "已启用",
+      "disabled": "已禁用",
+      "configured": "已配置",
+      "notConfigured": "未配置"
+    },
+    "form": {
+      "namePlaceholder": "例如：生产环境 GPT-4",
+      "providerTypePlaceholder": "请选择提供商类型",
+      "modelNamePlaceholder": "例如：gpt-4-turbo-preview",
+      "modelNameHelp": "示例：gpt-4-turbo-preview（OpenAI）、claude-3-opus-20240229（Anthropic）",
+      "apiEndpointPlaceholder": "例如：https://api.openai.com/v1",
+      "apiEndpointHelp": "兼容 OpenAI API 格式的第三方服务端点",
+      "apiEndpointInvalid": "请输入有效的 URL 格式",
+      "apiKeyPlaceholder": "请输入 API Key",
+      "apiKeyEditHint": "留空则保持当前密钥不变",
+      "timeoutSecondsHelp": "请求超时时间，默认 30 秒（1-300）",
+      "maxTokensHelp": "可选，留空使用模型默认值",
+      "temperatureHelp": "0-1 之间，越高越随机，默认 0.7"
+    },
+    "actions": {
+      "testConnection": "测试连接",
+      "viewDetail": "查看详情"
+    },
+    "messages": {
+      "createSuccess": "AI 模型创建成功",
+      "updateSuccess": "AI 模型更新成功",
+      "deleteSuccess": "AI 模型删除成功",
+      "deleteConfirm": "确定要删除模型「{name}」吗？删除后所有审查将无法使用该模型。",
+      "deleteTitle": "删除确认",
+      "enableSuccess": "已启用",
+      "disableSuccess": "已禁用",
+      "testSuccess": "连接成功",
+      "testFailed": "连接失败",
+      "testError": "测试出错",
+      "validateFirst": "请先填写必填字段",
+      "loadFailed": "加载 AI 模型列表失败"
+    },
+    "search": {
+      "namePlaceholder": "搜索模型名称",
+      "providerPlaceholder": "按提供商筛选",
+      "statusPlaceholder": "按状态筛选"
+    },
+    "empty": {
+      "noModels": "暂无 AI 模型配置"
+    }
+  }
+}
