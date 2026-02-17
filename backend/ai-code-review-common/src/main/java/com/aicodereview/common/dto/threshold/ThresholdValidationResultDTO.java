@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,7 +31,8 @@ public class ThresholdValidationResultDTO {
     /**
      * List of threshold rule violations (empty if all rules passed).
      */
-    private List<ThresholdViolationDTO> violations;
+    @Builder.Default
+    private List<ThresholdViolationDTO> violations = new ArrayList<>();
 
     /**
      * Action from ThresholdConfigDTO: BLOCK_MERGE or WARN_ONLY.

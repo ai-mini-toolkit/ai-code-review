@@ -1,6 +1,6 @@
 # Story 6.2: 实现阈值验证引擎
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -324,17 +324,17 @@ Claude Opus 4.6 (claude-opus-4-6)
 - ✅ Task 4: Integrated into `ReviewResultServiceImpl.saveResult()` — threshold validation runs between statistics computation and task status update
 - ✅ Task 5: 14 unit tests for ThresholdValidationServiceImpl (severity violations, total issues, disabled, multi-rule, edge cases) + 2 mock tests in ReviewResultServiceImplTest
 - ✅ Task 6: 2 integration tests in ReviewResultControllerIntegrationTest — disabled thresholds return passed, enabled thresholds detect violations via API
-- ✅ All 218 service tests pass, 17 ReviewResultController integration tests pass, 0 regressions
+- ✅ All 219 service tests pass, 17 ReviewResultController integration tests pass, 0 regressions
 
 ### Test Count Summary
 
 | Test Class | Count | Status |
 |-----------|-------|--------|
 | ThresholdValidationServiceImplTest | 14 | ✅ Pass |
-| ReviewResultServiceImplTest | 14 (12+2 new) | ✅ Pass |
+| ReviewResultServiceImplTest | 15 (12+3 new) | ✅ Pass |
 | ThresholdMapperTest | 15 | ✅ Pass |
 | ReviewResultControllerIntegrationTest | 17 (15+2 new) | ✅ Pass |
-| Service module total | 218 | ✅ Pass |
+| Service module total | 219 | ✅ Pass |
 
 ### File List
 
@@ -360,3 +360,4 @@ Claude Opus 4.6 (claude-opus-4-6)
 | Date | Change | Details |
 |------|--------|---------|
 | 2026-02-17 | Story 6.2 implementation | Implemented threshold validation engine with severity rules, total-issues rules, DB persistence, and integration into saveResult flow |
+| 2026-02-17 | Code review fixes | M1: Fixed misleading test display name; M2: Added @Builder.Default on violations field; M3: Added getResultByTaskId threshold deserialization test; M4: Added defensive null-check on config.getRules(); L1: Added per-violation debug logging |

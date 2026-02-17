@@ -434,7 +434,7 @@ class ReviewResultServiceImplTest {
         }
 
         @Test
-        @DisplayName("Should persist null thresholdResult for passed validation with no action")
+        @DisplayName("Should persist passed thresholdResult (not null) when validation passes")
         void shouldHandlePassedValidation() {
             ReviewResult reviewResult = ReviewResult.success(List.of(), ReviewMetadata.builder().build());
 
@@ -457,6 +457,37 @@ class ReviewResultServiceImplTest {
             verify(reviewResultRepository).save(entityCaptor.capture());
             assertThat(entityCaptor.getValue().getThresholdResult()).isNotNull();
             assertThat(entityCaptor.getValue().getThresholdResult()).contains("\"passed\":true");
+        }
+
+        @Test
+        @DisplayName("Should deserialize thresholdResult when fetching by taskId")
+        void shouldDeserializeThresholdResultInGetByTaskId() {
+            // Given - entity with non-null thresholdResult JSON
+            String thresholdJson = "{\"passed\":false,\"violations\":[{\"rule\":\"CRITICAL <= 0\",\"actual\":2,\"threshold\":0}],\"action\":\"BLOCK_MERGE\"}";
+            ReviewResultEntity entity = ReviewResultEntity.builder()
+                    .id(20L)
+                    .reviewTask(testTask)
+                    .issues("[]")
+                    .statistics("{\"total\":2,\"bySeverity\":{\"CRITICAL\":2},\"byCategory\":{}}")
+                    .metadata("{}")
+                    .thresholdResult(thresholdJson)
+                    .success(true)
+                    .createdAt(Instant.now())
+                    .build();
+
+            when(reviewResultRepository.findByReviewTaskId(100L)).thenReturn(Optional.of(entity));
+
+            // When
+            ReviewResultDTO result = reviewResultService.getResultByTaskId(100L);
+
+            // Then
+            assertThat(result.getThresholdResult()).isNotNull();
+            assertThat(result.getThresholdResult().isPassed()).isFalse();
+            assertThat(result.getThresholdResult().getAction()).isEqualTo("BLOCK_MERGE");
+            assertThat(result.getThresholdResult().getViolations()).hasSize(1);
+            assertThat(result.getThresholdResult().getViolations().get(0).getRule()).isEqualTo("CRITICAL <= 0");
+            assertThat(result.getThresholdResult().getViolations().get(0).getActual()).isEqualTo(2);
+            assertThat(result.getThresholdResult().getViolations().get(0).getThreshold()).isEqualTo(0);
         }
     }
 }

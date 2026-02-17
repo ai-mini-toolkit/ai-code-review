@@ -50,12 +50,22 @@ public class ThresholdValidationServiceImpl implements ThresholdValidationServic
 
         List<ThresholdViolationDTO> violations = new ArrayList<>();
 
+        if (config.getRules() == null || config.getRules().isEmpty()) {
+            log.warn("Thresholds enabled but no rules configured for project: {}", projectId);
+            return ThresholdValidationResultDTO.builder()
+                    .passed(true)
+                    .action(null)
+                    .build();
+        }
+
         for (ThresholdRuleDTO rule : config.getRules()) {
             if (rule.getSeverity() != null) {
                 // AC2: Severity-based rule
                 int actual = statistics.getBySeverity()
                         .getOrDefault(rule.getSeverity(), 0);
                 if (actual > rule.getMaxCount()) {
+                    log.debug("Threshold violated for project {}: {} actual={} > maxCount={}",
+                            projectId, rule.getSeverity(), actual, rule.getMaxCount());
                     violations.add(ThresholdViolationDTO.builder()
                             .rule(rule.getSeverity() + " <= " + rule.getMaxCount())
                             .actual(actual)
@@ -66,6 +76,8 @@ public class ThresholdValidationServiceImpl implements ThresholdValidationServic
                 // AC3: Total issues rule
                 int actual = statistics.getTotal();
                 if (actual > rule.getTotalIssues()) {
+                    log.debug("Threshold violated for project {}: totalIssues actual={} > limit={}",
+                            projectId, actual, rule.getTotalIssues());
                     violations.add(ThresholdViolationDTO.builder()
                             .rule("totalIssues <= " + rule.getTotalIssues())
                             .actual(actual)
