@@ -148,6 +148,13 @@ class EmailNotificationServiceImplTest {
             List<String> result = service.parseRecipients("solo@test.com");
             assertThat(result).containsExactly("solo@test.com");
         }
+
+        @Test
+        @DisplayName("Should filter out invalid email addresses")
+        void shouldFilterInvalidEmails() {
+            List<String> result = service.parseRecipients("valid@test.com, not-an-email, missing@, @nodomain, ok@example.org");
+            assertThat(result).containsExactly("valid@test.com", "ok@example.org");
+        }
     }
 
     @Nested
@@ -261,6 +268,19 @@ class EmailNotificationServiceImplTest {
 
             JavaMailSender sender = service.resolveMailSender(config);
             assertThat(((JavaMailSenderImpl) sender).getPort()).isEqualTo(587);
+        }
+
+        @Test
+        @DisplayName("Should cache project-level mail sender instance")
+        void shouldCacheProjectMailSender() {
+            NotificationConfigEntity config = buildConfig(true, "dev@test.com");
+            config.setId(42L);
+            config.setSmtpHost("smtp.project.com");
+            config.setSmtpPort(465);
+
+            JavaMailSender sender1 = service.resolveMailSender(config);
+            JavaMailSender sender2 = service.resolveMailSender(config);
+            assertThat(sender1).isSameAs(sender2);
         }
     }
 

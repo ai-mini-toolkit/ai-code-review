@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementation of EmailNotificationService for sending review notification emails.
@@ -44,6 +45,7 @@ public class EmailNotificationServiceImpl implements EmailNotificationService {
     private final ReviewResultService reviewResultService;
     private final JavaMailSender defaultMailSender;
     private final String fromAddress;
+    private final ConcurrentHashMap<Long, JavaMailSender> projectMailSenderCache = new ConcurrentHashMap<>();
 
     public EmailNotificationServiceImpl(
             NotificationConfigRepository notificationConfigRepository,
@@ -133,7 +135,23 @@ public class EmailNotificationServiceImpl implements EmailNotificationService {
         return Arrays.stream(emailRecipients.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
+                .filter(this::isValidEmail)
                 .toList();
+    }
+
+    private boolean isValidEmail(String email) {
+        // Basic format check: must contain exactly one @ with non-empty local and domain parts
+        int atIdx = email.indexOf('@');
+        if (atIdx <= 0 || atIdx >= email.length() - 1) {
+            log.warn("Skipping invalid email address: {}", email);
+            return false;
+        }
+        String domain = email.substring(atIdx + 1);
+        if (!domain.contains(".") || domain.startsWith(".") || domain.endsWith(".")) {
+            log.warn("Skipping invalid email address: {}", email);
+            return false;
+        }
+        return true;
     }
 
     String buildSubject(ReviewReportDTO report, boolean isViolation) {
@@ -171,7 +189,7 @@ public class EmailNotificationServiceImpl implements EmailNotificationService {
 
     JavaMailSender resolveMailSender(NotificationConfigEntity config) {
         if (config.getSmtpHost() != null && !config.getSmtpHost().isBlank()) {
-            return createMailSender(config);
+            return projectMailSenderCache.computeIfAbsent(config.getId(), id -> createMailSender(config));
         }
         return defaultMailSender;
     }

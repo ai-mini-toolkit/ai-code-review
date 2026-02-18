@@ -1,6 +1,6 @@
 # Story 7.1: 实现邮件通知服务
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -415,6 +415,12 @@ Claude Opus 4.6 (claude-opus-4-6)
 3. **NotificationConfigMapper 推迟**: 当前 Story 不暴露 API 端点，Mapper 在 Story 7.4（通知配置管理 API）时再创建。
 4. **spring-boot-starter-mail 依赖**: 添加到 service 模块 pom.xml（非 integration 模块），与 EmailNotificationServiceImpl 放置一致。
 5. **API 模块预已存在的测试失败**: API 模块 55 个测试失败均由 Epic 8 并行开发的 JWT 认证（JwtTokenProvider/JwtAuthenticationFilter）引起，与 Story 7.1 无关。
+6. **Code Review 修复 (Claude Opus 4.6)**:
+   - H2: 添加 3 个 email notification 集成测试到 ReviewResultServiceImplTest（verify 调用、异常不传播）
+   - M1: 修复阈值违规时发送两封邮件和重复报告生成问题（改为互斥：violation OR complete）
+   - M2: 修复 ReviewResultServiceImpl import 顺序（@Lazy import 移到 org.springframework 分组）
+   - M3: 添加 ConcurrentHashMap 缓存项目级 JavaMailSender 实例
+   - M4: 添加 parseRecipients() 基本邮箱格式验证（@和域名检查）
 
 ### Test Count Summary
 
@@ -423,9 +429,9 @@ Claude Opus 4.6 (claude-opus-4-6)
 | common | 130 | All Pass |
 | repository | 19 (incl. SmtpPasswordConverterTest: 5) | All Pass |
 | integration | 216 | All Pass |
-| service | 251 (incl. EmailNotificationServiceImplTest: 22+) | All Pass |
+| service | 257 (incl. EmailNotificationServiceImplTest: 24, ReviewResultServiceImplTest +3) | All Pass |
 | api | 59 (4 pass, 55 fail from Epic 8 JWT) | Pre-existing failures |
-| **Total** | **675** | **Story 7.1 tests all pass** |
+| **Total** | **681** | **Story 7.1 tests all pass** |
 
 ### File List
 

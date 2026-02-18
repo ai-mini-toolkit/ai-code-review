@@ -19,9 +19,9 @@ import com.aicodereview.integration.git.GitHubCheckRunService;
 import com.aicodereview.integration.git.GitLabCommitStatusService;
 import com.aicodereview.service.EmailNotificationService;
 import com.aicodereview.service.ReviewResultService;
-import org.springframework.context.annotation.Lazy;
 import com.aicodereview.service.ThresholdValidationService;
 import com.aicodereview.service.mapper.ReviewResultMapper;
+import org.springframework.context.annotation.Lazy;
 import com.aicodereview.service.mapper.ThresholdMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -158,10 +158,12 @@ public class ReviewResultServiceImpl implements ReviewResultService {
         }
 
         // 10. Email notification (non-blocking)
+        // Send violation notification (includes full report + violation banner) OR complete notification, not both
         try {
-            emailNotificationService.sendReviewCompleteNotification(taskId);
             if (!thresholdResult.isPassed()) {
                 emailNotificationService.sendThresholdViolationNotification(taskId);
+            } else {
+                emailNotificationService.sendReviewCompleteNotification(taskId);
             }
         } catch (Exception e) {
             log.warn("Failed to send email notification for task {}: {}", taskId, e.getMessage());

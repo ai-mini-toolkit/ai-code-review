@@ -751,6 +751,35 @@ class ReviewResultServiceImplTest {
         }
 
         @Test
+        @DisplayName("Should swallow AWS CodeCommit exception without affecting saveResult")
+        void shouldSwallowAWSException() {
+            testTask.getProject().setGitPlatform("AWS_CODECOMMIT");
+            testTask.setRepoUrl("https://git-codecommit.us-east-1.amazonaws.com/v1/repos/test");
+            testTask.setCommitHash("abc123");
+
+            ReviewResult reviewResult = ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(45L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+            when(awsCodeCommitStatusService.updateCommitStatus(any(), any(), any(), any()))
+                    .thenThrow(new RuntimeException("AWS API unavailable"));
+
+            ReviewResultDTO result = reviewResultService.saveResult(100L, reviewResult);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(45L);
+        }
+
+        @Test
         @DisplayName("Should not call any platform service for unknown platform")
         void shouldNotCallAnyServiceForUnknownPlatform() {
             testTask.getProject().setGitPlatform("Bitbucket");
@@ -775,6 +804,70 @@ class ReviewResultServiceImplTest {
             verifyNoInteractions(gitHubCheckRunService);
             verifyNoInteractions(gitLabCommitStatusService);
             verifyNoInteractions(awsCodeCommitStatusService);
+        }
+    }
+
+    @Nested
+    @DisplayName("Email Notification Integration (Story 7.1)")
+    class EmailNotificationIntegration {
+
+        private ReviewResult buildSuccessResult() {
+            return ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+        }
+
+        private void setupCommonMocks(ThresholdValidationResultDTO thresholdResult) {
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(thresholdResult);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(50L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+        }
+
+        @Test
+        @DisplayName("Should call sendReviewCompleteNotification when threshold passes")
+        void shouldSendCompleteNotificationWhenPassed() {
+            setupCommonMocks(PASSED_RESULT);
+
+            reviewResultService.saveResult(100L, buildSuccessResult());
+
+            verify(emailNotificationService).sendReviewCompleteNotification(100L);
+            verify(emailNotificationService, never()).sendThresholdViolationNotification(any());
+        }
+
+        @Test
+        @DisplayName("Should call sendThresholdViolationNotification when threshold fails")
+        void shouldSendViolationNotificationWhenFailed() {
+            ThresholdValidationResultDTO failedResult = ThresholdValidationResultDTO.builder()
+                    .passed(false)
+                    .violations(List.of(ThresholdViolationDTO.builder()
+                            .rule("CRITICAL <= 0").actual(1).threshold(0).build()))
+                    .action("BLOCK_MERGE")
+                    .build();
+            setupCommonMocks(failedResult);
+
+            reviewResultService.saveResult(100L, buildSuccessResult());
+
+            verify(emailNotificationService).sendThresholdViolationNotification(100L);
+            verify(emailNotificationService, never()).sendReviewCompleteNotification(any());
+        }
+
+        @Test
+        @DisplayName("Should swallow email notification exception without affecting saveResult")
+        void shouldSwallowEmailNotificationException() {
+            setupCommonMocks(PASSED_RESULT);
+            doThrow(new RuntimeException("SMTP connection refused"))
+                    .when(emailNotificationService).sendReviewCompleteNotification(any());
+
+            ReviewResultDTO result = reviewResultService.saveResult(100L, buildSuccessResult());
+
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(50L);
         }
     }
 }
