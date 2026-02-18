@@ -20,6 +20,7 @@ import com.aicodereview.repository.ReviewTaskRepository;
 import com.aicodereview.repository.entity.Project;
 import com.aicodereview.repository.entity.ReviewResultEntity;
 import com.aicodereview.repository.entity.ReviewTask;
+import com.aicodereview.service.EmailNotificationService;
 import com.aicodereview.service.ThresholdValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -72,6 +73,9 @@ class ReviewResultServiceImplTest {
 
     @Mock
     private AWSCodeCommitStatusService awsCodeCommitStatusService;
+
+    @Mock
+    private EmailNotificationService emailNotificationService;
 
     @InjectMocks
     private ReviewResultServiceImpl reviewResultService;

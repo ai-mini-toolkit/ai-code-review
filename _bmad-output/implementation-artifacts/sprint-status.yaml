@@ -100,8 +100,8 @@ development_status:
   epic-6-retrospective: optional
 
   # Epic 7: 多渠道通知系统 (Multi-Channel Notification System)
-  epic-7: backlog
-  7-1-email-notification-service: backlog
+  epic-7: in-progress
+  7-1-email-notification-service: review
   7-2-git-platform-comment-notification: backlog
   7-3-im-webhook-notifications: backlog
   7-4-notification-template-management: backlog
@@ -114,7 +114,7 @@ development_status:
   8-3-ai-model-configuration-interface: done
   8-4-prompt-template-editor: done
   8-5-review-report-visualization-components: done
-  8-6-user-authentication-authorization-jwt: ready-for-dev
+  8-6-user-authentication-authorization-jwt: in-progress
   epic-8-retrospective: optional
 
   # Epic 9: 端到端测试与集成验证 (End-to-End Testing & Integration Verification)

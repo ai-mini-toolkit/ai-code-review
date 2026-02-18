@@ -3,9 +3,31 @@ spring:
     name: ai-code-review
   profiles:
     active: dev
+  mail:
+    host: ${MAIL_SMTP_HOST:}
+    port: ${MAIL_SMTP_PORT:587}
+    username: ${MAIL_SMTP_USERNAME:}
+    password: ${MAIL_SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          timeout: 5000
+          connectiontimeout: 5000
 
 server:
   port: 8080
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:ThisIsAVeryLongSecretKeyForJWTTokenGenerationAndValidation1234567890AB}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}    # 1 hour in ms
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000} # 7 days in ms
+  issuer: ${JWT_ISSUER:aicodereview}
+  audience: ${JWT_AUDIENCE:aicodereview-api}
 
 # Webhook configuration
 webhook:
@@ -56,6 +78,11 @@ git:
     gitlab:
       token: ${GIT_GITLAB_TOKEN:}
       base-url: ${GIT_GITLAB_BASE_URL:https://gitlab.com}
+
+# Email notification configuration
+notification:
+  email:
+    from: ${NOTIFICATION_EMAIL_FROM:noreply@aicodereview.com}
 
 # Actuator endpoints
 management:

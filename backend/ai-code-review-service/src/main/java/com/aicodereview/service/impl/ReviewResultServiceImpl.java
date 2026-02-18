@@ -17,7 +17,9 @@ import com.aicodereview.repository.entity.ReviewTask;
 import com.aicodereview.integration.git.AWSCodeCommitStatusService;
 import com.aicodereview.integration.git.GitHubCheckRunService;
 import com.aicodereview.integration.git.GitLabCommitStatusService;
+import com.aicodereview.service.EmailNotificationService;
 import com.aicodereview.service.ReviewResultService;
+import org.springframework.context.annotation.Lazy;
 import com.aicodereview.service.ThresholdValidationService;
 import com.aicodereview.service.mapper.ReviewResultMapper;
 import com.aicodereview.service.mapper.ThresholdMapper;
@@ -50,19 +52,22 @@ public class ReviewResultServiceImpl implements ReviewResultService {
     private final GitHubCheckRunService gitHubCheckRunService;
     private final GitLabCommitStatusService gitLabCommitStatusService;
     private final AWSCodeCommitStatusService awsCodeCommitStatusService;
+    private final EmailNotificationService emailNotificationService;
 
     public ReviewResultServiceImpl(ReviewResultRepository reviewResultRepository,
                                     ReviewTaskRepository reviewTaskRepository,
                                     ThresholdValidationService thresholdValidationService,
                                     GitHubCheckRunService gitHubCheckRunService,
                                     GitLabCommitStatusService gitLabCommitStatusService,
-                                    AWSCodeCommitStatusService awsCodeCommitStatusService) {
+                                    AWSCodeCommitStatusService awsCodeCommitStatusService,
+                                    @Lazy EmailNotificationService emailNotificationService) {
         this.reviewResultRepository = reviewResultRepository;
         this.reviewTaskRepository = reviewTaskRepository;
         this.thresholdValidationService = thresholdValidationService;
         this.gitHubCheckRunService = gitHubCheckRunService;
         this.gitLabCommitStatusService = gitLabCommitStatusService;
         this.awsCodeCommitStatusService = awsCodeCommitStatusService;
+        this.emailNotificationService = emailNotificationService;
     }
 
     @Override
@@ -152,7 +157,17 @@ public class ReviewResultServiceImpl implements ReviewResultService {
             }
         }
 
-        // 10. Build and return DTO
+        // 10. Email notification (non-blocking)
+        try {
+            emailNotificationService.sendReviewCompleteNotification(taskId);
+            if (!thresholdResult.isPassed()) {
+                emailNotificationService.sendThresholdViolationNotification(taskId);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to send email notification for task {}: {}", taskId, e.getMessage());
+        }
+
+        // 11. Build and return DTO
         return ReviewResultMapper.toDTO(saved, issues, statistics, reviewResult.getMetadata());
     }
 

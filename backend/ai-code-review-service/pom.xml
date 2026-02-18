@@ -39,10 +39,22 @@
             <version>4.4.0</version>
         </dependency>
 
+        <!-- Spring Mail -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
         <!-- Spring Context -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <!-- Spring Security Core (for UserDetailsService interface) -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
         </dependency>
 
         <!-- Micrometer Core (metrics instrumentation) -->
