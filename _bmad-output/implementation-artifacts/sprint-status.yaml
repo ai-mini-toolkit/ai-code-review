@@ -102,7 +102,7 @@ development_status:
   # Epic 7: 多渠道通知系统 (Multi-Channel Notification System)
   epic-7: in-progress
   7-1-email-notification-service: done
-  7-2-git-platform-comment-notification: done
+  7-2-git-platform-comment-notification: review
   7-3-im-webhook-notifications: backlog
   7-4-notification-template-management: backlog
   epic-7-retrospective: optional
