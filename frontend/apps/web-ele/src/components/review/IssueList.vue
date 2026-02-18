@@ -42,19 +42,24 @@ const { t } = useI18n();
 const filterSeverity = ref<ComponentSeverity | 'all'>('all');
 const filterCategory = ref<ComponentCategory | 'all'>('all');
 
-// Expand state per issue (by index)
-const expandedIssues = ref<Set<number>>(new Set());
+// Expand state per issue (by stable key: "file:line:message")
+const expandedIssues = ref<Set<string>>(new Set());
 
-const severityOptions: Array<{ label: string; value: ComponentSeverity | 'all' }> = [
+function issueKey(issue: ComponentIssue): string {
+  return `${issue.file}:${issue.line}:${issue.message}`;
+}
+
+// Reactive options — use computed() so labels update on language change
+const severityOptions = computed<Array<{ label: string; value: ComponentSeverity | 'all' }>>(() => [
   { label: t('review.filters.allSeverities'), value: 'all' },
   { label: t('review.severity.critical'), value: 'CRITICAL' },
   { label: t('review.severity.high'), value: 'HIGH' },
   { label: t('review.severity.medium'), value: 'MEDIUM' },
   { label: t('review.severity.low'), value: 'LOW' },
   { label: t('review.severity.info'), value: 'INFO' },
-];
+]);
 
-const categoryOptions: Array<{ label: string; value: ComponentCategory | 'all' }> = [
+const categoryOptions = computed<Array<{ label: string; value: ComponentCategory | 'all' }>>(() => [
   { label: t('review.filters.allCategories'), value: 'all' },
   { label: t('review.category.security'), value: 'SECURITY' },
   { label: t('review.category.performance'), value: 'PERFORMANCE' },
@@ -62,7 +67,7 @@ const categoryOptions: Array<{ label: string; value: ComponentCategory | 'all' }
   { label: t('review.category.style'), value: 'STYLE' },
   { label: t('review.category.bug'), value: 'BUG' },
   { label: t('review.category.bestPractice'), value: 'BEST_PRACTICE' },
-];
+]);
 
 const filteredIssues = computed(() => {
   let result = [...props.issues];
@@ -87,16 +92,17 @@ const filteredIssues = computed(() => {
   return result;
 });
 
-function toggleExpand(index: number) {
-  if (expandedIssues.value.has(index)) {
-    expandedIssues.value.delete(index);
+function toggleExpand(issue: ComponentIssue) {
+  const key = issueKey(issue);
+  if (expandedIssues.value.has(key)) {
+    expandedIssues.value.delete(key);
   } else {
-    expandedIssues.value.add(index);
+    expandedIssues.value.add(key);
   }
 }
 
-function isExpanded(index: number) {
-  return expandedIssues.value.has(index);
+function isExpanded(issue: ComponentIssue) {
+  return expandedIssues.value.has(issueKey(issue));
 }
 
 function onLineClick(file: string, line: number) {
@@ -178,8 +184,8 @@ function getShortFileName(filePath: string): string {
       />
 
       <ElCard
-        v-for="(issue, index) in filteredIssues"
-        :key="index"
+        v-for="issue in filteredIssues"
+        :key="`${issue.file}:${issue.line}:${issue.message}`"
         class="issue-card"
         :class="`issue-card--${issue.severity.toLowerCase()}`"
         shadow="hover"
@@ -193,7 +199,7 @@ function getShortFileName(filePath: string): string {
               :color="getCategoryColor(issue.category)"
               style="color: #fff; border: none; margin-left: 6px"
             >
-              {{ issue.category.replace('_', ' ') }}
+              {{ issue.category.replaceAll('_', ' ') }}
             </ElTag>
           </div>
           <div class="issue-card__location">
@@ -214,7 +220,7 @@ function getShortFileName(filePath: string): string {
         <div class="issue-card__title">{{ issue.message }}</div>
 
         <!-- Expandable Detail Section -->
-        <template v-if="isExpanded(index)">
+        <template v-if="isExpanded(issue)">
           <!-- Code snippet preview -->
           <div v-if="issue.codeSnippet" class="issue-card__snippet">
             <pre class="issue-card__code">{{ issue.codeSnippet }}</pre>
@@ -235,13 +241,13 @@ function getShortFileName(filePath: string): string {
           v-if="issue.codeSnippet || issue.suggestion"
           class="issue-card__toggle"
         >
-          <ElButton link size="small" @click="toggleExpand(index)">
+          <ElButton link size="small" @click="toggleExpand(issue)">
             <IconifyIcon
-              :icon="isExpanded(index) ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+              :icon="isExpanded(issue) ? 'lucide:chevron-up' : 'lucide:chevron-down'"
               class="mr-1"
               style="width: 0.85em; height: 0.85em"
             />
-            {{ isExpanded(index) ? t('review.chart.collapse') : t('review.chart.expand') }}
+            {{ isExpanded(issue) ? t('review.chart.collapse') : t('review.chart.expand') }}
           </ElButton>
         </div>
       </ElCard>

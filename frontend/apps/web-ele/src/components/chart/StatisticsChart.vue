@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ElEmpty, ElSkeleton } from 'element-plus';
 import * as echarts from 'echarts/core';
@@ -180,12 +180,11 @@ function renderChart() {
 // Resize observer
 let resizeObserver: ResizeObserver | null = null;
 
-onMounted(() => {
+onMounted(async () => {
   loading.value = true;
-  setTimeout(() => {
-    renderChart();
-    loading.value = false;
-  }, 0);
+  await nextTick();
+  renderChart();
+  loading.value = false;
 
   resizeObserver = new ResizeObserver(() => {
     chartInstance.value?.resize();
@@ -209,7 +208,7 @@ onBeforeUnmount(() => {
   chartInstance.value = null;
 });
 
-const hasData = () => {
+const hasData = computed(() => {
   if (props.chartType === 'severity-pie') {
     return Object.values(props.data.severityDistribution).some((v) => v > 0);
   }
@@ -220,14 +219,14 @@ const hasData = () => {
     return (props.data.trendData?.length ?? 0) > 0;
   }
   return false;
-};
+});
 </script>
 
 <template>
   <div class="statistics-chart" :style="{ height }">
     <ElSkeleton v-if="loading" :rows="4" animated style="padding: 16px" />
     <ElEmpty
-      v-else-if="!hasData()"
+      v-else-if="!hasData"
       :description="t('review.chart.noData')"
       style="height: 100%; display: flex; flex-direction: column; justify-content: center"
     />

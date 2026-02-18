@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ElButton, ElMessage } from 'element-plus';
 import { IconifyIcon } from '@vben/icons';
@@ -35,7 +35,6 @@ const props = withDefaults(defineProps<Props>(), {
 const { t } = useI18n();
 
 const copied = ref(false);
-const codeRef = ref<HTMLElement | null>(null);
 
 // Map common language aliases to Prism keys
 function normalizeLang(lang: string): string {

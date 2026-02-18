@@ -26,11 +26,13 @@ const renderedSvg = ref('');
 const loading = ref(false);
 const error = ref('');
 
-let initialized = false;
+// Component-level flag — each component instance initializes mermaid independently.
+// Mermaid itself is idempotent on repeated initialize() calls.
+const initialized = ref(false);
 
 async function initMermaid() {
-  if (initialized) return;
-  initialized = true;
+  if (initialized.value) return;
+  initialized.value = true;
   mermaid.initialize({
     startOnLoad: false,
     theme: 'default',

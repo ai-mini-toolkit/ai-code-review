@@ -125,3 +125,41 @@ export interface IssueQueryParams {
   severity?: IssueSeverity;
   category?: IssueCategory;
 }
+
+// ============================================================
+// Story 8.5: Component-specific types (uppercase, for visualization components)
+// These differ from the API types above (mixed-case IssueSeverity / IssueCategory)
+// ============================================================
+
+/** Component severity — uppercase, used by SeverityBadge, IssueList, constants */
+export type ComponentSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
+
+/** Component category — uppercase, used by IssueList, constants */
+export type ComponentCategory =
+  | 'SECURITY'
+  | 'PERFORMANCE'
+  | 'QUALITY'
+  | 'STYLE'
+  | 'BUG'
+  | 'BEST_PRACTICE';
+
+/** Issue model used by visualization components */
+export interface ComponentIssue {
+  file: string;
+  line: number;
+  severity: ComponentSeverity;
+  category: ComponentCategory;
+  message: string;
+  suggestion?: string;
+  codeSnippet?: string;
+}
+
+/** Statistics data for ECharts visualization */
+export interface StatisticsData {
+  severityDistribution: Record<ComponentSeverity, number>;
+  categoryDistribution: Record<ComponentCategory, number>;
+  trendData?: Array<{
+    date: string;
+    counts: Record<ComponentSeverity, number>;
+  }>;
+}
