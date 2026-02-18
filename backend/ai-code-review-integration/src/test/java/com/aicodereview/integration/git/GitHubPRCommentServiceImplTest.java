@@ -95,6 +95,15 @@ class GitHubPRCommentServiceImplTest {
         }
 
         @Test
+        @DisplayName("Should skip when PR number is null")
+        void shouldSkipWhenPrNumberNull() {
+            Long result = service.postComment(REPO_URL, null, COMMENT_BODY);
+
+            assertThat(result).isNull();
+            verifyNoInteractions(httpClient);
+        }
+
+        @Test
         @DisplayName("Should return null on HTTP error response")
         void shouldReturnNullOnHttpError() throws Exception {
             when(httpResponse.statusCode()).thenReturn(403);

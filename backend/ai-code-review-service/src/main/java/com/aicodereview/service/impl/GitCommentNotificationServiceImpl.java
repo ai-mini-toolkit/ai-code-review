@@ -19,6 +19,7 @@ import com.aicodereview.service.ReviewResultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -36,6 +37,7 @@ import java.util.Map;
  */
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 public class GitCommentNotificationServiceImpl implements GitCommentNotificationService {
 
     private static final int MAX_COMMENT_LENGTH = 65000;
@@ -226,13 +228,14 @@ public class GitCommentNotificationServiceImpl implements GitCommentNotification
             }
         }
 
-        // Sort CRITICAL first, then HIGH
+        // Sort CRITICAL first, then HIGH (descending by score)
         highSeverity.sort(Comparator.comparing(
-                issue -> issue.getSeverity() != null ? issue.getSeverity().ordinal() : Integer.MAX_VALUE));
+                (ReviewIssue issue) -> issue.getSeverity() != null ? issue.getSeverity().getScore() : 0,
+                Comparator.reverseOrder()));
 
         if (highSeverity.size() > TOP_ISSUES_LIMIT) {
-            return highSeverity.subList(0, TOP_ISSUES_LIMIT);
+            return List.copyOf(highSeverity.subList(0, TOP_ISSUES_LIMIT));
         }
-        return highSeverity;
+        return List.copyOf(highSeverity);
     }
 }

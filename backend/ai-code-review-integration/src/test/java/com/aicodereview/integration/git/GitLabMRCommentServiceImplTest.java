@@ -83,6 +83,15 @@ class GitLabMRCommentServiceImplTest {
         }
 
         @Test
+        @DisplayName("Should skip when MR IID is null")
+        void shouldSkipWhenMrIidNull() {
+            Long result = service.postComment(REPO_URL, null, COMMENT_BODY);
+
+            assertThat(result).isNull();
+            verifyNoInteractions(httpClient);
+        }
+
+        @Test
         @DisplayName("Should return null on HTTP error response")
         void shouldReturnNullOnHttpError() throws Exception {
             when(httpResponse.statusCode()).thenReturn(404);

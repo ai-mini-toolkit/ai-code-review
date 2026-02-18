@@ -1,6 +1,6 @@
 # Story 7.2: 实现 Git 平台评论通知 (Git Platform Comment Notification)
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -275,4 +275,5 @@ Claude Opus 4.6
 1. `backend/ai-code-review-repository/src/main/java/com/aicodereview/repository/entity/NotificationConfigEntity.java` — 添加 `commentEnabled` 字段
 2. `backend/ai-code-review-common/src/main/java/com/aicodereview/common/dto/notification/NotificationConfigDTO.java` — 添加 `commentEnabled` 字段
 3. `backend/ai-code-review-service/src/main/java/com/aicodereview/service/impl/ReviewResultServiceImpl.java` — 注入 GitCommentNotificationService，添加 step 11
-4. `backend/ai-code-review-service/src/test/java/com/aicodereview/service/impl/ReviewResultServiceImplTest.java` — 添加 GitCommentNotificationIntegration 测试嵌套类
+4. `backend/ai-code-review-service/src/main/java/com/aicodereview/service/impl/ReviewReportServiceImpl.java` — 添加 `@Lazy` 到 ReviewResultService 构造函数参数（防止循环依赖）
+5. `backend/ai-code-review-service/src/test/java/com/aicodereview/service/impl/ReviewResultServiceImplTest.java` — 添加 GitCommentNotificationIntegration 测试嵌套类

@@ -51,6 +51,11 @@ public class GitHubPRCommentServiceImpl implements GitHubPRCommentService {
             return null;
         }
 
+        if (prNumber == null) {
+            log.warn("PR number is null, skipping GitHub PR comment for {}", repoUrl);
+            return null;
+        }
+
         String ownerRepo = GitHubUrlUtils.parseOwnerRepo(repoUrl);
         String url = String.format("%s/repos/%s/issues/%d/comments", API_BASE, ownerRepo, prNumber);
 
@@ -76,8 +81,10 @@ public class GitHubPRCommentServiceImpl implements GitHubPRCommentService {
                 return commentId;
             }
 
+            String truncatedBody = response.body() != null && response.body().length() > 200
+                    ? response.body().substring(0, 200) + "..." : response.body();
             log.warn("GitHub Issues Comments API returned HTTP {}: {} for {}",
-                    status, response.body(), url);
+                    status, truncatedBody, url);
             return null;
 
         } catch (IOException e) {

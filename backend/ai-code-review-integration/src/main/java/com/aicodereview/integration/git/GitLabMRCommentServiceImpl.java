@@ -51,6 +51,11 @@ public class GitLabMRCommentServiceImpl implements GitLabMRCommentService {
             return null;
         }
 
+        if (mrIid == null) {
+            log.warn("MR IID is null, skipping GitLab MR comment for {}", repoUrl);
+            return null;
+        }
+
         String projectPath = GitLabUrlUtils.parseProjectPath(repoUrl);
         String url = String.format("%s/api/v4/projects/%s/merge_requests/%d/notes",
                 baseUrl, projectPath, mrIid);
@@ -76,8 +81,10 @@ public class GitLabMRCommentServiceImpl implements GitLabMRCommentService {
                 return noteId;
             }
 
+            String truncatedBody = response.body() != null && response.body().length() > 200
+                    ? response.body().substring(0, 200) + "..." : response.body();
             log.warn("GitLab MR Notes API returned HTTP {}: {} for {}",
-                    status, response.body(), url);
+                    status, truncatedBody, url);
             return null;
 
         } catch (IOException e) {
