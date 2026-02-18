@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { $t } from '@vben/locales';
 import { IconifyIcon } from '@vben/icons';
 import {
   ElButton,
@@ -36,7 +36,6 @@ const emit = defineEmits<{
   lineClick: [file: string, line: number];
 }>();
 
-const { t } = useI18n();
 
 // Filter state
 const filterSeverity = ref<ComponentSeverity | 'all'>('all');
@@ -51,22 +50,22 @@ function issueKey(issue: ComponentIssue): string {
 
 // Reactive options — use computed() so labels update on language change
 const severityOptions = computed<Array<{ label: string; value: ComponentSeverity | 'all' }>>(() => [
-  { label: t('review.filters.allSeverities'), value: 'all' },
-  { label: t('review.severity.critical'), value: 'CRITICAL' },
-  { label: t('review.severity.high'), value: 'HIGH' },
-  { label: t('review.severity.medium'), value: 'MEDIUM' },
-  { label: t('review.severity.low'), value: 'LOW' },
-  { label: t('review.severity.info'), value: 'INFO' },
+  { label: $t('review.filters.allSeverities'), value: 'all' },
+  { label: $t('review.severity.critical'), value: 'CRITICAL' },
+  { label: $t('review.severity.high'), value: 'HIGH' },
+  { label: $t('review.severity.medium'), value: 'MEDIUM' },
+  { label: $t('review.severity.low'), value: 'LOW' },
+  { label: $t('review.severity.info'), value: 'INFO' },
 ]);
 
 const categoryOptions = computed<Array<{ label: string; value: ComponentCategory | 'all' }>>(() => [
-  { label: t('review.filters.allCategories'), value: 'all' },
-  { label: t('review.category.security'), value: 'SECURITY' },
-  { label: t('review.category.performance'), value: 'PERFORMANCE' },
-  { label: t('review.category.quality'), value: 'QUALITY' },
-  { label: t('review.category.style'), value: 'STYLE' },
-  { label: t('review.category.bug'), value: 'BUG' },
-  { label: t('review.category.bestPractice'), value: 'BEST_PRACTICE' },
+  { label: $t('review.filters.allCategories'), value: 'all' },
+  { label: $t('review.category.security'), value: 'SECURITY' },
+  { label: $t('review.category.performance'), value: 'PERFORMANCE' },
+  { label: $t('review.category.quality'), value: 'QUALITY' },
+  { label: $t('review.category.style'), value: 'STYLE' },
+  { label: $t('review.category.bug'), value: 'BUG' },
+  { label: $t('review.category.bestPractice'), value: 'BEST_PRACTICE' },
 ]);
 
 const filteredIssues = computed(() => {
@@ -133,7 +132,7 @@ function getShortFileName(filePath: string): string {
         <ElCol :xs="24" :sm="8" :md="6">
           <ElSelect
             v-model="filterSeverity"
-            :placeholder="t('review.filters.severity')"
+            :placeholder="$t('review.filters.severity')"
             size="small"
             style="width: 100%"
           >
@@ -148,7 +147,7 @@ function getShortFileName(filePath: string): string {
         <ElCol :xs="24" :sm="8" :md="6">
           <ElSelect
             v-model="filterCategory"
-            :placeholder="t('review.filters.category')"
+            :placeholder="$t('review.filters.category')"
             size="small"
             style="width: 100%"
           >
@@ -162,12 +161,12 @@ function getShortFileName(filePath: string): string {
         </ElCol>
         <ElCol :xs="24" :sm="8" :md="4">
           <ElButton size="small" @click="resetFilters">
-            {{ t('review.actions.resetFilters') }}
+            {{ $t('review.actions.resetFilters') }}
           </ElButton>
         </ElCol>
         <ElCol :xs="24" :sm="24" :md="8" class="issue-list__count">
           <ElText type="info" size="small">
-            {{ t('review.summary.issuesFound', { count: filteredIssues.length }) }}
+            {{ $t('review.summary.issuesFound', { count: filteredIssues.length }) }}
           </ElText>
         </ElCol>
       </ElRow>
@@ -180,7 +179,7 @@ function getShortFileName(filePath: string): string {
     >
       <ElEmpty
         v-if="filteredIssues.length === 0"
-        :description="t('review.empty.noIssues')"
+        :description="$t('review.empty.noIssues')"
       />
 
       <ElCard
@@ -230,7 +229,7 @@ function getShortFileName(filePath: string): string {
           <div v-if="issue.suggestion" class="issue-card__suggestion">
             <div class="issue-card__suggestion-label">
               <IconifyIcon icon="lucide:lightbulb" class="mr-1" style="color: #e6a23c; width: 1em; height: 1em" />
-              {{ t('review.chart.fixSuggestion') }}
+              {{ $t('review.chart.fixSuggestion') }}
             </div>
             <div class="issue-card__suggestion-text">{{ issue.suggestion }}</div>
           </div>
@@ -247,7 +246,7 @@ function getShortFileName(filePath: string): string {
               class="mr-1"
               style="width: 0.85em; height: 0.85em"
             />
-            {{ isExpanded(issue) ? t('review.chart.collapse') : t('review.chart.expand') }}
+            {{ isExpanded(issue) ? $t('review.chart.collapse') : $t('review.chart.expand') }}
           </ElButton>
         </div>
       </ElCard>

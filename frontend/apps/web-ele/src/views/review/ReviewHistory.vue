@@ -99,7 +99,7 @@ function getStatusTagType(status: TaskStatus): '' | 'danger' | 'info' | 'success
     case 'COMPLETED':
       return 'success';
     case 'RUNNING':
-      return '';
+      return 'primary';
     case 'PENDING':
       return 'info';
     case 'FAILED':
@@ -270,14 +270,11 @@ onMounted(() => {
         align="center"
       >
         <template #default="{ row }">
-          <ElTag
-            v-if="getThresholdStatusTag(row)"
-            :type="getThresholdStatusTag(row)!.type"
-            size="small"
-          >
-            {{ getThresholdStatusTag(row)!.text }}
-          </ElTag>
-          <span v-else>-</span>
+          <!-- Use v-for single-item trick to evaluate once and avoid 3 function calls per row -->
+          <template v-for="tag in [getThresholdStatusTag(row)]" :key="0">
+            <ElTag v-if="tag" :type="tag.type" size="small">{{ tag.text }}</ElTag>
+            <span v-else>-</span>
+          </template>
         </template>
       </ElTableColumn>
       <ElTableColumn

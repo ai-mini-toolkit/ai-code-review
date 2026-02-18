@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { $t } from '@vben/locales';
 import { ElEmpty, ElSkeleton } from 'element-plus';
 import mermaid from 'mermaid';
 
@@ -19,7 +19,6 @@ const emit = defineEmits<{
   nodeClick: [nodeId: string];
 }>();
 
-const { t } = useI18n();
 
 const containerRef = ref<HTMLElement | null>(null);
 const renderedSvg = ref('');
@@ -63,7 +62,7 @@ async function renderChart() {
     await nextTick();
     attachNodeClickListeners();
   } catch (err: any) {
-    error.value = err?.message ?? t('review.callGraph.renderError');
+    error.value = err?.message ?? $t('review.callGraph.renderError');
     renderedSvg.value = '';
   } finally {
     loading.value = false;
@@ -109,7 +108,7 @@ onUnmounted(() => {
     <!-- Empty -->
     <ElEmpty
       v-else-if="!mermaidSyntax?.trim()"
-      :description="t('review.callGraph.noData')"
+      :description="$t('review.callGraph.noData')"
     />
 
     <!-- Rendered SVG -->

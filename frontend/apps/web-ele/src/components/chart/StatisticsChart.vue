@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { $t } from '@vben/locales';
 import { ElEmpty, ElSkeleton } from 'element-plus';
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart, PieChart } from 'echarts/charts';
@@ -43,7 +43,6 @@ const props = withDefaults(defineProps<Props>(), {
   title: undefined,
 });
 
-const { t } = useI18n();
 
 const chartRef = ref<HTMLElement | null>(null);
 const chartInstance = shallowRef<echarts.ECharts | null>(null);
@@ -54,7 +53,7 @@ function buildSeverityPieOption(): echarts.EChartsOption {
   const data = (Object.keys(dist) as ComponentSeverity[])
     .filter((k) => dist[k] > 0)
     .map((k) => ({
-      name: t(`review.severity.${k.toLowerCase()}`),
+      name: $t(`review.severity.${k.toLowerCase()}`),
       value: dist[k],
       itemStyle: { color: SEVERITY_COLORS[k] },
     }));
@@ -107,7 +106,7 @@ function buildCategoryBarOption(): echarts.EChartsOption {
     yAxis: {
       type: 'value',
       minInterval: 1,
-      name: t('review.chart.issueCount'),
+      name: $t('review.chart.issueCount'),
     },
     series: [
       {
@@ -143,10 +142,10 @@ function buildTrendLineOption(): echarts.EChartsOption {
     yAxis: {
       type: 'value',
       minInterval: 1,
-      name: t('review.chart.issueCount'),
+      name: $t('review.chart.issueCount'),
     },
     series: severities.map((sev) => ({
-      name: t(`review.severity.${sev.toLowerCase()}`),
+      name: $t(`review.severity.${sev.toLowerCase()}`),
       type: 'line',
       smooth: true,
       data: trend.map((d) => d.counts[sev] ?? 0),
@@ -227,7 +226,7 @@ const hasData = computed(() => {
     <ElSkeleton v-if="loading" :rows="4" animated style="padding: 16px" />
     <ElEmpty
       v-else-if="!hasData"
-      :description="t('review.chart.noData')"
+      :description="$t('review.chart.noData')"
       style="height: 100%; display: flex; flex-direction: column; justify-content: center"
     />
     <div

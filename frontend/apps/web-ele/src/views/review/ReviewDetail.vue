@@ -23,6 +23,7 @@ import {
 import { useReviewStore } from '#/stores/review';
 import { getReviewIssuesApi } from '#/api/review';
 import type { ReviewIssue, IssueSeverity, IssueCategory } from '#/types/review';
+import CodeSnippet from '#/components/review/CodeSnippet.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -40,7 +41,16 @@ const issuesLoading = ref(false);
 const filterSeverity = ref<IssueSeverity | 'all'>('all');
 const filterCategory = ref<IssueCategory | 'all'>('all');
 
-// 过滤后的问题列表
+// AC #8: 严重性排序权重（Critical 优先）
+const SEVERITY_ORDER: Record<IssueSeverity, number> = {
+  Critical: 1,
+  High: 2,
+  Medium: 3,
+  Low: 4,
+  Info: 5,
+};
+
+// 过滤 + 排序后的问题列表（AC #8: 按严重性排序）
 const filteredIssues = computed(() => {
   let result = issues.value;
 
@@ -52,7 +62,7 @@ const filteredIssues = computed(() => {
     result = result.filter(i => i.category === filterCategory.value);
   }
 
-  return result;
+  return [...result].sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
 });
 
 // 按严重性分组的问题
@@ -148,6 +158,35 @@ function getScoreColor(score: number): 'success' | 'exception' | 'warning' | '' 
   return 'exception';
 }
 
+// M2: 预计算阈值标签，避免模板中多次调用函数
+const thresholdTag = computed(() => getThresholdStatusTag());
+
+// H4: 从文件路径推断语言，供 CodeSnippet 组件使用
+function getLanguageFromFile(filePath: string): string {
+  const ext = filePath.split('.').pop()?.toLowerCase() ?? '';
+  const langMap: Record<string, string> = {
+    java: 'java',
+    ts: 'typescript',
+    tsx: 'typescript',
+    js: 'javascript',
+    jsx: 'javascript',
+    py: 'python',
+    go: 'go',
+    sql: 'sql',
+    sh: 'bash',
+    bash: 'bash',
+    yaml: 'yaml',
+    yml: 'yaml',
+    json: 'json',
+    kt: 'kotlin',
+    cs: 'csharp',
+    rb: 'ruby',
+    php: 'php',
+    xml: 'xml',
+  };
+  return langMap[ext] ?? 'text';
+}
+
 onMounted(() => {
   fetchReviewDetail();
   fetchIssues();
@@ -179,8 +218,8 @@ onMounted(() => {
         <template #header>
           <div class="flex items-center justify-between">
             <span class="text-lg font-bold">{{ $t('review.summary.title') }}</span>
-            <ElTag v-if="getThresholdStatusTag()" :type="getThresholdStatusTag()!.type" size="large">
-              {{ getThresholdStatusTag()!.icon }} {{ getThresholdStatusTag()!.text }}
+            <ElTag v-if="thresholdTag" :type="thresholdTag.type" size="large">
+              {{ thresholdTag.icon }} {{ thresholdTag.text }}
             </ElTag>
           </div>
         </template>
@@ -289,8 +328,8 @@ onMounted(() => {
           <ElTabPane :label="`${$t('review.filters.allSeverities')} (${filteredIssues.length})`">
             <div class="issues-list space-y-3">
               <div
-                v-for="(issue, index) in filteredIssues"
-                :key="index"
+                v-for="issue in filteredIssues"
+                :key="`${issue.filePath}:${issue.lineNumber}:${issue.title}`"
                 class="issue-card p-4 border rounded-lg hover:shadow-md transition-shadow"
               >
                 <div class="flex items-start justify-between mb-2">
@@ -310,9 +349,14 @@ onMounted(() => {
                   {{ issue.description }}
                 </div>
 
-                <div v-if="issue.codeSnippet" class="mb-2 p-2 bg-gray-50 rounded border">
-                  <pre class="text-xs overflow-x-auto"><code>{{ issue.codeSnippet }}</code></pre>
-                </div>
+                <!-- H4: 使用 CodeSnippet 组件（Prism.js 高亮 + 行号 + 复制按钮） -->
+                <CodeSnippet
+                  v-if="issue.codeSnippet"
+                  :code="issue.codeSnippet"
+                  :language="getLanguageFromFile(issue.filePath)"
+                  :filename="issue.filePath"
+                  class="mb-2"
+                />
 
                 <div v-if="issue.fixSuggestion" class="text-sm">
                   <span class="font-semibold text-green-600">{{ $t('review.issue.fixSuggestion') }}:</span>
@@ -322,16 +366,16 @@ onMounted(() => {
             </div>
           </ElTabPane>
 
-          <!-- 按严重性分组的标签页 -->
+          <!-- M4: 仅显示有问题的 severity 标签页 -->
           <ElTabPane
-            v-for="severity in ['Critical', 'High', 'Medium', 'Low', 'Info']"
+            v-for="severity in (['Critical', 'High', 'Medium', 'Low', 'Info'] as IssueSeverity[]).filter(s => issuesBySeverity[s].length > 0)"
             :key="severity"
-            :label="`${$t(`review.severity.${severity}`)} (${issuesBySeverity[severity as IssueSeverity].length})`"
+            :label="`${$t(`review.severity.${severity}`)} (${issuesBySeverity[severity].length})`"
           >
-            <div v-if="issuesBySeverity[severity as IssueSeverity].length > 0" class="issues-list space-y-3">
+            <div class="issues-list space-y-3">
               <div
-                v-for="(issue, index) in issuesBySeverity[severity as IssueSeverity]"
-                :key="index"
+                v-for="issue in issuesBySeverity[severity]"
+                :key="`${issue.filePath}:${issue.lineNumber}:${issue.title}`"
                 class="issue-card p-4 border rounded-lg hover:shadow-md transition-shadow"
               >
                 <div class="flex items-start justify-between mb-2">
@@ -348,9 +392,14 @@ onMounted(() => {
                   {{ issue.description }}
                 </div>
 
-                <div v-if="issue.codeSnippet" class="mb-2 p-2 bg-gray-50 rounded border">
-                  <pre class="text-xs overflow-x-auto"><code>{{ issue.codeSnippet }}</code></pre>
-                </div>
+                <!-- H4: 使用 CodeSnippet 组件（Prism.js 高亮 + 行号 + 复制按钮） -->
+                <CodeSnippet
+                  v-if="issue.codeSnippet"
+                  :code="issue.codeSnippet"
+                  :language="getLanguageFromFile(issue.filePath)"
+                  :filename="issue.filePath"
+                  class="mb-2"
+                />
 
                 <div v-if="issue.fixSuggestion" class="text-sm">
                   <span class="font-semibold text-green-600">{{ $t('review.issue.fixSuggestion') }}:</span>
@@ -358,7 +407,6 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-            <ElEmpty v-else :description="$t('review.empty.noIssues')" />
           </ElTabPane>
         </ElTabs>
 

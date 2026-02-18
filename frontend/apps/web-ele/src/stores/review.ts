@@ -4,6 +4,7 @@
  */
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
+import { $t } from '#/locales';
 import {
   getReviewResultApi,
   getReviewTaskApi,
@@ -35,11 +36,9 @@ export const useReviewStore = defineStore('review', () => {
   });
 
   // Getters
-  const filteredReviews = computed(() => {
-    // Server-side filtering now handles status and searchText
-    // This getter just returns the server-filtered results
-    return reviews.value;
-  });
+  // Server-side filtering is applied in fetchReviews() via API params (status, searchText, projectId).
+  // This getter exposes the already server-filtered page of results.
+  const filteredReviews = computed(() => reviews.value);
 
   const errorCount = computed(() =>
     currentReview.value?.summary.errorCount ?? 0
@@ -74,7 +73,7 @@ export const useReviewStore = defineStore('review', () => {
         totalPages: response.totalPages,
       };
     } catch (e: any) {
-      error.value = e.message || '加载审查历史失败';
+      error.value = e.message || $t('review.messages.loadFailed');
     } finally {
       loading.value = false;
     }
@@ -86,7 +85,7 @@ export const useReviewStore = defineStore('review', () => {
     try {
       currentReview.value = await getReviewResultApi(resultId);
     } catch (e: any) {
-      error.value = e.message || '加载审查详情失败';
+      error.value = e.message || $t('review.messages.loadDetailFailed');
     } finally {
       loading.value = false;
     }
@@ -98,7 +97,7 @@ export const useReviewStore = defineStore('review', () => {
     try {
       currentTask.value = await getReviewTaskApi(taskId);
     } catch (e: any) {
-      error.value = e.message || '加载任务详情失败';
+      error.value = e.message || $t('review.messages.loadDetailFailed');
     } finally {
       loading.value = false;
     }

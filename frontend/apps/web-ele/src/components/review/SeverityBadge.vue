@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { $t } from '@vben/locales';
 import { IconifyIcon } from '@vben/icons';
 
 import type { ComponentSeverity } from '#/types/review';
@@ -23,11 +23,10 @@ const props = withDefaults(defineProps<Props>(), {
   showLabel: true,
 });
 
-const { t } = useI18n();
 
 const tagType = computed(() => SEVERITY_TAG_TYPES[props.severity]);
 const iconName = computed(() => SEVERITY_ICONS[props.severity]);
-const label = computed(() => t(SEVERITY_I18N_KEYS[props.severity]));
+const label = computed(() => $t(SEVERITY_I18N_KEYS[props.severity]));
 </script>
 
 <template>

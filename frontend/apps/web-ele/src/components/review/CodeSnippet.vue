@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { $t } from '@vben/locales';
 import { ElButton, ElMessage } from 'element-plus';
 import { IconifyIcon } from '@vben/icons';
 import Prism from 'prismjs';
@@ -32,7 +32,6 @@ const props = withDefaults(defineProps<Props>(), {
   filename: undefined,
 });
 
-const { t } = useI18n();
 
 const copied = ref(false);
 
@@ -66,7 +65,7 @@ async function copyCode() {
     await navigator.clipboard.writeText(props.code);
     copied.value = true;
     ElMessage({
-      message: t('review.codeSnippet.copied'),
+      message: $t('review.codeSnippet.copied'),
       type: 'success',
       duration: 1500,
     });
@@ -74,7 +73,7 @@ async function copyCode() {
       copied.value = false;
     }, 1500);
   } catch {
-    ElMessage({ message: t('review.codeSnippet.copyFailed'), type: 'error' });
+    ElMessage({ message: $t('review.codeSnippet.copyFailed'), type: 'error' });
   }
 }
 
@@ -102,7 +101,7 @@ function isHighlighted(lineIndex: number): boolean {
           :icon="copied ? 'lucide:check' : 'lucide:copy'"
           style="width: 0.9em; height: 0.9em; margin-right: 4px"
         />
-        {{ copied ? t('review.codeSnippet.copied') : t('review.codeSnippet.copy') }}
+        {{ copied ? $t('review.codeSnippet.copied') : $t('review.codeSnippet.copy') }}
       </ElButton>
     </div>
 

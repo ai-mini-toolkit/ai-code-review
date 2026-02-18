@@ -1,6 +1,6 @@
 # Story 8.2: 实现审查历史查看界面
 
-Status: review
+Status: done
 
 ## Story
 
