@@ -1,17 +1,25 @@
 package com.aicodereview.api.controller;
 
+import com.aicodereview.common.dto.ApiResponse;
+import com.aicodereview.common.dto.auth.LoginRequest;
+import com.aicodereview.common.dto.auth.LoginResult;
 import com.aicodereview.common.dto.project.CreateProjectRequest;
 import com.aicodereview.common.dto.project.UpdateProjectRequest;
 import com.aicodereview.common.dto.threshold.ThresholdConfigDTO;
 import com.aicodereview.common.dto.threshold.ThresholdRuleDTO;
 import com.aicodereview.repository.ProjectRepository;
+import com.aicodereview.repository.UserRepository;
+import com.aicodereview.repository.entity.User;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cache.CacheManager;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -34,11 +42,69 @@ class ProjectControllerIntegrationTest {
     @Autowired
     private CacheManager cacheManager;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private static Long createdProjectId;
+    private static String adminToken;
+    private static boolean authSetupDone = false;
 
     @BeforeAll
     static void cleanDatabase(@Autowired ProjectRepository repository) {
         repository.deleteAll();
+    }
+
+    @BeforeEach
+    void setupAuth() {
+        // Configure Apache HttpClient to avoid HttpRetryException on 401 responses
+        restTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        // Create admin user if not exists
+        if (!authSetupDone) {
+            // Delete and recreate to ensure correct password hash (Flyway may have created with different hash)
+            userRepository.findByUsername("admin").ifPresent(userRepository::delete);
+            User admin = User.builder()
+                    .username("admin")
+                    .passwordHash(passwordEncoder.encode("admin123"))
+                    .email("admin@test.com")
+                    .realName("Test Admin")
+                    .role("ADMIN")
+                    .enabled(true)
+                    .build();
+            userRepository.save(admin);
+            // Get admin token
+            LoginRequest loginReq = new LoginRequest("admin", "admin123");
+            ResponseEntity<ApiResponse<LoginResult>> loginResp = restTemplate.exchange(
+                    "/api/v1/auth/login",
+                    HttpMethod.POST,
+                    new HttpEntity<>(loginReq, jsonHeaders()),
+                    new ParameterizedTypeReference<>() {}
+            );
+            adminToken = loginResp.getBody().getData().getAccessToken();
+            authSetupDone = true;
+        }
+    }
+
+    private HttpHeaders jsonHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
+    }
+
+    private HttpHeaders adminHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+        return headers;
+    }
+
+    private HttpHeaders adminJsonHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
     }
 
     private CreateProjectRequest buildCreateRequest(String name) {
@@ -67,8 +133,9 @@ class ProjectControllerIntegrationTest {
     void shouldCreateProject() {
         CreateProjectRequest request = buildCreateRequest("integration-test-project");
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-                "/api/v1/projects", request, Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
@@ -88,8 +155,9 @@ class ProjectControllerIntegrationTest {
     @Test
     @Order(2)
     void shouldListProjects() {
-        ResponseEntity<Map> response = restTemplate.getForEntity(
-                "/api/v1/projects", Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -105,8 +173,9 @@ class ProjectControllerIntegrationTest {
     void shouldGetProjectById() {
         assertThat(createdProjectId).isNotNull();
 
-        ResponseEntity<Map> response = restTemplate.getForEntity(
-                "/api/v1/projects/" + createdProjectId, Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/projects/" + createdProjectId, HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -128,9 +197,7 @@ class ProjectControllerIntegrationTest {
                 .enabled(false)
                 .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<UpdateProjectRequest> entity = new HttpEntity<>(request, headers);
+        HttpEntity<UpdateProjectRequest> entity = new HttpEntity<>(request, adminJsonHeaders());
 
         ResponseEntity<Map> response = restTemplate.exchange(
                 "/api/v1/projects/" + createdProjectId,
@@ -154,15 +221,16 @@ class ProjectControllerIntegrationTest {
 
         ResponseEntity<Map> response = restTemplate.exchange(
                 "/api/v1/projects/" + createdProjectId,
-                HttpMethod.DELETE, null, Map.class);
+                HttpMethod.DELETE, new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().get("success")).isEqualTo(true);
 
         // Verify deletion - should return 404
-        ResponseEntity<Map> getResponse = restTemplate.getForEntity(
-                "/api/v1/projects/" + createdProjectId, Map.class);
+        ResponseEntity<Map> getResponse = restTemplate.exchange(
+                "/api/v1/projects/" + createdProjectId, HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
         assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
@@ -172,13 +240,15 @@ class ProjectControllerIntegrationTest {
         CreateProjectRequest request = buildCreateRequest("duplicate-test-project");
 
         // Create first project
-        ResponseEntity<Map> first = restTemplate.postForEntity(
-                "/api/v1/projects", request, Map.class);
+        ResponseEntity<Map> first = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
         assertThat(first.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         // Try to create duplicate
-        ResponseEntity<Map> duplicate = restTemplate.postForEntity(
-                "/api/v1/projects", request, Map.class);
+        ResponseEntity<Map> duplicate = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
 
         assertThat(duplicate.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(duplicate.getBody()).isNotNull();
@@ -190,14 +260,16 @@ class ProjectControllerIntegrationTest {
         // Cleanup
         Map<String, Object> data = getData(first.getBody());
         Long id = ((Number) data.get("id")).longValue();
-        restTemplate.delete("/api/v1/projects/" + id);
+        restTemplate.exchange("/api/v1/projects/" + id, HttpMethod.DELETE,
+                new HttpEntity<>(adminHeaders()), Map.class);
     }
 
     @Test
     @Order(7)
     void shouldReturn404ForNonExistentProject() {
-        ResponseEntity<Map> response = restTemplate.getForEntity(
-                "/api/v1/projects/999999", Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/projects/999999", HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isNotNull();
@@ -212,8 +284,9 @@ class ProjectControllerIntegrationTest {
     void shouldNotExposeWebhookSecretInResponse() {
         CreateProjectRequest request = buildCreateRequest("secret-test-project");
 
-        ResponseEntity<Map> createResponse = restTemplate.postForEntity(
-                "/api/v1/projects", request, Map.class);
+        ResponseEntity<Map> createResponse = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         Map<String, Object> data = getData(createResponse.getBody());
@@ -224,14 +297,16 @@ class ProjectControllerIntegrationTest {
         assertThat(data.get("webhookSecretConfigured")).isEqualTo(true);
 
         // Also check GET response
-        ResponseEntity<Map> getResponse = restTemplate.getForEntity(
-                "/api/v1/projects/" + id, Map.class);
+        ResponseEntity<Map> getResponse = restTemplate.exchange(
+                "/api/v1/projects/" + id, HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
         Map<String, Object> getData = getData(getResponse.getBody());
         assertThat(getData.containsKey("webhookSecret")).isFalse();
         assertThat(getData.get("webhookSecretConfigured")).isEqualTo(true);
 
         // Cleanup
-        restTemplate.delete("/api/v1/projects/" + id);
+        restTemplate.exchange("/api/v1/projects/" + id, HttpMethod.DELETE,
+                new HttpEntity<>(adminHeaders()), Map.class);
     }
 
     @Test
@@ -240,8 +315,9 @@ class ProjectControllerIntegrationTest {
         CreateProjectRequest request = buildCreateRequest("cache-test-project");
 
         // Create a project
-        ResponseEntity<Map> createResponse = restTemplate.postForEntity(
-                "/api/v1/projects", request, Map.class);
+        ResponseEntity<Map> createResponse = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Map<String, Object> data = getData(createResponse.getBody());
         Long id = ((Number) data.get("id")).longValue();
@@ -250,8 +326,9 @@ class ProjectControllerIntegrationTest {
         cacheManager.getCache("projects").clear();
 
         // First GET - should hit database and populate cache
-        ResponseEntity<Map> firstGet = restTemplate.getForEntity(
-                "/api/v1/projects/" + id, Map.class);
+        ResponseEntity<Map> firstGet = restTemplate.exchange(
+                "/api/v1/projects/" + id, HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
         assertThat(firstGet.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // Verify cache entry exists after GET
@@ -259,13 +336,15 @@ class ProjectControllerIntegrationTest {
         assertThat(cachedValue).isNotNull();
 
         // Second GET - should hit cache (we verify cache has the entry)
-        ResponseEntity<Map> secondGet = restTemplate.getForEntity(
-                "/api/v1/projects/" + id, Map.class);
+        ResponseEntity<Map> secondGet = restTemplate.exchange(
+                "/api/v1/projects/" + id, HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
         assertThat(secondGet.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(getData(secondGet.getBody()).get("name")).isEqualTo("cache-test-project");
 
         // Cleanup
-        restTemplate.delete("/api/v1/projects/" + id);
+        restTemplate.exchange("/api/v1/projects/" + id, HttpMethod.DELETE,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         // Verify cache is evicted after delete
         Object afterDelete = cacheManager.getCache("projects").get(id);
@@ -277,8 +356,9 @@ class ProjectControllerIntegrationTest {
     void shouldReturn422ForMissingRequiredFields() {
         CreateProjectRequest request = CreateProjectRequest.builder().build();
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-                "/api/v1/projects", request, Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
         assertThat(response.getBody()).isNotNull();
@@ -306,15 +386,17 @@ class ProjectControllerIntegrationTest {
     void shouldReturnDefaultThresholdsForNewProject() {
         // Create a project
         CreateProjectRequest request = buildCreateRequest("threshold-test-project");
-        ResponseEntity<Map> createResponse = restTemplate.postForEntity(
-                "/api/v1/projects", request, Map.class);
+        ResponseEntity<Map> createResponse = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Map<String, Object> projectData = getData(createResponse.getBody());
         Long projectId = ((Number) projectData.get("id")).longValue();
 
         // GET thresholds
-        ResponseEntity<Map> response = restTemplate.getForEntity(
-                "/api/v1/projects/" + projectId + "/thresholds", Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/projects/" + projectId + "/thresholds", HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().get("success")).isEqualTo(true);
@@ -328,7 +410,8 @@ class ProjectControllerIntegrationTest {
         assertThat(rules.get(0).get("maxCount")).isEqualTo(0);
 
         // Cleanup
-        restTemplate.delete("/api/v1/projects/" + projectId);
+        restTemplate.exchange("/api/v1/projects/" + projectId, HttpMethod.DELETE,
+                new HttpEntity<>(adminHeaders()), Map.class);
     }
 
     @Test
@@ -337,8 +420,9 @@ class ProjectControllerIntegrationTest {
     void shouldUpdateThresholdsSuccessfully() {
         // Create a project
         CreateProjectRequest request = buildCreateRequest("threshold-update-project");
-        ResponseEntity<Map> createResponse = restTemplate.postForEntity(
-                "/api/v1/projects", request, Map.class);
+        ResponseEntity<Map> createResponse = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Map<String, Object> projectData = getData(createResponse.getBody());
         Long projectId = ((Number) projectData.get("id")).longValue();
@@ -354,9 +438,7 @@ class ProjectControllerIntegrationTest {
                 .action("WARN_ONLY")
                 .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<ThresholdConfigDTO> entity = new HttpEntity<>(newConfig, headers);
+        HttpEntity<ThresholdConfigDTO> entity = new HttpEntity<>(newConfig, adminJsonHeaders());
 
         ResponseEntity<Map> putResponse = restTemplate.exchange(
                 "/api/v1/projects/" + projectId + "/thresholds",
@@ -372,21 +454,24 @@ class ProjectControllerIntegrationTest {
         assertThat(rules).hasSize(3);
 
         // Verify persistence via GET
-        ResponseEntity<Map> getResponse = restTemplate.getForEntity(
-                "/api/v1/projects/" + projectId + "/thresholds", Map.class);
+        ResponseEntity<Map> getResponse = restTemplate.exchange(
+                "/api/v1/projects/" + projectId + "/thresholds", HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
         Map<String, Object> persisted = getData(getResponse.getBody());
         assertThat(persisted.get("enabled")).isEqualTo(true);
         assertThat(persisted.get("action")).isEqualTo("WARN_ONLY");
 
         // Cleanup
-        restTemplate.delete("/api/v1/projects/" + projectId);
+        restTemplate.exchange("/api/v1/projects/" + projectId, HttpMethod.DELETE,
+                new HttpEntity<>(adminHeaders()), Map.class);
     }
 
     @Test
     @Order(13)
     void shouldReturn404ForThresholdsOfNonExistentProject() {
-        ResponseEntity<Map> response = restTemplate.getForEntity(
-                "/api/v1/projects/999999/thresholds", Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/projects/999999/thresholds", HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isNotNull();
@@ -401,8 +486,9 @@ class ProjectControllerIntegrationTest {
     void shouldReturn400ForInvalidThresholdSeverity() {
         // Create a project
         CreateProjectRequest request = buildCreateRequest("threshold-invalid-project");
-        ResponseEntity<Map> createResponse = restTemplate.postForEntity(
-                "/api/v1/projects", request, Map.class);
+        ResponseEntity<Map> createResponse = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Map<String, Object> projectData = getData(createResponse.getBody());
         Long projectId = ((Number) projectData.get("id")).longValue();
@@ -416,9 +502,7 @@ class ProjectControllerIntegrationTest {
                 .action("BLOCK_MERGE")
                 .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<ThresholdConfigDTO> entity = new HttpEntity<>(invalidConfig, headers);
+        HttpEntity<ThresholdConfigDTO> entity = new HttpEntity<>(invalidConfig, adminJsonHeaders());
 
         ResponseEntity<Map> response = restTemplate.exchange(
                 "/api/v1/projects/" + projectId + "/thresholds",
@@ -432,7 +516,8 @@ class ProjectControllerIntegrationTest {
         assertThat(error.get("code")).isEqualTo("ERR_400");
 
         // Cleanup
-        restTemplate.delete("/api/v1/projects/" + projectId);
+        restTemplate.exchange("/api/v1/projects/" + projectId, HttpMethod.DELETE,
+                new HttpEntity<>(adminHeaders()), Map.class);
     }
 
     @Test
@@ -441,15 +526,17 @@ class ProjectControllerIntegrationTest {
     void shouldIncludeThresholdsInProjectDTOResponse() {
         // Create a project
         CreateProjectRequest request = buildCreateRequest("threshold-dto-project");
-        ResponseEntity<Map> createResponse = restTemplate.postForEntity(
-                "/api/v1/projects", request, Map.class);
+        ResponseEntity<Map> createResponse = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Map<String, Object> projectData = getData(createResponse.getBody());
         Long projectId = ((Number) projectData.get("id")).longValue();
 
         // GET project - verify thresholds field is present in ProjectDTO
-        ResponseEntity<Map> getResponse = restTemplate.getForEntity(
-                "/api/v1/projects/" + projectId, Map.class);
+        ResponseEntity<Map> getResponse = restTemplate.exchange(
+                "/api/v1/projects/" + projectId, HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
         assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         Map<String, Object> data = getData(getResponse.getBody());
@@ -460,7 +547,8 @@ class ProjectControllerIntegrationTest {
         assertThat(thresholds.get("action")).isEqualTo("BLOCK_MERGE");
 
         // Cleanup
-        restTemplate.delete("/api/v1/projects/" + projectId);
+        restTemplate.exchange("/api/v1/projects/" + projectId, HttpMethod.DELETE,
+                new HttpEntity<>(adminHeaders()), Map.class);
     }
 
     @Test
@@ -468,8 +556,9 @@ class ProjectControllerIntegrationTest {
     void shouldCacheThresholdsAndEvictOnUpdate() {
         // Create a project
         CreateProjectRequest request = buildCreateRequest("threshold-cache-project");
-        ResponseEntity<Map> createResponse = restTemplate.postForEntity(
-                "/api/v1/projects", request, Map.class);
+        ResponseEntity<Map> createResponse = restTemplate.exchange(
+                "/api/v1/projects", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Map<String, Object> projectData = getData(createResponse.getBody());
         Long projectId = ((Number) projectData.get("id")).longValue();
@@ -478,8 +567,9 @@ class ProjectControllerIntegrationTest {
         cacheManager.getCache("thresholds").clear();
 
         // First GET - populates cache
-        ResponseEntity<Map> firstGet = restTemplate.getForEntity(
-                "/api/v1/projects/" + projectId + "/thresholds", Map.class);
+        ResponseEntity<Map> firstGet = restTemplate.exchange(
+                "/api/v1/projects/" + projectId + "/thresholds", HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
         assertThat(firstGet.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // Verify cache entry exists
@@ -493,9 +583,7 @@ class ProjectControllerIntegrationTest {
                 .action("WARN_ONLY")
                 .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<ThresholdConfigDTO> entity = new HttpEntity<>(newConfig, headers);
+        HttpEntity<ThresholdConfigDTO> entity = new HttpEntity<>(newConfig, adminJsonHeaders());
 
         restTemplate.exchange(
                 "/api/v1/projects/" + projectId + "/thresholds",
@@ -506,6 +594,7 @@ class ProjectControllerIntegrationTest {
         assertThat(afterUpdate).isNull();
 
         // Cleanup
-        restTemplate.delete("/api/v1/projects/" + projectId);
+        restTemplate.exchange("/api/v1/projects/" + projectId, HttpMethod.DELETE,
+                new HttpEntity<>(adminHeaders()), Map.class);
     }
 }

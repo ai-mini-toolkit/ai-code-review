@@ -11,11 +11,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// TODO: Add @PreAuthorize annotations when spring-boot-starter-security is introduced (Epic 8, Story 8.6)
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/ai-models")
@@ -24,6 +24,7 @@ public class AiModelController {
 
     private final AiModelConfigService aiModelConfigService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<AiModelConfigDTO>> createAiModel(
             @Valid @RequestBody CreateAiModelRequest request) {
@@ -48,6 +49,7 @@ public class AiModelController {
         return ResponseEntity.ok(ApiResponse.success(config));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<AiModelConfigDTO>> updateAiModel(
             @PathVariable("id") Long id,
@@ -57,6 +59,7 @@ public class AiModelController {
         return ResponseEntity.ok(ApiResponse.success(config));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteAiModel(@PathVariable("id") Long id) {
         log.info("DELETE /api/v1/ai-models/{} - Deleting AI model config", id);
@@ -64,6 +67,7 @@ public class AiModelController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/test")
     public ResponseEntity<ApiResponse<TestConnectionResponse>> testConnection(@PathVariable("id") Long id) {
         log.info("POST /api/v1/ai-models/{}/test - Testing connection", id);

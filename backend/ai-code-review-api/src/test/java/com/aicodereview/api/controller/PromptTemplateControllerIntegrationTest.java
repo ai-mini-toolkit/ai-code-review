@@ -1,15 +1,23 @@
 package com.aicodereview.api.controller;
 
+import com.aicodereview.common.dto.ApiResponse;
+import com.aicodereview.common.dto.auth.LoginRequest;
+import com.aicodereview.common.dto.auth.LoginResult;
 import com.aicodereview.common.dto.prompttemplate.CreatePromptTemplateRequest;
 import com.aicodereview.common.dto.prompttemplate.UpdatePromptTemplateRequest;
 import com.aicodereview.repository.PromptTemplateRepository;
+import com.aicodereview.repository.UserRepository;
+import com.aicodereview.repository.entity.User;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cache.CacheManager;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.HashMap;
@@ -33,13 +41,71 @@ class PromptTemplateControllerIntegrationTest {
     @Autowired
     private CacheManager cacheManager;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private static Long createdTemplateId;
+    private static String adminToken;
+    private static boolean authSetupDone = false;
 
     private static final String VALID_TEMPLATE = "Review {{file_name}} for {{category}} issues:\n{{#each issues}}\n- Line {{line}}: {{description}}\n{{/each}}";
 
     @BeforeAll
     static void cleanDatabase(@Autowired PromptTemplateRepository repository) {
         repository.deleteAll();
+    }
+
+    @BeforeEach
+    void setupAuth() {
+        // Configure Apache HttpClient to avoid HttpRetryException on 401 responses
+        restTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        // Create admin user if not exists
+        if (!authSetupDone) {
+            // Delete and recreate to ensure correct password hash (Flyway may have created with different hash)
+            userRepository.findByUsername("admin").ifPresent(userRepository::delete);
+            User admin = User.builder()
+                    .username("admin")
+                    .passwordHash(passwordEncoder.encode("admin123"))
+                    .email("admin@test.com")
+                    .realName("Test Admin")
+                    .role("ADMIN")
+                    .enabled(true)
+                    .build();
+            userRepository.save(admin);
+            // Get admin token
+            LoginRequest loginReq = new LoginRequest("admin", "admin123");
+            ResponseEntity<ApiResponse<LoginResult>> loginResp = restTemplate.exchange(
+                    "/api/v1/auth/login",
+                    HttpMethod.POST,
+                    new HttpEntity<>(loginReq, jsonHeaders()),
+                    new ParameterizedTypeReference<>() {}
+            );
+            adminToken = loginResp.getBody().getData().getAccessToken();
+            authSetupDone = true;
+        }
+    }
+
+    private HttpHeaders jsonHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
+    }
+
+    private HttpHeaders adminHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+        return headers;
+    }
+
+    private HttpHeaders adminJsonHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(adminToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
     }
 
     private CreatePromptTemplateRequest buildCreateRequest(String name, String category) {
@@ -67,8 +133,9 @@ class PromptTemplateControllerIntegrationTest {
     void shouldCreatePromptTemplate() {
         CreatePromptTemplateRequest request = buildCreateRequest("security-review-v1", "security");
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-                "/api/v1/prompt-templates", request, Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/prompt-templates", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
@@ -89,8 +156,9 @@ class PromptTemplateControllerIntegrationTest {
     @Test
     @Order(2)
     void shouldListPromptTemplates() {
-        ResponseEntity<Map> response = restTemplate.getForEntity(
-                "/api/v1/prompt-templates", Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/prompt-templates", HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -106,11 +174,13 @@ class PromptTemplateControllerIntegrationTest {
     void shouldFilterByCategory() {
         // Create a performance template
         CreatePromptTemplateRequest perfRequest = buildCreateRequest("performance-review-v1", "performance");
-        restTemplate.postForEntity("/api/v1/prompt-templates", perfRequest, Map.class);
+        restTemplate.exchange("/api/v1/prompt-templates", HttpMethod.POST,
+                new HttpEntity<>(perfRequest, adminHeaders()), Map.class);
 
         // Filter by category=security
-        ResponseEntity<Map> response = restTemplate.getForEntity(
-                "/api/v1/prompt-templates?category=security", Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/prompt-templates?category=security", HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         @SuppressWarnings("unchecked")
@@ -124,8 +194,9 @@ class PromptTemplateControllerIntegrationTest {
     void shouldGetPromptTemplateById() {
         assertThat(createdTemplateId).isNotNull();
 
-        ResponseEntity<Map> response = restTemplate.getForEntity(
-                "/api/v1/prompt-templates/" + createdTemplateId, Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/prompt-templates/" + createdTemplateId, HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -149,9 +220,7 @@ class PromptTemplateControllerIntegrationTest {
                 .enabled(false)
                 .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<UpdatePromptTemplateRequest> entity = new HttpEntity<>(request, headers);
+        HttpEntity<UpdatePromptTemplateRequest> entity = new HttpEntity<>(request, adminJsonHeaders());
 
         ResponseEntity<Map> response = restTemplate.exchange(
                 "/api/v1/prompt-templates/" + createdTemplateId,
@@ -174,22 +243,24 @@ class PromptTemplateControllerIntegrationTest {
     void shouldDeletePromptTemplate() {
         // Create a template to delete
         CreatePromptTemplateRequest request = buildCreateRequest("template-to-delete", "style");
-        ResponseEntity<Map> createResponse = restTemplate.postForEntity(
-                "/api/v1/prompt-templates", request, Map.class);
+        ResponseEntity<Map> createResponse = restTemplate.exchange(
+                "/api/v1/prompt-templates", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Long deleteId = ((Number) getData(createResponse.getBody()).get("id")).longValue();
 
         ResponseEntity<Map> response = restTemplate.exchange(
                 "/api/v1/prompt-templates/" + deleteId,
-                HttpMethod.DELETE, null, Map.class);
+                HttpMethod.DELETE, new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().get("success")).isEqualTo(true);
 
         // Verify deletion - should return 404
-        ResponseEntity<Map> getResponse = restTemplate.getForEntity(
-                "/api/v1/prompt-templates/" + deleteId, Map.class);
+        ResponseEntity<Map> getResponse = restTemplate.exchange(
+                "/api/v1/prompt-templates/" + deleteId, HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
         assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
@@ -199,13 +270,15 @@ class PromptTemplateControllerIntegrationTest {
         CreatePromptTemplateRequest request = buildCreateRequest("duplicate-template-test", "correctness");
 
         // Create first
-        ResponseEntity<Map> first = restTemplate.postForEntity(
-                "/api/v1/prompt-templates", request, Map.class);
+        ResponseEntity<Map> first = restTemplate.exchange(
+                "/api/v1/prompt-templates", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
         assertThat(first.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         // Try to create duplicate
-        ResponseEntity<Map> duplicate = restTemplate.postForEntity(
-                "/api/v1/prompt-templates", request, Map.class);
+        ResponseEntity<Map> duplicate = restTemplate.exchange(
+                "/api/v1/prompt-templates", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
 
         assertThat(duplicate.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(duplicate.getBody()).isNotNull();
@@ -216,14 +289,16 @@ class PromptTemplateControllerIntegrationTest {
 
         // Cleanup
         Long id = ((Number) getData(first.getBody()).get("id")).longValue();
-        restTemplate.delete("/api/v1/prompt-templates/" + id);
+        restTemplate.exchange("/api/v1/prompt-templates/" + id, HttpMethod.DELETE,
+                new HttpEntity<>(adminHeaders()), Map.class);
     }
 
     @Test
     @Order(8)
     void shouldReturn404ForNonExistentTemplate() {
-        ResponseEntity<Map> response = restTemplate.getForEntity(
-                "/api/v1/prompt-templates/999999", Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/prompt-templates/999999", HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isNotNull();
@@ -238,8 +313,9 @@ class PromptTemplateControllerIntegrationTest {
     void shouldReturn422ForMissingRequiredFields() {
         CreatePromptTemplateRequest request = CreatePromptTemplateRequest.builder().build();
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-                "/api/v1/prompt-templates", request, Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/prompt-templates", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
         assertThat(response.getBody()).isNotNull();
@@ -266,10 +342,8 @@ class PromptTemplateControllerIntegrationTest {
         UpdatePromptTemplateRequest updateReq = UpdatePromptTemplateRequest.builder()
                 .templateContent(VALID_TEMPLATE)
                 .build();
-        HttpHeaders updateHeaders = new HttpHeaders();
-        updateHeaders.setContentType(MediaType.APPLICATION_JSON);
         restTemplate.exchange("/api/v1/prompt-templates/" + createdTemplateId,
-                HttpMethod.PUT, new HttpEntity<>(updateReq, updateHeaders), Map.class);
+                HttpMethod.PUT, new HttpEntity<>(updateReq, adminJsonHeaders()), Map.class);
 
         Map<String, Object> sampleData = new HashMap<>();
         sampleData.put("file_name", "UserService.java");
@@ -279,13 +353,11 @@ class PromptTemplateControllerIntegrationTest {
                 Map.of("line", 88, "description", "Hardcoded password")
         ));
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(sampleData, headers);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(sampleData, adminJsonHeaders());
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(
+        ResponseEntity<Map> response = restTemplate.exchange(
                 "/api/v1/prompt-templates/" + createdTemplateId + "/preview",
-                entity, Map.class);
+                HttpMethod.POST, entity, Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -311,8 +383,9 @@ class PromptTemplateControllerIntegrationTest {
                 .templateContent("{{#each items}Missing closing tag")
                 .build();
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-                "/api/v1/prompt-templates", request, Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/prompt-templates", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
         assertThat(response.getBody()).isNotNull();
@@ -328,13 +401,15 @@ class PromptTemplateControllerIntegrationTest {
         // The security-review-v1 template was disabled in Order 5 update test
         // Create an enabled template to ensure we have both states
         CreatePromptTemplateRequest enabledReq = buildCreateRequest("enabled-filter-test", "best_practices");
-        ResponseEntity<Map> createResp = restTemplate.postForEntity(
-                "/api/v1/prompt-templates", enabledReq, Map.class);
+        ResponseEntity<Map> createResp = restTemplate.exchange(
+                "/api/v1/prompt-templates", HttpMethod.POST,
+                new HttpEntity<>(enabledReq, adminHeaders()), Map.class);
         assertThat(createResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         // Filter by enabled=true
-        ResponseEntity<Map> response = restTemplate.getForEntity(
-                "/api/v1/prompt-templates?enabled=true", Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/prompt-templates?enabled=true", HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         @SuppressWarnings("unchecked")
@@ -347,8 +422,9 @@ class PromptTemplateControllerIntegrationTest {
     @Order(13)
     void shouldFilterByCategoryAndEnabled() {
         // Filter by category=security AND enabled=true
-        ResponseEntity<Map> response = restTemplate.getForEntity(
-                "/api/v1/prompt-templates?category=best_practices&enabled=true", Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "/api/v1/prompt-templates?category=best_practices&enabled=true", HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         @SuppressWarnings("unchecked")
@@ -363,8 +439,9 @@ class PromptTemplateControllerIntegrationTest {
     void shouldCachePromptTemplateInRedisOnGet() {
         CreatePromptTemplateRequest request = buildCreateRequest("cache-test-template", "maintainability");
 
-        ResponseEntity<Map> createResponse = restTemplate.postForEntity(
-                "/api/v1/prompt-templates", request, Map.class);
+        ResponseEntity<Map> createResponse = restTemplate.exchange(
+                "/api/v1/prompt-templates", HttpMethod.POST,
+                new HttpEntity<>(request, adminHeaders()), Map.class);
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Map<String, Object> data = getData(createResponse.getBody());
         Long id = ((Number) data.get("id")).longValue();
@@ -373,8 +450,9 @@ class PromptTemplateControllerIntegrationTest {
         cacheManager.getCache("prompt-templates").clear();
 
         // First GET - should hit database and populate cache
-        ResponseEntity<Map> firstGet = restTemplate.getForEntity(
-                "/api/v1/prompt-templates/" + id, Map.class);
+        ResponseEntity<Map> firstGet = restTemplate.exchange(
+                "/api/v1/prompt-templates/" + id, HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
         assertThat(firstGet.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // Verify cache entry exists after GET
@@ -382,13 +460,15 @@ class PromptTemplateControllerIntegrationTest {
         assertThat(cachedValue).isNotNull();
 
         // Second GET - should hit cache
-        ResponseEntity<Map> secondGet = restTemplate.getForEntity(
-                "/api/v1/prompt-templates/" + id, Map.class);
+        ResponseEntity<Map> secondGet = restTemplate.exchange(
+                "/api/v1/prompt-templates/" + id, HttpMethod.GET,
+                new HttpEntity<>(adminHeaders()), Map.class);
         assertThat(secondGet.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(getData(secondGet.getBody()).get("name")).isEqualTo("cache-test-template");
 
         // Cleanup
-        restTemplate.delete("/api/v1/prompt-templates/" + id);
+        restTemplate.exchange("/api/v1/prompt-templates/" + id, HttpMethod.DELETE,
+                new HttpEntity<>(adminHeaders()), Map.class);
 
         // Verify cache is evicted after delete
         Object afterDelete = cacheManager.getCache("prompt-templates").get(id);

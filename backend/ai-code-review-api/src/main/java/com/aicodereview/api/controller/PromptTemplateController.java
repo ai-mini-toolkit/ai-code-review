@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class PromptTemplateController {
 
     private final PromptTemplateService promptTemplateService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<PromptTemplateDTO>> createPromptTemplate(
             @Valid @RequestBody CreatePromptTemplateRequest request) {
@@ -49,6 +51,7 @@ public class PromptTemplateController {
         return ResponseEntity.ok(ApiResponse.success(template));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<PromptTemplateDTO>> updatePromptTemplate(
             @PathVariable("id") Long id,
@@ -58,6 +61,7 @@ public class PromptTemplateController {
         return ResponseEntity.ok(ApiResponse.success(template));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deletePromptTemplate(@PathVariable("id") Long id) {
         log.info("DELETE /api/v1/prompt-templates/{} - Deleting prompt template", id);
@@ -65,6 +69,7 @@ public class PromptTemplateController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/preview")
     public ResponseEntity<ApiResponse<PreviewResponse>> previewTemplate(
             @PathVariable("id") Long id,

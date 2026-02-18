@@ -26,6 +26,7 @@ public class NotificationConfigDTO {
     private Integer smtpPort;
     private String smtpUsername;
     // Note: smtpPassword is intentionally excluded from DTO for security
+    private Boolean commentEnabled;
     private Instant createdAt;
     private Instant updatedAt;
 }

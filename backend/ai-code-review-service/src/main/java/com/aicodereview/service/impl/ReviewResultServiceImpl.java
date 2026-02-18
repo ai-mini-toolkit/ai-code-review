@@ -18,6 +18,7 @@ import com.aicodereview.integration.git.AWSCodeCommitStatusService;
 import com.aicodereview.integration.git.GitHubCheckRunService;
 import com.aicodereview.integration.git.GitLabCommitStatusService;
 import com.aicodereview.service.EmailNotificationService;
+import com.aicodereview.service.GitCommentNotificationService;
 import com.aicodereview.service.ReviewResultService;
 import com.aicodereview.service.ThresholdValidationService;
 import com.aicodereview.service.mapper.ReviewResultMapper;
@@ -53,6 +54,7 @@ public class ReviewResultServiceImpl implements ReviewResultService {
     private final GitLabCommitStatusService gitLabCommitStatusService;
     private final AWSCodeCommitStatusService awsCodeCommitStatusService;
     private final EmailNotificationService emailNotificationService;
+    private final GitCommentNotificationService gitCommentNotificationService;
 
     public ReviewResultServiceImpl(ReviewResultRepository reviewResultRepository,
                                     ReviewTaskRepository reviewTaskRepository,
@@ -60,7 +62,8 @@ public class ReviewResultServiceImpl implements ReviewResultService {
                                     GitHubCheckRunService gitHubCheckRunService,
                                     GitLabCommitStatusService gitLabCommitStatusService,
                                     AWSCodeCommitStatusService awsCodeCommitStatusService,
-                                    @Lazy EmailNotificationService emailNotificationService) {
+                                    @Lazy EmailNotificationService emailNotificationService,
+                                    @Lazy GitCommentNotificationService gitCommentNotificationService) {
         this.reviewResultRepository = reviewResultRepository;
         this.reviewTaskRepository = reviewTaskRepository;
         this.thresholdValidationService = thresholdValidationService;
@@ -68,6 +71,7 @@ public class ReviewResultServiceImpl implements ReviewResultService {
         this.gitLabCommitStatusService = gitLabCommitStatusService;
         this.awsCodeCommitStatusService = awsCodeCommitStatusService;
         this.emailNotificationService = emailNotificationService;
+        this.gitCommentNotificationService = gitCommentNotificationService;
     }
 
     @Override
@@ -169,7 +173,14 @@ public class ReviewResultServiceImpl implements ReviewResultService {
             log.warn("Failed to send email notification for task {}: {}", taskId, e.getMessage());
         }
 
-        // 11. Build and return DTO
+        // 11. Git platform comment notification (non-blocking, PR/MR tasks only)
+        try {
+            gitCommentNotificationService.postReviewComment(taskId);
+        } catch (Exception e) {
+            log.warn("Failed to post comment notification for task {}: {}", taskId, e.getMessage());
+        }
+
+        // 12. Build and return DTO
         return ReviewResultMapper.toDTO(saved, issues, statistics, reviewResult.getMetadata());
     }
 

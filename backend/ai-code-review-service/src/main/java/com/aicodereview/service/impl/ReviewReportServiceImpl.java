@@ -13,6 +13,7 @@ import com.aicodereview.repository.entity.ReviewTask;
 import com.aicodereview.service.ReviewReportService;
 import com.aicodereview.service.ReviewResultService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +39,7 @@ public class ReviewReportServiceImpl implements ReviewReportService {
     private final ReviewResultService reviewResultService;
     private final ReviewTaskRepository reviewTaskRepository;
 
-    public ReviewReportServiceImpl(ReviewResultService reviewResultService,
+    public ReviewReportServiceImpl(@Lazy ReviewResultService reviewResultService,
                                     ReviewTaskRepository reviewTaskRepository) {
         this.reviewResultService = reviewResultService;
         this.reviewTaskRepository = reviewTaskRepository;

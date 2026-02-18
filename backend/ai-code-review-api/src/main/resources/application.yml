@@ -93,6 +93,9 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+  health:
+    mail:
+      enabled: false  # Mail server is optional; disable health check to avoid false negatives
   metrics:
     tags:
       application: ${spring.application.name}

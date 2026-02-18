@@ -13,9 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.util.List;
 
-// TODO: Add @PreAuthorize annotations when spring-boot-starter-security is introduced (Epic 8, Story 8.6)
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -25,6 +26,7 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ProjectDTO>> createProject(
             @Valid @RequestBody CreateProjectRequest request) {
         log.info("POST /api/v1/projects - Creating project: {}", request.getName());
@@ -48,6 +50,7 @@ public class ProjectController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ProjectDTO>> updateProject(
             @PathVariable("id") Long id,
             @Valid @RequestBody UpdateProjectRequest request) {
@@ -57,6 +60,7 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteProject(@PathVariable("id") Long id) {
         log.info("DELETE /api/v1/projects/{} - Deleting project", id);
         projectService.deleteProject(id);
@@ -72,6 +76,7 @@ public class ProjectController {
     }
 
     @PutMapping("/{id}/thresholds")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ThresholdConfigDTO>> updateThresholds(
             @PathVariable("id") Long id,
             @Valid @RequestBody ThresholdConfigDTO config) {

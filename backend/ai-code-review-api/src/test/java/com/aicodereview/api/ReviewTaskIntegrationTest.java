@@ -11,10 +11,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 
 import javax.crypto.Mac;
@@ -35,6 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 2.5.0
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("dev")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DisplayName("ReviewTask Integration Tests")
 class ReviewTaskIntegrationTest {
 
@@ -50,10 +55,16 @@ class ReviewTaskIntegrationTest {
     private static final String GITHUB_REPO_URL = "https://github.com/integration-test/repo";
     private static final String GITLAB_REPO_URL = "https://gitlab.com/integration-test/repo";
 
+    // These must match webhook.secrets.* in application.yml (default values)
+    private static final String GITHUB_WEBHOOK_SECRET = "test-github-secret";
+    private static final String GITLAB_WEBHOOK_TOKEN = "test-gitlab-token";
+
     private static boolean setupComplete = false;
 
     @BeforeEach
     void setUp() {
+        // Use Apache HttpClient to avoid HttpRetryException on 401 responses
+        restTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         // Configure RestTemplate error handler
         restTemplate.getRestTemplate().setErrorHandler(new DefaultResponseErrorHandler() {
             @Override
@@ -75,7 +86,7 @@ class ReviewTaskIntegrationTest {
                     .enabled(true)
                     .gitPlatform("github")
                     .repoUrl(GITHUB_REPO_URL)
-                    .webhookSecret("integration-test-secret")
+                    .webhookSecret(GITHUB_WEBHOOK_SECRET)
                     .build();
             projectRepository.save(githubProject);
 
@@ -85,7 +96,7 @@ class ReviewTaskIntegrationTest {
                     .enabled(true)
                     .gitPlatform("gitlab")
                     .repoUrl(GITLAB_REPO_URL)
-                    .webhookSecret("integration-test-token")
+                    .webhookSecret(GITLAB_WEBHOOK_TOKEN)
                     .build();
             projectRepository.save(gitlabProject);
 
@@ -105,7 +116,7 @@ class ReviewTaskIntegrationTest {
                 GITHUB_REPO_URL
         );
 
-        String signature = calculateGitHubSignature(payload, "integration-test-secret");
+        String signature = calculateGitHubSignature(payload, GITHUB_WEBHOOK_SECRET);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -160,7 +171,7 @@ class ReviewTaskIntegrationTest {
                 GITHUB_REPO_URL
         );
 
-        String signature = calculateGitHubSignature(payload, "integration-test-secret");
+        String signature = calculateGitHubSignature(payload, GITHUB_WEBHOOK_SECRET);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -220,7 +231,7 @@ class ReviewTaskIntegrationTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-Gitlab-Token", "integration-test-token");
+        headers.set("X-Gitlab-Token", GITLAB_WEBHOOK_TOKEN);
 
         HttpEntity<String> request = new HttpEntity<>(payload, headers);
 
@@ -266,7 +277,7 @@ class ReviewTaskIntegrationTest {
                 GITHUB_REPO_URL
         );
 
-        String signature = calculateGitHubSignature(payload, "integration-test-secret");
+        String signature = calculateGitHubSignature(payload, GITHUB_WEBHOOK_SECRET);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

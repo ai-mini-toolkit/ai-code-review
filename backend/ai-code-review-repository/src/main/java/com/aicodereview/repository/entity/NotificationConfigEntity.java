@@ -13,7 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.Instant;
 
 /**
- * Entity representing per-project email notification configuration.
+ * Entity representing per-project notification configuration.
  *
  * @since 7.1.0
  */
@@ -53,6 +53,10 @@ public class NotificationConfigEntity {
     @Convert(converter = SmtpPasswordConverter.class)
     @Column(name = "smtp_password", length = 500)
     private String smtpPassword;
+
+    @Column(name = "comment_enabled", nullable = false)
+    @Builder.Default
+    private Boolean commentEnabled = false;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

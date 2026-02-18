@@ -21,6 +21,7 @@ import com.aicodereview.repository.entity.Project;
 import com.aicodereview.repository.entity.ReviewResultEntity;
 import com.aicodereview.repository.entity.ReviewTask;
 import com.aicodereview.service.EmailNotificationService;
+import com.aicodereview.service.GitCommentNotificationService;
 import com.aicodereview.service.ThresholdValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -76,6 +77,9 @@ class ReviewResultServiceImplTest {
 
     @Mock
     private EmailNotificationService emailNotificationService;
+
+    @Mock
+    private GitCommentNotificationService gitCommentNotificationService;
 
     @InjectMocks
     private ReviewResultServiceImpl reviewResultService;
@@ -868,6 +872,52 @@ class ReviewResultServiceImplTest {
 
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(50L);
+        }
+    }
+
+    @Nested
+    @DisplayName("Git Comment Notification Integration (Story 7.2)")
+    class GitCommentNotificationIntegration {
+
+        private ReviewResult buildSuccessResult() {
+            return ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+        }
+
+        private void setupCommonMocks() {
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(60L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+        }
+
+        @Test
+        @DisplayName("Should call postReviewComment during saveResult")
+        void shouldCallPostReviewComment() {
+            setupCommonMocks();
+
+            reviewResultService.saveResult(100L, buildSuccessResult());
+
+            verify(gitCommentNotificationService).postReviewComment(100L);
+        }
+
+        @Test
+        @DisplayName("Should swallow comment notification exception without affecting saveResult")
+        void shouldSwallowCommentNotificationException() {
+            setupCommonMocks();
+            doThrow(new RuntimeException("GitHub API error"))
+                    .when(gitCommentNotificationService).postReviewComment(any());
+
+            ReviewResultDTO result = reviewResultService.saveResult(100L, buildSuccessResult());
+
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(60L);
         }
     }
 }
