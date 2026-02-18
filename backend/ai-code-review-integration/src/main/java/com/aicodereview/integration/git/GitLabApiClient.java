@@ -85,28 +85,12 @@ public class GitLabApiClient implements GitPlatformClient {
         return GitPlatform.GITLAB;
     }
 
+    /**
+     * Extracts URL-encoded project path from a GitLab repository URL.
+     * Delegates to shared utility {@link GitLabUrlUtils#parseProjectPath(String)}.
+     */
     String parseProjectPath(String repoUrl) {
-        if (repoUrl == null || repoUrl.isEmpty()) {
-            throw new IllegalArgumentException("Repository URL must not be null or empty");
-        }
-        try {
-            URI uri = URI.create(repoUrl);
-            String path = uri.getPath();
-            if (path.startsWith("/")) {
-                path = path.substring(1);
-            }
-            if (path.endsWith(".git")) {
-                path = path.substring(0, path.length() - 4);
-            }
-            if (path.isEmpty()) {
-                throw new IllegalArgumentException("Invalid GitLab repository URL: " + repoUrl);
-            }
-            return URLEncoder.encode(path, StandardCharsets.UTF_8);
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid repository URL: " + repoUrl, e);
-        }
+        return GitLabUrlUtils.parseProjectPath(repoUrl);
     }
 
     private String assembleUnifiedDiff(String responseBody) {

@@ -14,7 +14,9 @@ import com.aicodereview.repository.ReviewResultRepository;
 import com.aicodereview.repository.ReviewTaskRepository;
 import com.aicodereview.repository.entity.ReviewResultEntity;
 import com.aicodereview.repository.entity.ReviewTask;
+import com.aicodereview.integration.git.AWSCodeCommitStatusService;
 import com.aicodereview.integration.git.GitHubCheckRunService;
+import com.aicodereview.integration.git.GitLabCommitStatusService;
 import com.aicodereview.service.ReviewResultService;
 import com.aicodereview.service.ThresholdValidationService;
 import com.aicodereview.service.mapper.ReviewResultMapper;
@@ -46,15 +48,21 @@ public class ReviewResultServiceImpl implements ReviewResultService {
     private final ReviewTaskRepository reviewTaskRepository;
     private final ThresholdValidationService thresholdValidationService;
     private final GitHubCheckRunService gitHubCheckRunService;
+    private final GitLabCommitStatusService gitLabCommitStatusService;
+    private final AWSCodeCommitStatusService awsCodeCommitStatusService;
 
     public ReviewResultServiceImpl(ReviewResultRepository reviewResultRepository,
                                     ReviewTaskRepository reviewTaskRepository,
                                     ThresholdValidationService thresholdValidationService,
-                                    GitHubCheckRunService gitHubCheckRunService) {
+                                    GitHubCheckRunService gitHubCheckRunService,
+                                    GitLabCommitStatusService gitLabCommitStatusService,
+                                    AWSCodeCommitStatusService awsCodeCommitStatusService) {
         this.reviewResultRepository = reviewResultRepository;
         this.reviewTaskRepository = reviewTaskRepository;
         this.thresholdValidationService = thresholdValidationService;
         this.gitHubCheckRunService = gitHubCheckRunService;
+        this.gitLabCommitStatusService = gitLabCommitStatusService;
+        this.awsCodeCommitStatusService = awsCodeCommitStatusService;
     }
 
     @Override
@@ -116,14 +124,31 @@ public class ReviewResultServiceImpl implements ReviewResultService {
         reviewTaskRepository.save(task);
         log.info("ReviewTask {} status updated to COMPLETED", taskId);
 
-        // 9. GitHub Check Run status update (non-blocking)
-        if ("GitHub".equalsIgnoreCase(task.getProject().getGitPlatform())
-                && Boolean.TRUE.equals(reviewResult.isSuccess())) {
-            try {
-                gitHubCheckRunService.createCompletedCheckRun(
-                        task.getRepoUrl(), task.getCommitHash(), statistics, thresholdResult);
-            } catch (Exception e) {
-                log.warn("Failed to create GitHub Check Run for task {}: {}", taskId, e.getMessage());
+        // 9. Platform status update (non-blocking)
+        // TODO: Move HTTP calls outside @Transactional to avoid holding DB connection during external API calls
+        if (Boolean.TRUE.equals(reviewResult.isSuccess())) {
+            String platform = task.getProject().getGitPlatform();
+            if ("GitHub".equalsIgnoreCase(platform)) {
+                try {
+                    gitHubCheckRunService.createCompletedCheckRun(
+                            task.getRepoUrl(), task.getCommitHash(), statistics, thresholdResult);
+                } catch (Exception e) {
+                    log.warn("Failed to create GitHub Check Run for task {}: {}", taskId, e.getMessage());
+                }
+            } else if ("GitLab".equalsIgnoreCase(platform)) {
+                try {
+                    gitLabCommitStatusService.updateCommitStatus(
+                            task.getRepoUrl(), task.getCommitHash(), statistics, thresholdResult);
+                } catch (Exception e) {
+                    log.warn("Failed to update GitLab Commit Status for task {}: {}", taskId, e.getMessage());
+                }
+            } else if ("AWS_CODECOMMIT".equalsIgnoreCase(platform)) {
+                try {
+                    awsCodeCommitStatusService.updateCommitStatus(
+                            task.getRepoUrl(), task.getCommitHash(), statistics, thresholdResult);
+                } catch (Exception e) {
+                    log.warn("Failed to update AWS CodeCommit status for task {}: {}", taskId, e.getMessage());
+                }
             }
         }
 

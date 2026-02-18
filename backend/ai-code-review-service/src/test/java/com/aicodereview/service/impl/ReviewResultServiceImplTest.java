@@ -12,7 +12,9 @@ import com.aicodereview.common.enums.IssueSeverity;
 import com.aicodereview.common.enums.TaskStatus;
 import com.aicodereview.common.exception.DuplicateResourceException;
 import com.aicodereview.common.exception.ResourceNotFoundException;
+import com.aicodereview.integration.git.AWSCodeCommitStatusService;
 import com.aicodereview.integration.git.GitHubCheckRunService;
+import com.aicodereview.integration.git.GitLabCommitStatusService;
 import com.aicodereview.repository.ReviewResultRepository;
 import com.aicodereview.repository.ReviewTaskRepository;
 import com.aicodereview.repository.entity.Project;
@@ -64,6 +66,12 @@ class ReviewResultServiceImplTest {
 
     @Mock
     private GitHubCheckRunService gitHubCheckRunService;
+
+    @Mock
+    private GitLabCommitStatusService gitLabCommitStatusService;
+
+    @Mock
+    private AWSCodeCommitStatusService awsCodeCommitStatusService;
 
     @InjectMocks
     private ReviewResultServiceImpl reviewResultService;
@@ -530,10 +538,12 @@ class ReviewResultServiceImplTest {
         }
 
         @Test
-        @DisplayName("Should NOT create Check Run for non-GitHub platform")
+        @DisplayName("Should NOT create Check Run for non-GitHub platform (GitLab calls GitLab service instead)")
         void shouldNotCreateCheckRunForNonGitHubPlatform() {
             // Given - GitLab project
             testTask.getProject().setGitPlatform("GitLab");
+            testTask.setRepoUrl("https://gitlab.com/test/repo");
+            testTask.setCommitHash("abc123");
 
             ReviewResult reviewResult = ReviewResult.success(List.of(), ReviewMetadata.builder().build());
 
@@ -552,8 +562,10 @@ class ReviewResultServiceImplTest {
             // When
             reviewResultService.saveResult(100L, reviewResult);
 
-            // Then - Check Run service NOT called
+            // Then - GitHub Check Run service NOT called, GitLab service IS called
             verifyNoInteractions(gitHubCheckRunService);
+            verify(gitLabCommitStatusService).updateCommitStatus(
+                    eq("https://gitlab.com/test/repo"), eq("abc123"), any(), any());
         }
 
         @Test
@@ -613,6 +625,152 @@ class ReviewResultServiceImplTest {
             // Then - result is still returned successfully
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(33L);
+        }
+    }
+
+    @Nested
+    @DisplayName("GitLab/AWS Platform Status Integration (Story 6.4)")
+    class MultiPlatformStatusIntegration {
+
+        @Test
+        @DisplayName("Should call GitLab Commit Status service for GitLab project")
+        void shouldCallGitLabServiceForGitLabProject() {
+            testTask.getProject().setGitPlatform("GitLab");
+            testTask.setRepoUrl("https://gitlab.com/test/repo");
+            testTask.setCommitHash("def456");
+
+            ReviewResult reviewResult = ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(40L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+
+            reviewResultService.saveResult(100L, reviewResult);
+
+            verify(gitLabCommitStatusService).updateCommitStatus(
+                    eq("https://gitlab.com/test/repo"), eq("def456"), any(), any());
+            verifyNoInteractions(gitHubCheckRunService);
+            verifyNoInteractions(awsCodeCommitStatusService);
+        }
+
+        @Test
+        @DisplayName("Should call AWS CodeCommit status service for AWS project")
+        void shouldCallAWSServiceForAWSProject() {
+            testTask.getProject().setGitPlatform("AWS_CODECOMMIT");
+            testTask.setRepoUrl("https://git-codecommit.us-east-1.amazonaws.com/v1/repos/test");
+            testTask.setCommitHash("ghi789");
+
+            ReviewResult reviewResult = ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(41L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+
+            reviewResultService.saveResult(100L, reviewResult);
+
+            verify(awsCodeCommitStatusService).updateCommitStatus(
+                    eq("https://git-codecommit.us-east-1.amazonaws.com/v1/repos/test"),
+                    eq("ghi789"), any(), any());
+            verifyNoInteractions(gitHubCheckRunService);
+            verifyNoInteractions(gitLabCommitStatusService);
+        }
+
+        @Test
+        @DisplayName("Should not call any platform service when review failed")
+        void shouldNotCallAnyServiceWhenReviewFailed() {
+            testTask.getProject().setGitPlatform("GitLab");
+
+            ReviewResult failedResult = ReviewResult.failed("Provider error");
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(42L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+
+            reviewResultService.saveResult(100L, failedResult);
+
+            verifyNoInteractions(gitHubCheckRunService);
+            verifyNoInteractions(gitLabCommitStatusService);
+            verifyNoInteractions(awsCodeCommitStatusService);
+        }
+
+        @Test
+        @DisplayName("Should swallow GitLab exception without affecting saveResult")
+        void shouldSwallowGitLabException() {
+            testTask.getProject().setGitPlatform("GitLab");
+            testTask.setRepoUrl("https://gitlab.com/test/repo");
+            testTask.setCommitHash("abc123");
+
+            ReviewResult reviewResult = ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(43L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+            when(gitLabCommitStatusService.updateCommitStatus(any(), any(), any(), any()))
+                    .thenThrow(new RuntimeException("GitLab API unavailable"));
+
+            ReviewResultDTO result = reviewResultService.saveResult(100L, reviewResult);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(43L);
+        }
+
+        @Test
+        @DisplayName("Should not call any platform service for unknown platform")
+        void shouldNotCallAnyServiceForUnknownPlatform() {
+            testTask.getProject().setGitPlatform("Bitbucket");
+
+            ReviewResult reviewResult = ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(PASSED_RESULT);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(44L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+
+            ReviewResultDTO result = reviewResultService.saveResult(100L, reviewResult);
+
+            assertThat(result).isNotNull();
+            verifyNoInteractions(gitHubCheckRunService);
+            verifyNoInteractions(gitLabCommitStatusService);
+            verifyNoInteractions(awsCodeCommitStatusService);
         }
     }
 }
