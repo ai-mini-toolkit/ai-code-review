@@ -103,7 +103,7 @@ development_status:
   epic-7: in-progress
   7-1-email-notification-service: done
   7-2-git-platform-comment-notification: done
-  7-3-im-webhook-notifications: in-progress
+  7-3-im-webhook-notifications: done
   7-4-notification-template-management: backlog
   epic-7-retrospective: optional
 

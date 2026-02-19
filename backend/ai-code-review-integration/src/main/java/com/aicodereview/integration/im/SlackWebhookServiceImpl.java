@@ -13,8 +13,14 @@ import java.nio.charset.StandardCharsets;
 /**
  * Implementation of Slack webhook notification service.
  * <p>
- * Sends text messages via Slack Incoming Webhook API.
- * Uses Slack mrkdwn format for message formatting.
+ * Sends text messages via Slack Incoming Webhook API using the simple {@code {"text": "..."}}
+ * payload with Slack mrkdwn formatting.
+ * </p>
+ * <p>
+ * <b>Format note (Story 7.3 / Epic 7.3):</b> Epic 7 originally specified "Blocks 格式" (Slack Block Kit).
+ * Story 7.3 AC3 was deliberately scoped to the simpler {@code text} payload to reduce complexity
+ * while still supporting mrkdwn inline formatting. If richer card-style layouts are required in
+ * the future, this can be upgraded to Block Kit ({@code blocks} array) without changing the interface.
  * </p>
  *
  * @since 7.3.0
@@ -68,6 +74,7 @@ public class SlackWebhookServiceImpl implements SlackWebhookService {
         }
     }
 
+    /** Package-private for unit testing. */
     String buildRequestBody(String text) throws Exception {
         var root = objectMapper.createObjectNode();
         root.put("text", text);

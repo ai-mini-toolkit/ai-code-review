@@ -77,6 +77,7 @@ public class LarkWebhookServiceImpl implements LarkWebhookService {
         }
     }
 
+    /** Package-private for unit testing. */
     String buildRequestBody(String title, String content) throws Exception {
         var root = objectMapper.createObjectNode();
         root.put("msg_type", "interactive");

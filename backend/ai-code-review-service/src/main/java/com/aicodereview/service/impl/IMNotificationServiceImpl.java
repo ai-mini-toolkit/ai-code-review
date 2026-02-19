@@ -5,6 +5,7 @@ import com.aicodereview.common.dto.result.ReviewResultDTO;
 import com.aicodereview.common.dto.result.ReviewStatisticsDTO;
 import com.aicodereview.common.dto.threshold.ThresholdValidationResultDTO;
 import com.aicodereview.common.dto.threshold.ThresholdViolationDTO;
+import com.aicodereview.common.enums.IssueSeverity;
 import com.aicodereview.integration.im.DingTalkWebhookService;
 import com.aicodereview.integration.im.LarkWebhookService;
 import com.aicodereview.integration.im.SlackWebhookService;
@@ -20,7 +21,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 
 /**
  * Implementation of IMNotificationService for sending threshold violation alerts
@@ -92,15 +92,28 @@ public class IMNotificationServiceImpl implements IMNotificationService {
         ReviewResultDTO result = reviewResultService.getResultByTaskId(taskId);
         ThresholdValidationResultDTO thresholdResult = result.getThresholdResult();
 
-        String projectName = report.getProjectName();
+        // H1 fix: guard against null thresholdResult (data integrity or race condition)
+        if (thresholdResult == null) {
+            log.warn("ThresholdValidationResult is null for task {}, skipping IM notification", taskId);
+            return;
+        }
+
+        // H2 fix: resolve report fields defensively to avoid "null" in notification text
+        String projectName = report.getProjectName() != null ? report.getProjectName() : "Unknown Project";
+        String branch = report.getBranch() != null ? report.getBranch() : "unknown";
+        String author = report.getAuthor() != null ? report.getAuthor() : "unknown";
+
         String title = "[AI Code Review] 审查超阈值警告 — " + projectName;
 
         // 5. Send to each enabled platform independently
         if (Boolean.TRUE.equals(config.getDingtalkEnabled())) {
             try {
-                String content = buildDingTalkContent(report, thresholdResult);
-                dingTalkWebhookService.sendNotification(
+                String content = buildDingTalkContent(projectName, branch, author, report.getSummary(), thresholdResult);
+                boolean sent = dingTalkWebhookService.sendNotification(
                         config.getDingtalkWebhookUrl(), config.getDingtalkSecret(), title, content);
+                if (!sent) {
+                    log.warn("DingTalk notification was not delivered for task {}", taskId);
+                }
             } catch (Exception e) {
                 log.warn("Failed to send DingTalk notification for task {}: {}", taskId, e.getMessage());
             }
@@ -108,8 +121,11 @@ public class IMNotificationServiceImpl implements IMNotificationService {
 
         if (Boolean.TRUE.equals(config.getSlackEnabled())) {
             try {
-                String content = buildSlackContent(report, thresholdResult);
-                slackWebhookService.sendNotification(config.getSlackWebhookUrl(), content);
+                String content = buildSlackContent(projectName, branch, author, report.getSummary(), thresholdResult);
+                boolean sent = slackWebhookService.sendNotification(config.getSlackWebhookUrl(), content);
+                if (!sent) {
+                    log.warn("Slack notification was not delivered for task {}", taskId);
+                }
             } catch (Exception e) {
                 log.warn("Failed to send Slack notification for task {}: {}", taskId, e.getMessage());
             }
@@ -117,8 +133,11 @@ public class IMNotificationServiceImpl implements IMNotificationService {
 
         if (Boolean.TRUE.equals(config.getLarkEnabled())) {
             try {
-                String content = buildLarkContent(report, thresholdResult);
-                larkWebhookService.sendNotification(config.getLarkWebhookUrl(), title, content);
+                String content = buildLarkContent(projectName, branch, author, report.getSummary(), thresholdResult);
+                boolean sent = larkWebhookService.sendNotification(config.getLarkWebhookUrl(), title, content);
+                if (!sent) {
+                    log.warn("Lark notification was not delivered for task {}", taskId);
+                }
             } catch (Exception e) {
                 log.warn("Failed to send Lark notification for task {}: {}", taskId, e.getMessage());
             }
@@ -127,12 +146,13 @@ public class IMNotificationServiceImpl implements IMNotificationService {
         log.info("IM threshold violation notifications processed for task {}", taskId);
     }
 
-    String buildDingTalkContent(ReviewReportDTO report, ThresholdValidationResultDTO thresholdResult) {
+    String buildDingTalkContent(String projectName, String branch, String author,
+                                ReviewStatisticsDTO summary, ThresholdValidationResultDTO thresholdResult) {
         StringBuilder sb = new StringBuilder();
         sb.append("### ").append("\u26A0\uFE0F").append(" AI Code Review 超阈值警告\n\n");
-        sb.append("**项目**: ").append(report.getProjectName()).append("\n");
-        sb.append("**分支**: ").append(report.getBranch()).append("\n");
-        sb.append("**提交者**: ").append(report.getAuthor()).append("\n\n");
+        sb.append("**项目**: ").append(projectName).append("\n");
+        sb.append("**分支**: ").append(branch).append("\n");
+        sb.append("**提交者**: ").append(author).append("\n\n");
         sb.append("---\n\n");
 
         // Violations
@@ -146,7 +166,7 @@ public class IMNotificationServiceImpl implements IMNotificationService {
         sb.append("\n");
 
         // Issue summary
-        appendIssueSummary(sb, report.getSummary());
+        appendIssueSummary(sb, summary);
 
         // Action
         if (thresholdResult.getAction() != null) {
@@ -156,12 +176,13 @@ public class IMNotificationServiceImpl implements IMNotificationService {
         return sb.toString();
     }
 
-    String buildSlackContent(ReviewReportDTO report, ThresholdValidationResultDTO thresholdResult) {
+    String buildSlackContent(String projectName, String branch, String author,
+                             ReviewStatisticsDTO summary, ThresholdValidationResultDTO thresholdResult) {
         StringBuilder sb = new StringBuilder();
         sb.append(":warning: *AI Code Review Threshold Violation*\n\n");
-        sb.append("*Project:* ").append(report.getProjectName()).append("\n");
-        sb.append("*Branch:* ").append(report.getBranch()).append("\n");
-        sb.append("*Author:* ").append(report.getAuthor()).append("\n\n");
+        sb.append("*Project:* ").append(projectName).append("\n");
+        sb.append("*Branch:* ").append(branch).append("\n");
+        sb.append("*Author:* ").append(author).append("\n\n");
 
         // Violations
         sb.append("*Violations:*\n");
@@ -173,15 +194,15 @@ public class IMNotificationServiceImpl implements IMNotificationService {
         }
         sb.append("\n");
 
-        // Issue summary (inline)
-        ReviewStatisticsDTO summary = report.getSummary();
+        // M2 fix: issue summary inline — sorted by IssueSeverity score (descending)
         if (summary != null && summary.getBySeverity() != null) {
             sb.append("*Issue Summary:* ");
             boolean first = true;
-            for (Map.Entry<String, Integer> entry : summary.getBySeverity().entrySet()) {
-                if (entry.getValue() > 0) {
+            for (IssueSeverity sev : IssueSeverity.values()) {  // CRITICAL→HIGH→MEDIUM→LOW→INFO
+                Integer count = summary.getBySeverity().get(sev.name());
+                if (count != null && count > 0) {
                     if (!first) sb.append(", ");
-                    sb.append(entry.getKey()).append(": ").append(entry.getValue());
+                    sb.append(sev.name()).append(": ").append(count);
                     first = false;
                 }
             }
@@ -196,11 +217,12 @@ public class IMNotificationServiceImpl implements IMNotificationService {
         return sb.toString();
     }
 
-    String buildLarkContent(ReviewReportDTO report, ThresholdValidationResultDTO thresholdResult) {
+    String buildLarkContent(String projectName, String branch, String author,
+                            ReviewStatisticsDTO summary, ThresholdValidationResultDTO thresholdResult) {
         StringBuilder sb = new StringBuilder();
-        sb.append("**项目**: ").append(report.getProjectName()).append("\n");
-        sb.append("**分支**: ").append(report.getBranch()).append("\n");
-        sb.append("**提交者**: ").append(report.getAuthor()).append("\n\n");
+        sb.append("**项目**: ").append(projectName).append("\n");
+        sb.append("**分支**: ").append(branch).append("\n");
+        sb.append("**提交者**: ").append(author).append("\n\n");
 
         // Violations
         sb.append("**阈值违规**\n");
@@ -213,7 +235,7 @@ public class IMNotificationServiceImpl implements IMNotificationService {
         sb.append("\n");
 
         // Issue summary
-        appendIssueSummary(sb, report.getSummary());
+        appendIssueSummary(sb, summary);
 
         // Action
         if (thresholdResult.getAction() != null) {
@@ -223,6 +245,11 @@ public class IMNotificationServiceImpl implements IMNotificationService {
         return sb.toString();
     }
 
+    /**
+     * Appends a severity-sorted issue summary table.
+     * M2 fix: iterates IssueSeverity enum in declared order (CRITICAL→HIGH→MEDIUM→LOW→INFO)
+     * to guarantee deterministic output regardless of Map iteration order.
+     */
     private void appendIssueSummary(StringBuilder sb, ReviewStatisticsDTO summary) {
         if (summary == null || summary.getBySeverity() == null) {
             return;
@@ -230,9 +257,10 @@ public class IMNotificationServiceImpl implements IMNotificationService {
         sb.append("#### 问题统计\n\n");
         sb.append("| 严重性 | 数量 |\n");
         sb.append("|--------|------|\n");
-        for (Map.Entry<String, Integer> entry : summary.getBySeverity().entrySet()) {
-            if (entry.getValue() > 0) {
-                sb.append("| ").append(entry.getKey()).append(" | ").append(entry.getValue()).append(" |\n");
+        for (IssueSeverity sev : IssueSeverity.values()) {  // CRITICAL→HIGH→MEDIUM→LOW→INFO
+            Integer count = summary.getBySeverity().get(sev.name());
+            if (count != null && count > 0) {
+                sb.append("| ").append(sev.name()).append(" | ").append(count).append(" |\n");
             }
         }
         sb.append("\n");

@@ -83,6 +83,7 @@ public class DingTalkWebhookServiceImpl implements DingTalkWebhookService {
         }
     }
 
+    /** Package-private for unit testing. */
     String appendSignature(String webhookUrl, String secret) throws Exception {
         if (secret == null || secret.isBlank()) {
             return webhookUrl;
@@ -101,6 +102,7 @@ public class DingTalkWebhookServiceImpl implements DingTalkWebhookService {
         return webhookUrl + separator + "timestamp=" + timestamp + "&sign=" + sign;
     }
 
+    /** Package-private for unit testing. */
     String buildRequestBody(String title, String text) throws Exception {
         var root = objectMapper.createObjectNode();
         root.put("msgtype", "markdown");

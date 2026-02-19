@@ -265,13 +265,17 @@ class IMNotificationServiceImplTest {
     @DisplayName("buildNotificationContent")
     class BuildNotificationContent {
 
+        private static final String PROJECT_NAME = "Test Project";
+        private static final String BRANCH = "feature/login";
+        private static final String AUTHOR = "dev@test.com";
+
         @Test
         @DisplayName("DingTalk content should contain violations and issue summary")
         void dingtalkContentShouldContainViolations() {
-            ReviewReportDTO report = createReport();
+            ReviewStatisticsDTO summary = createReport().getSummary();
             ThresholdValidationResultDTO threshold = createResult().getThresholdResult();
 
-            String content = service.buildDingTalkContent(report, threshold);
+            String content = service.buildDingTalkContent(PROJECT_NAME, BRANCH, AUTHOR, summary, threshold);
 
             assertThat(content).contains("AI Code Review 超阈值警告");
             assertThat(content).contains("Test Project");
@@ -283,12 +287,27 @@ class IMNotificationServiceImplTest {
         }
 
         @Test
-        @DisplayName("Slack content should use mrkdwn format")
-        void slackContentShouldUseMrkdwn() {
-            ReviewReportDTO report = createReport();
+        @DisplayName("DingTalk issue summary should be sorted CRITICAL→HIGH→MEDIUM")
+        void dingtalkIssueSummaryShouldBeSorted() {
+            ReviewStatisticsDTO summary = createReport().getSummary();
             ThresholdValidationResultDTO threshold = createResult().getThresholdResult();
 
-            String content = service.buildSlackContent(report, threshold);
+            String content = service.buildDingTalkContent(PROJECT_NAME, BRANCH, AUTHOR, summary, threshold);
+
+            int criticalIdx = content.indexOf("CRITICAL");
+            int highIdx = content.indexOf("HIGH");
+            int mediumIdx = content.indexOf("MEDIUM");
+            assertThat(criticalIdx).isLessThan(highIdx);
+            assertThat(highIdx).isLessThan(mediumIdx);
+        }
+
+        @Test
+        @DisplayName("Slack content should use mrkdwn format")
+        void slackContentShouldUseMrkdwn() {
+            ReviewStatisticsDTO summary = createReport().getSummary();
+            ThresholdValidationResultDTO threshold = createResult().getThresholdResult();
+
+            String content = service.buildSlackContent(PROJECT_NAME, BRANCH, AUTHOR, summary, threshold);
 
             assertThat(content).contains(":warning:");
             assertThat(content).contains("*AI Code Review Threshold Violation*");
@@ -300,14 +319,27 @@ class IMNotificationServiceImplTest {
         @Test
         @DisplayName("Lark content should contain violations")
         void larkContentShouldContainViolations() {
-            ReviewReportDTO report = createReport();
+            ReviewStatisticsDTO summary = createReport().getSummary();
             ThresholdValidationResultDTO threshold = createResult().getThresholdResult();
 
-            String content = service.buildLarkContent(report, threshold);
+            String content = service.buildLarkContent(PROJECT_NAME, BRANCH, AUTHOR, summary, threshold);
 
             assertThat(content).contains("Test Project");
             assertThat(content).contains("CRITICAL <= 0");
             assertThat(content).contains("BLOCK_MERGE");
+        }
+
+        @Test
+        @DisplayName("DingTalk content should use fallback values when report fields are null")
+        void dingtalkContentShouldHandleNullFields() {
+            ReviewStatisticsDTO summary = createReport().getSummary();
+            ThresholdValidationResultDTO threshold = createResult().getThresholdResult();
+
+            // Simulate pre-resolved null-safe values (as done in sendThresholdViolationNotifications)
+            String content = service.buildDingTalkContent("Unknown Project", "unknown", "unknown", summary, threshold);
+
+            assertThat(content).contains("Unknown Project");
+            assertThat(content).doesNotContain("null");
         }
     }
 }
