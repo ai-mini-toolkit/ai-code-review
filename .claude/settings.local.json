@@ -51,7 +51,21 @@
       "Bash(docker-compose down:*)",
       "Bash(docker-compose:*)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:digma.ai)"
+      "WebFetch(domain:digma.ai)",
+      "Bash(git stash:*)",
+      "Bash(pnpm --filter @vben/web-ele build:*)",
+      "Bash(git checkout:*)",
+      "Bash(git reset:*)",
+      "Bash(pnpm --filter @vben/web-ele typecheck:*)",
+      "Bash(node -e:*)",
+      "Bash(pnpm run type-check:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pnpm vitest run:*)",
+      "Bash(pnpm run build:ele:*)",
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "Bash(/tmp/update_tests.py:*)",
+      "Bash(perl:*)"
     ]
   }
 }

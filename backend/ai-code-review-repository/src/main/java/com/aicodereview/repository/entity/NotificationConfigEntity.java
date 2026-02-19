@@ -58,6 +58,31 @@ public class NotificationConfigEntity {
     @Builder.Default
     private Boolean commentEnabled = false;
 
+    @Column(name = "dingtalk_enabled", nullable = false)
+    @Builder.Default
+    private Boolean dingtalkEnabled = false;
+
+    @Column(name = "dingtalk_webhook_url", length = 500)
+    private String dingtalkWebhookUrl;
+
+    @Convert(converter = SmtpPasswordConverter.class)
+    @Column(name = "dingtalk_secret", length = 500)
+    private String dingtalkSecret;
+
+    @Column(name = "slack_enabled", nullable = false)
+    @Builder.Default
+    private Boolean slackEnabled = false;
+
+    @Column(name = "slack_webhook_url", length = 500)
+    private String slackWebhookUrl;
+
+    @Column(name = "lark_enabled", nullable = false)
+    @Builder.Default
+    private Boolean larkEnabled = false;
+
+    @Column(name = "lark_webhook_url", length = 500)
+    private String larkWebhookUrl;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

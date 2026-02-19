@@ -27,6 +27,13 @@ public class NotificationConfigDTO {
     private String smtpUsername;
     // Note: smtpPassword is intentionally excluded from DTO for security
     private Boolean commentEnabled;
+    private Boolean dingtalkEnabled;
+    private String dingtalkWebhookUrl;
+    // Note: dingtalkSecret is intentionally excluded from DTO for security
+    private Boolean slackEnabled;
+    private String slackWebhookUrl;
+    private Boolean larkEnabled;
+    private String larkWebhookUrl;
     private Instant createdAt;
     private Instant updatedAt;
 }

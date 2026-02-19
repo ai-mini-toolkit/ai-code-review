@@ -22,6 +22,7 @@ import com.aicodereview.repository.entity.ReviewResultEntity;
 import com.aicodereview.repository.entity.ReviewTask;
 import com.aicodereview.service.EmailNotificationService;
 import com.aicodereview.service.GitCommentNotificationService;
+import com.aicodereview.service.IMNotificationService;
 import com.aicodereview.service.ThresholdValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -80,6 +81,9 @@ class ReviewResultServiceImplTest {
 
     @Mock
     private GitCommentNotificationService gitCommentNotificationService;
+
+    @Mock
+    private IMNotificationService imNotificationService;
 
     @InjectMocks
     private ReviewResultServiceImpl reviewResultService;
@@ -918,6 +922,74 @@ class ReviewResultServiceImplTest {
 
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(60L);
+        }
+    }
+
+    @Nested
+    @DisplayName("IM Notification Integration (Story 7.3)")
+    class IMNotificationIntegration {
+
+        private ReviewResult buildSuccessResult() {
+            return ReviewResult.success(List.of(), ReviewMetadata.builder().build());
+        }
+
+        private void setupCommonMocks(ThresholdValidationResultDTO thresholdResult) {
+            when(reviewTaskRepository.findById(100L)).thenReturn(Optional.of(testTask));
+            when(reviewResultRepository.existsByTaskId(100L)).thenReturn(false);
+            when(thresholdValidationService.validate(eq(1L), any())).thenReturn(thresholdResult);
+            when(reviewResultRepository.save(any(ReviewResultEntity.class)))
+                    .thenAnswer(invocation -> {
+                        ReviewResultEntity entity = invocation.getArgument(0);
+                        entity.setId(70L);
+                        entity.setCreatedAt(Instant.now());
+                        return entity;
+                    });
+            when(reviewTaskRepository.save(any(ReviewTask.class))).thenReturn(testTask);
+        }
+
+        @Test
+        @DisplayName("Should call sendThresholdViolationNotifications when threshold fails")
+        void shouldSendIMNotificationWhenThresholdFails() {
+            ThresholdValidationResultDTO failedResult = ThresholdValidationResultDTO.builder()
+                    .passed(false)
+                    .violations(List.of(ThresholdViolationDTO.builder()
+                            .rule("CRITICAL <= 0").actual(1).threshold(0).build()))
+                    .action("BLOCK_MERGE")
+                    .build();
+            setupCommonMocks(failedResult);
+
+            reviewResultService.saveResult(100L, buildSuccessResult());
+
+            verify(imNotificationService).sendThresholdViolationNotifications(100L);
+        }
+
+        @Test
+        @DisplayName("Should NOT call IM notification when threshold passes")
+        void shouldNotSendIMNotificationWhenThresholdPasses() {
+            setupCommonMocks(PASSED_RESULT);
+
+            reviewResultService.saveResult(100L, buildSuccessResult());
+
+            verifyNoInteractions(imNotificationService);
+        }
+
+        @Test
+        @DisplayName("Should swallow IM notification exception without affecting saveResult")
+        void shouldSwallowIMNotificationException() {
+            ThresholdValidationResultDTO failedResult = ThresholdValidationResultDTO.builder()
+                    .passed(false)
+                    .violations(List.of(ThresholdViolationDTO.builder()
+                            .rule("HIGH <= 3").actual(5).threshold(3).build()))
+                    .action("WARN_ONLY")
+                    .build();
+            setupCommonMocks(failedResult);
+            doThrow(new RuntimeException("IM webhook timeout"))
+                    .when(imNotificationService).sendThresholdViolationNotifications(any());
+
+            ReviewResultDTO result = reviewResultService.saveResult(100L, buildSuccessResult());
+
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(70L);
         }
     }
 }

@@ -1,0 +1,108 @@
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective settings
+[WARNING] Unrecognised tag: 'snapshotPolicy' (position: START_TAG seen ...</layout>\r\n                    <snapshotPolicy>... @54:37)  @ C:\Users\songh\.m2\settings.xml, line 54, column 37
+[WARNING] 
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] AI Code Review - Parent                                            [pom]
+[INFO] AI Code Review - Common                                            [jar]
+[INFO] AI Code Review - Repository                                        [jar]
+[INFO] AI Code Review - Integration                                       [jar]
+[INFO] AI Code Review - Service                                           [jar]
+[INFO] AI Code Review - API                                               [jar]
+[INFO] 
+[INFO] ---------------< com.aicodereview:ai-code-review-parent >---------------
+[INFO] Building AI Code Review - Parent 1.0.0-SNAPSHOT                    [1/6]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] ---------------< com.aicodereview:ai-code-review-common >---------------
+[INFO] Building AI Code Review - Common 1.0.0-SNAPSHOT                    [2/6]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ ai-code-review-common ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.11.0:compile (default-compile) @ ai-code-review-common ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] -------------< com.aicodereview:ai-code-review-repository >-------------
+[INFO] Building AI Code Review - Repository 1.0.0-SNAPSHOT                [3/6]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ ai-code-review-repository ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 6 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.11.0:compile (default-compile) @ ai-code-review-repository ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] ------------< com.aicodereview:ai-code-review-integration >-------------
+[INFO] Building AI Code Review - Integration 1.0.0-SNAPSHOT               [4/6]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ ai-code-review-integration ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.11.0:compile (default-compile) @ ai-code-review-integration ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --------------< com.aicodereview:ai-code-review-service >---------------
+[INFO] Building AI Code Review - Service 1.0.0-SNAPSHOT                   [5/6]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ ai-code-review-service ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.11.0:compile (default-compile) @ ai-code-review-service ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] ----------------< com.aicodereview:ai-code-review-api >-----------------
+[INFO] Building AI Code Review - API 1.0.0-SNAPSHOT                       [6/6]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ ai-code-review-api ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 5 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.11.0:compile (default-compile) @ ai-code-review-api ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 11 source files with javac [debug target 17] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/songh/clawd/ai-code-review/backend/ai-code-review-api/src/main/java/com/aicodereview/api/controller/WebhookController.java:[541,25] 未报告的异常错误com.fasterxml.jackson.core.JsonProcessingException; 必须对其进行捕获或声明以便抛出
+[INFO] 1 error
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for AI Code Review - Parent 1.0.0-SNAPSHOT:
+[INFO] 
+[INFO] AI Code Review - Parent ............................ SUCCESS [  0.004 s]
+[INFO] AI Code Review - Common ............................ SUCCESS [  0.548 s]
+[INFO] AI Code Review - Repository ........................ SUCCESS [  0.374 s]
+[INFO] AI Code Review - Integration ....................... SUCCESS [  0.035 s]
+[INFO] AI Code Review - Service ........................... SUCCESS [  0.087 s]
+[INFO] AI Code Review - API ............................... FAILURE [  3.309 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  4.698 s
+[INFO] Finished at: 2026-02-11T19:37:42+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project ai-code-review-api: Compilation failure
+[ERROR] /C:/Users/songh/clawd/ai-code-review/backend/ai-code-review-api/src/main/java/com/aicodereview/api/controller/WebhookController.java:[541,25] 未报告的异常错误com.fasterxml.jackson.core.JsonProcessingException; 必须对其进行捕获或声明以便抛出
+[ERROR] 
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :ai-code-review-api
