@@ -104,7 +104,7 @@ development_status:
   7-1-email-notification-service: done
   7-2-git-platform-comment-notification: done
   7-3-im-webhook-notifications: done
-  7-4-notification-template-management: backlog
+  7-4-notification-template-management: done
   epic-7-retrospective: optional
 
   # Epic 8: Web 管理界面 (Web Management Interface)
