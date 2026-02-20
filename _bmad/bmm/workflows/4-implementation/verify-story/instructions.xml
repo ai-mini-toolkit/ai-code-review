@@ -1,0 +1,330 @@
+<workflow>
+  <critical>The workflow execution engine is governed by: {project-root}/_bmad/core/tasks/workflow.xml</critical>
+  <critical>You MUST have already loaded and processed: {installed_path}/workflow.yaml</critical>
+  <critical>Communicate all responses in {communication_language} and language MUST be tailored to {user_skill_level}</critical>
+
+  <critical>🔍 YOU ARE AN AUTOMATED INTEGRATION VERIFIER - Verify every AC against the running system!</critical>
+  <critical>Your purpose: Validate that the story's Acceptance Criteria are actually working end-to-end</critical>
+  <critical>Use the browser (Chrome MCP tools) to operate the UI just like a real user would</critical>
+  <critical>Check both UI behavior AND API responses AND data persistence for each AC</critical>
+  <critical>Be objective: PASS only when evidence is conclusive, FAIL when anything is wrong, MANUAL when automation is impossible</critical>
+  <critical>Do NOT modify story files, sprint-status.yaml, or any source code - this workflow is READ-ONLY except for the verification report</critical>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <step n="1" goal="加载 Story 并检查运行环境">
+    <action>从用户输入或命令参数中获取 {{story_id}}（如 "8-1"、"8-2"）</action>
+    <check if="{{story_id}} is empty">
+      <action>提示用户：请提供 story ID，例如：/bmad-verify-story 8-1</action>
+      <action>等待用户输入 story ID 后继续</action>
+    </check>
+
+    <!-- 加载 Story 文件 -->
+    <action>用 glob 模式 `{implementation_artifacts}/{{story_id}}-*.md` 定位 story 文件</action>
+    <check if="story file not found">
+      <action>列出 {implementation_artifacts}/ 中所有 md 文件供用户参考</action>
+      <action>报错：找不到 Story {{story_id}} 的文件，请确认 story ID 正确</action>
+      <action>停止执行</action>
+    </check>
+    <action>读取完整 story 文件内容</action>
+    <action>提取以下信息：
+      - {{story_title}}：Story 标题
+      - {{ac_list}}：Acceptance Criteria 部分的所有编号条目（完整文本）
+      - {{ac_count}}：AC 总条数
+      - {{story_status}}：当前 Status 字段值
+      - {{story_routes}}：Dev Notes 或 Tasks 中提及的前端路由（如 /project、/review）
+    </action>
+
+    <!-- 检查运行环境 -->
+    <action>检查前端服务：向 {frontend_url} 发送 HTTP GET 请求</action>
+    <check if="frontend unreachable">
+      <action>设置 {{frontend_available}} = false</action>
+      <output>⚠️ 前端服务不可达（{frontend_url}）
+启动命令：cd frontend &amp;&amp; pnpm dev:ele
+部分 UI 类 AC 将标记为 SKIP（服务未运行）</output>
+    </check>
+    <check if="frontend reachable">
+      <action>设置 {{frontend_available}} = true</action>
+    </check>
+
+    <action>检查后端服务：向 {backend_url}/actuator/health 发送 HTTP GET 请求</action>
+    <check if="backend unreachable">
+      <action>设置 {{backend_available}} = false</action>
+      <output>⚠️ 后端服务不可达（{backend_url}）
+启动命令：java -jar backend/ai-code-review-api/target/ai-code-review-api-1.0.0-SNAPSHOT.jar --spring.profiles.active=dev
+API 类 AC 将标记为 SKIP（服务未运行）</output>
+    </check>
+    <check if="backend reachable">
+      <action>设置 {{backend_available}} = true</action>
+    </check>
+
+    <output>📋 Story {{story_id}} 验证准备完成
+- 标题：{{story_title}}
+- AC 总数：{{ac_count}} 条
+- Story 状态：{{story_status}}
+- 前端：{{frontend_available}} | 后端：{{backend_available}}</output>
+  </step>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <step n="2" goal="制定验证计划（逐条分析 AC）">
+    <action>逐条分析 {{ac_list}} 中的每条 AC，为每条 AC 确定验证类型：
+      - UI：需要浏览器导航、页面展示、表单操作验证
+      - API：需要检查 Network 请求的 status code 和 response body
+      - PERSIST：需要操作后刷新页面确认数据持久化
+      - MANUAL：无法自动验证（邮件发送、Webhook 触发、剪贴板内容、外部系统状态等）
+      注意：一条 AC 可以同时属于多个类型（如 UI + API + PERSIST）
+    </action>
+
+    <action>为每条 AC 制定具体操作序列：
+      - 导航到哪个路由
+      - 需要查找哪些元素
+      - 执行哪些操作（点击/输入/提交）
+      - 期望看到什么结果（元素文本、API 响应字段、刷新后状态）
+    </action>
+
+    <output>## 📊 验证计划 — Story {{story_id}}
+
+| AC | 描述摘要 | 验证类型 | 操作概述 |
+|----|----------|----------|----------|
+{{#each ac_list}}
+| AC#{{number}} | {{summary}} | {{type}} | {{operation}} |
+{{/each}}
+
+MANUAL 项（需人工验证）：{{manual_count}} 条
+自动验证项：{{auto_count}} 条
+
+开始执行验证？[y] 继续 / [n] 取消</output>
+
+    <ask>确认验证计划后按 y 继续：</ask>
+  </step>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <step n="3" goal="执行浏览器验证">
+    <action>初始化结果收集器：{{results}} = 空列表</action>
+    <action>设置计数器：{{pass_count}} = 0, {{fail_count}} = 0, {{manual_count}} = 0, {{skip_count}} = 0</action>
+
+    <!-- 登录阶段 -->
+    <check if="{{frontend_available}} == true">
+      <action>使用 tabs_context_mcp 工具获取当前浏览器 tab 列表，如无可用 tab 则创建新 tab</action>
+      <action>导航到 {frontend_url}</action>
+      <action>等待页面加载完成（检查登录表单或已登录状态）</action>
+
+      <check if="login form is visible">
+        <action>用 find 工具定位用户名输入框（查找 placeholder 含 "用户名"/"username"/"账号" 的 input）</action>
+        <action>用 form_input 输入用户名：{default_username}</action>
+        <action>用 find 工具定位密码输入框（查找 type="password" 的 input）</action>
+        <action>用 form_input 输入密码：{default_password}</action>
+        <action>用 find 工具定位登录按钮（查找含 "登录"/"Login"/"确认" 的 button）</action>
+        <action>用 computer left_click 点击登录按钮</action>
+        <action>等待 3 秒让页面跳转完成</action>
+        <action>截图确认已进入主界面（非登录页面）</action>
+        <check if="still on login page after click">
+          <output>❌ 登录失败：无法使用 {default_username}/{default_password} 登录
+请确认后端已启动且默认管理员账号已初始化（Story 8.6 的 Flyway migration 需要已执行）</output>
+          <action>将所有 UI 类 AC 标记为 SKIP（登录失败），继续处理 MANUAL 项</action>
+        </check>
+      </check>
+    </check>
+
+    <!-- 逐条 AC 验证 -->
+    <for-each item="ac" in="{{ac_list}}">
+      <action>输出当前进度：正在验证 AC#{{ac.number}}/{{ac_count}}：{{ac.summary}}</action>
+
+      <!-- MANUAL 类型：直接标记，无需执行 -->
+      <check if="{{ac.type}} contains 'MANUAL'">
+        <action>记录结果：{ ac: {{ac.number}}, status: "MANUAL", note: "{{ac.manual_reason}}" }</action>
+        <action>{{manual_count}} += 1</action>
+      </check>
+
+      <!-- SKIP 类型：服务不可达时 -->
+      <check if="({{ac.type}} contains 'UI' AND {{frontend_available}} == false) OR ({{ac.type}} contains 'API' AND {{backend_available}} == false)">
+        <action>记录结果：{ ac: {{ac.number}}, status: "SKIP", note: "服务未运行" }</action>
+        <action>{{skip_count}} += 1</action>
+      </check>
+
+      <!-- 自动验证类型 -->
+      <check if="{{ac.type}} is auto-verifiable AND services available">
+
+        <!-- UI 验证 -->
+        <check if="{{ac.type}} contains 'UI'">
+          <action>导航到 {{ac.target_route}}（如果不在当前页面）</action>
+          <action>等待页面加载（find 目标元素，最多重试 3 次）</action>
+          <action>执行 {{ac.ui_steps}}（依据计划中的操作序列）：
+            - 用 find 定位目标元素
+            - 用 computer 执行点击/输入操作
+            - 用 read_page 或 find 验证结果元素存在及内容
+          </action>
+        </check>
+
+        <!-- API 验证 -->
+        <check if="{{ac.type}} contains 'API'">
+          <action>调用 read_network_requests(clear=true) 清空请求记录</action>
+          <action>触发操作（表单提交/按钮点击等）</action>
+          <action>等待 1 秒让请求完成</action>
+          <action>调用 read_network_requests(urlPattern="/api/") 获取最新请求</action>
+          <action>检查：
+            - HTTP status code 是否符合预期（200/201/204 等）
+            - response body 中的关键字段是否存在且正确
+            - success/data/error 字段是否符合 ApiResponse 格式
+          </action>
+        </check>
+
+        <!-- PERSIST 验证 -->
+        <check if="{{ac.type}} contains 'PERSIST'">
+          <action>在上一步操作完成后，导航到同一页面（强制刷新）</action>
+          <action>用 find 重新定位刚才创建/修改的数据</action>
+          <action>确认数据在刷新后仍然存在且正确</action>
+        </check>
+
+        <!-- 记录结果 -->
+        <check if="all verification steps passed for this AC">
+          <action>记录结果：{ ac: {{ac.number}}, status: "PASS", note: "所有验证步骤通过" }</action>
+          <action>{{pass_count}} += 1</action>
+        </check>
+        <check if="any verification step failed for this AC">
+          <action>记录结果：{
+            ac: {{ac.number}},
+            status: "FAIL",
+            steps: {{ac.executed_steps}},
+            expected: {{ac.expected_result}},
+            actual: {{ac.actual_result}}
+          }</action>
+          <action>{{fail_count}} += 1</action>
+        </check>
+
+      </check>
+
+      <action>输出当前 AC 验证结果（单行）</action>
+    </for-each>
+
+    <output>✅ 验证执行完成 — 正在生成报告...</output>
+  </step>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <step n="4" goal="生成并写入验证报告">
+    <action>确保目录 {verification_reports_dir} 存在（如不存在则创建）</action>
+    <action>设置 {{report_path}} = {verification_reports_dir}/{{story_id}}-verification.md</action>
+    <action>设置 {{report_datetime}} = 当前日期时间（格式：YYYY-MM-DD HH:mm）</action>
+    <action>计算 {{total_count}} = {{pass_count}} + {{fail_count}} + {{manual_count}} + {{skip_count}}</action>
+
+    <!-- 确定整体结论 -->
+    <check if="{{fail_count}} == 0 AND {{skip_count}} == 0">
+      <action>设置 {{overall_result}} = "✅ 全部通过"</action>
+    </check>
+    <check if="{{fail_count}} > 0">
+      <action>设置 {{overall_result}} = "❌ 存在失败项（{{fail_count}} 条需修复）"</action>
+    </check>
+    <check if="{{fail_count}} == 0 AND {{skip_count}} > 0">
+      <action>设置 {{overall_result}} = "⚠️ 部分跳过（服务未运行）"</action>
+    </check>
+
+    <action>生成报告内容并写入 {{report_path}}：</action>
+
+    <template-output path="{{report_path}}">
+# Story {{story_id}} 验证报告
+
+**验证时间：** {{report_datetime}}
+**环境：** {frontend_url} → {backend_url}
+**整体结论：** {{overall_result}}
+
+| 指标 | 数量 |
+|------|------|
+| ✅ 通过（PASS） | {{pass_count}} |
+| ❌ 失败（FAIL） | {{fail_count}} |
+| ⚠️ 需人工验证（MANUAL） | {{manual_count}} |
+| ⏭️ 跳过（SKIP，服务未运行） | {{skip_count}} |
+| **合计** | **{{total_count}}** |
+
+---
+
+## 验证结果汇总
+
+| AC | 描述 | 结果 | 备注 |
+|----|------|------|------|
+{{#each results}}
+| AC#{{ac}} | {{description}} | {{#if status == "PASS"}}✅ PASS{{/if}}{{#if status == "FAIL"}}❌ FAIL{{/if}}{{#if status == "MANUAL"}}⚠️ MANUAL{{/if}}{{#if status == "SKIP"}}⏭️ SKIP{{/if}} | {{note}} |
+{{/each}}
+
+---
+
+{{#if fail_count > 0}}
+## ❌ 失败详情
+
+{{#each results where status == "FAIL"}}
+### AC#{{ac}} 失败
+
+**描述：** {{description}}
+
+**操作步骤：**
+{{steps}}
+
+**预期结果：** {{expected}}
+
+**实际结果：** {{actual}}
+
+---
+{{/each}}
+{{/if}}
+
+{{#if manual_count > 0}}
+## ⚠️ 人工验证项
+
+以下 AC 无法自动验证，需要手动确认：
+
+{{#each results where status == "MANUAL"}}
+- **AC#{{ac}}**（{{description}}）：{{note}}
+{{/each}}
+{{/if}}
+
+{{#if skip_count > 0}}
+## ⏭️ 跳过项（服务未运行）
+
+以下 AC 因服务不可达而跳过，请启动相应服务后重新运行验证：
+
+{{#each results where status == "SKIP"}}
+- **AC#{{ac}}**（{{description}}）：{{note}}
+{{/each}}
+{{/if}}
+
+---
+
+## 重新验证
+
+```bash
+# 确保服务已启动后运行：
+/bmad-verify-story {{story_id}}
+```
+    </template-output>
+
+    <output>📄 验证报告已写入：{{report_path}}</output>
+  </step>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <step n="5" goal="输出最终摘要">
+    <output>**🔍 Story {{story_id}} 验证完成！**
+
+**{{story_title}}**
+
+| 结果 | 数量 |
+|------|------|
+| ✅ PASS | {{pass_count}}/{{total_count}} |
+| ❌ FAIL | {{fail_count}} |
+| ⚠️ MANUAL | {{manual_count}} |
+| ⏭️ SKIP | {{skip_count}} |
+
+**整体结论：** {{overall_result}}
+
+📄 完整报告：`{verification_reports_dir}/{{story_id}}-verification.md`
+
+{{#if fail_count > 0}}
+🔧 **建议：** 修复上述 {{fail_count}} 条失败项后，重新运行：
+`/bmad-verify-story {{story_id}}`
+{{/if}}
+
+{{#if manual_count > 0}}
+👤 **人工验证：** 请查看报告中的"人工验证项"部分，手动确认 {{manual_count}} 条 AC
+{{/if}}
+
+ℹ️ Story 状态和 sprint-status.yaml **未做修改**（验证不改变开发状态）</output>
+  </step>
+
+</workflow>

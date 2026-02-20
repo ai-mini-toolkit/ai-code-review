@@ -1,0 +1,41 @@
+# Verify Story Workflow
+name: verify-story
+description: "通过浏览器自动化逐条验证 Story 的验收标准（AC）。自动执行 UI 操作、检查 API 响应和数据持久化，生成结构化验证报告。不修改 story 状态或 sprint-status.yaml。"
+author: "BMad"
+
+# Critical variables from config
+config_source: "{project-root}/_bmad/bmm/config.yaml"
+user_name: "{config_source}:user_name"
+communication_language: "{config_source}:communication_language"
+user_skill_level: "{config_source}:user_skill_level"
+document_output_language: "{config_source}:document_output_language"
+date: system-generated
+planning_artifacts: "{config_source}:planning_artifacts"
+implementation_artifacts: "{config_source}:implementation_artifacts"
+output_folder: "{implementation_artifacts}"
+sprint_status: "{implementation_artifacts}/sprint-status.yaml"
+
+# Workflow components
+installed_path: "{project-root}/_bmad/bmm/workflows/4-implementation/verify-story"
+instructions: "{installed_path}/instructions.xml"
+template: false
+
+# Environment
+frontend_url: "http://localhost:5173"
+backend_url: "http://localhost:8080"
+default_username: "admin"
+default_password: "admin123"
+verification_reports_dir: "{output_folder}/verification-reports"
+
+variables:
+  story_id: "{{story_id}}"  # Passed from slash command argument (e.g. "8-1")
+  story_dir: "{implementation_artifacts}"
+
+# Load only the specific story being verified
+input_file_patterns:
+  story:
+    description: "Story document being verified"
+    sharded_single: "{implementation_artifacts}/{{story_id}}-*.md"
+    load_strategy: "SELECTIVE_LOAD"
+
+standalone: true
