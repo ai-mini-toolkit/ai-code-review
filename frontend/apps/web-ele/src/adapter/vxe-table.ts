@@ -4,7 +4,7 @@ import { h } from 'vue';
 
 import { setupVbenVxeTable, useVbenVxeGrid } from '@vben/plugins/vxe-table';
 
-import { ElButton, ElImage } from 'element-plus';
+import { ElButton, ElImage, ElSpace, ElSwitch, ElTag } from 'element-plus';
 
 import { useVbenForm } from './form';
 
@@ -56,6 +56,81 @@ setupVbenVxeTable({
           ElButton,
           { size: 'small', link: true },
           { default: () => props?.text },
+        );
+      },
+    });
+
+    // 表格配置项可以用 cellRender: { name: 'CellSwitch', attrs: { beforeChange, field } }
+    // beforeChange: (newVal: boolean, row: T) => Promise<boolean | undefined>
+    vxeUI.renderer.add('CellSwitch', {
+      renderTableDefault(renderOpts, params) {
+        const { attrs } = renderOpts;
+        const { row, column } = params;
+        const field = attrs?.field || column.field;
+        const currentValue = row[field];
+        return h(ElSwitch, {
+          modelValue: currentValue,
+          onChange: async (newVal: boolean) => {
+            if (attrs?.beforeChange) {
+              const result = await attrs.beforeChange(newVal, row);
+              if (result === false) return;
+            }
+            row[field] = newVal;
+          },
+        });
+      },
+    });
+
+    // 表格配置项可以用 cellRender: { name: 'CellTag', attrs: { colorMap } }
+    // colorMap: Record<string, 'success'|'warning'|'danger'|'info'|''>
+    vxeUI.renderer.add('CellTag', {
+      renderTableDefault(renderOpts, params) {
+        const { attrs } = renderOpts;
+        const { row, column } = params;
+        const value = row[column.field];
+        const colorMap = attrs?.colorMap || {};
+        const type = colorMap[value] ?? 'info';
+        const labelMap = attrs?.labelMap || {};
+        const label = labelMap[value] ?? String(value);
+        return h(ElTag, { type, size: 'small' }, { default: () => label });
+      },
+    });
+
+    // 表格配置项可以用 cellRender: { name: 'CellOperation', attrs: { onClick, buttons } }
+    // onClick: (params: { code: string; row: T }) => void
+    // buttons: Array<{ code: string; label: string; type?: string; disabled?: (row) => boolean }>
+    vxeUI.renderer.add('CellOperation', {
+      renderTableDefault(renderOpts, params) {
+        const { attrs } = renderOpts;
+        const { row } = params;
+        const onClick = attrs?.onClick;
+        const buttons: Array<{
+          code: string;
+          label: string;
+          type?: '' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
+          disabled?: (row: any) => boolean;
+        }> = attrs?.buttons || [
+          { code: 'edit', label: '编辑', type: 'primary' },
+          { code: 'delete', label: '删除', type: 'danger' },
+        ];
+        return h(
+          ElSpace,
+          {},
+          {
+            default: () =>
+              buttons.map((btn) =>
+                h(
+                  ElButton,
+                  {
+                    size: 'small',
+                    type: btn.type,
+                    disabled: btn.disabled ? btn.disabled(row) : false,
+                    onClick: () => onClick?.({ code: btn.code, row }),
+                  },
+                  { default: () => btn.label },
+                ),
+              ),
+          },
         );
       },
     });

@@ -59,8 +59,10 @@ public class SecurityConfig {
 
             // 配置访问规则
             .authorizeHttpRequests(auth -> auth
-                // 白名单：认证接口无需 Token
-                .requestMatchers("/api/v1/auth/**").permitAll()
+                // 白名单：认证接口无需 Token（仅 login/refresh/logout/register）
+                // /auth/me 和 /auth/codes 需要认证，不在白名单中
+                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh",
+                        "/api/v1/auth/logout", "/api/v1/auth/register").permitAll()
 
                 // 白名单：Webhook 接口（使用签名验证）
                 .requestMatchers("/api/v1/webhook/**", "/api/webhook/**").permitAll()

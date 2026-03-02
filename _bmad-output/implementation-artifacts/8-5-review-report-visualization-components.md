@@ -1,6 +1,6 @@
 # Story 8.5: 实现审查报告可视化组件
 
-Status: review
+Status: done
 
 ## Story
 

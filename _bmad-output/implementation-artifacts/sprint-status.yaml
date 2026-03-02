@@ -75,7 +75,7 @@ development_status:
   # Restructured from 5→4 stories per Epic 3 retrospective decisions:
   # - Merged original 4.2 (OpenAI) + 4.4 (Custom OpenAPI) into unified 4.2
   # - Simplified original 4.5 → new 4.4 (single-call architecture, no concurrency framework)
-  epic-4: in-progress
+  epic-4: done
   4-1-ai-provider-abstraction-layer: done
   4-2-openai-compatible-provider: done
   4-3-anthropic-claude-provider: done
@@ -92,7 +92,7 @@ development_status:
   epic-5-retrospective: optional
 
   # Epic 6: 质量阈值与 PR/MR 拦截 (Quality Thresholds & PR/MR Blocking)
-  epic-6: in-progress
+  epic-6: done
   6-1-threshold-configuration-management: done
   6-2-threshold-validation-engine: done
   6-3-github-check-runs-status-update: done
@@ -100,7 +100,7 @@ development_status:
   epic-6-retrospective: optional
 
   # Epic 7: 多渠道通知系统 (Multi-Channel Notification System)
-  epic-7: in-progress
+  epic-7: done
   7-1-email-notification-service: done
   7-2-git-platform-comment-notification: done
   7-3-im-webhook-notifications: done
@@ -108,7 +108,7 @@ development_status:
   epic-7-retrospective: optional
 
   # Epic 8: Web 管理界面 (Web Management Interface)
-  epic-8: in-progress
+  epic-8: done
   8-1-project-management-interface: done
   8-2-review-history-viewing-interface: done
   8-3-ai-model-configuration-interface: done
@@ -118,19 +118,19 @@ development_status:
   epic-8-retrospective: optional
 
   # Epic 9: 端到端测试与集成验证 (End-to-End Testing & Integration Verification)
-  epic-9: backlog
-  9-1-e2e-testing-framework-setup: backlog
-  9-2-webhook-to-review-e2e-testing: backlog
-  9-3-multi-platform-integration-e2e-testing: backlog
-  9-4-ai-review-quality-verification-testing: backlog
-  9-5-web-interface-e2e-testing: backlog
-  9-6-cicd-integration-regression-testing: backlog
-  9-7-error-scenarios-boundary-testing: backlog
+  epic-9: done
+  9-1-e2e-testing-framework-setup: done
+  9-2-webhook-to-review-e2e-testing: done
+  9-3-multi-platform-integration-e2e-testing: done
+  9-4-ai-review-quality-verification-testing: done
+  9-5-web-interface-e2e-testing: done
+  9-6-cicd-integration-regression-testing: done
+  9-7-error-scenarios-boundary-testing: done
   epic-9-retrospective: optional
 
   # Epic 10: 性能测试与优化 (Performance Testing & Optimization)
-  epic-10: backlog
-  10-1-performance-test-dataset-preparation: backlog
+  epic-10: in-progress
+  10-1-performance-test-dataset-preparation: done
   10-2-single-review-performance-testing: backlog
   10-3-concurrent-task-performance-testing: backlog
   10-4-webhook-response-time-testing: backlog

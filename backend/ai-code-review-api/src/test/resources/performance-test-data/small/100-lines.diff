@@ -1,0 +1,98 @@
+diff --git a/src/main/java/com/example/service/UserService.java b/src/main/java/com/example/service/UserService.java
+index abc1234..def5678 100644
+--- a/src/main/java/com/example/service/UserService.java
++++ b/src/main/java/com/example/service/UserService.java
+@@ -1,8 +1,12 @@
+ package com.example.service;
+
+ import com.example.repository.UserRepository;
++import com.example.dto.UserDTO;
+ import com.example.entity.User;
++import org.springframework.cache.annotation.Cacheable;
+ import org.springframework.stereotype.Service;
++import org.springframework.transaction.annotation.Transactional;
++import java.util.Optional;
+
+ @Service
+ public class UserService {
+@@ -15,12 +19,45 @@
+         this.userRepository = userRepository;
+     }
+
+-    public User findById(Long id) {
+-        return userRepository.findById(id).orElse(null);
++    @Cacheable(value = "users", key = "#id")
++    public UserDTO findById(Long id) {
++        return userRepository.findById(id)
++                .map(this::toDTO)
++                .orElseThrow(() -> new RuntimeException("User not found: " + id));
+     }
+
+-    public User save(User user) {
+-        return userRepository.save(user);
++    @Transactional
++    public UserDTO createUser(UserDTO dto) {
++        if (dto.getEmail() == null || dto.getEmail().isBlank()) {
++            throw new IllegalArgumentException("Email is required");
++        }
++        User user = new User();
++        user.setName(dto.getName());
++        user.setEmail(dto.getEmail());
++        user.setRole(dto.getRole());
++        User saved = userRepository.save(user);
++        return toDTO(saved);
++    }
++
++    @Transactional
++    public UserDTO updateUser(Long id, UserDTO dto) {
++        User user = userRepository.findById(id)
++                .orElseThrow(() -> new RuntimeException("User not found: " + id));
++        user.setName(dto.getName());
++        user.setEmail(dto.getEmail());
++        User saved = userRepository.save(user);
++        return toDTO(saved);
++    }
++
++    @Transactional
++    public void deleteUser(Long id) {
++        if (!userRepository.existsById(id)) {
++            throw new RuntimeException("User not found: " + id);
++        }
++        userRepository.deleteById(id);
++    }
++
++    private UserDTO toDTO(User user) {
++        UserDTO dto = new UserDTO();
++        dto.setId(user.getId());
++        dto.setName(user.getName());
++        dto.setEmail(user.getEmail());
++        dto.setRole(user.getRole());
++        return dto;
+     }
+ }
+diff --git a/src/main/java/com/example/dto/UserDTO.java b/src/main/java/com/example/dto/UserDTO.java
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/src/main/java/com/example/dto/UserDTO.java
+@@ -0,0 +1,42 @@
++package com.example.dto;
++
++public class UserDTO {
++    private Long id;
++    private String name;
++    private String email;
++    private String role;
++
++    public Long getId() { return id; }
++    public void setId(Long id) { this.id = id; }
++
++    public String getName() { return name; }
++    public void setName(String name) { this.name = name; }
++
++    public String getEmail() { return email; }
++    public void setEmail(String email) { this.email = email; }
++
++    public String getRole() { return role; }
++    public void setRole(String role) { this.role = role; }
++}

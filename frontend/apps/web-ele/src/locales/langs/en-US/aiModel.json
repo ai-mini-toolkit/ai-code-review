@@ -1,74 +1,72 @@
 {
-  "aiModel": {
-    "title": "AI Model Config",
-    "list": "AI Model List",
-    "create": "New Model",
-    "edit": "Edit Model",
-    "fields": {
-      "name": "Config Name",
-      "providerType": "Provider Type",
-      "modelName": "Model Name",
-      "apiEndpoint": "API Endpoint",
-      "apiKey": "API Key",
-      "apiKeyStatus": "API Key Status",
-      "enabled": "Status",
-      "timeoutSeconds": "Timeout (seconds)",
-      "maxTokens": "Max Tokens",
-      "temperature": "Temperature",
-      "createdAt": "Created At",
-      "operations": "Operations"
-    },
-    "provider": {
-      "OPENAI": "OpenAI",
-      "ANTHROPIC": "Anthropic",
-      "CUSTOM_OPENAPI": "Custom OpenAPI"
-    },
-    "status": {
-      "enabled": "Enabled",
-      "disabled": "Disabled",
-      "configured": "Configured",
-      "notConfigured": "Not Configured"
-    },
-    "form": {
-      "namePlaceholder": "e.g. Production GPT-4",
-      "providerTypePlaceholder": "Select provider type",
-      "modelNamePlaceholder": "e.g. gpt-4-turbo-preview",
-      "modelNameHelp": "e.g. gpt-4-turbo-preview (OpenAI), claude-3-opus-20240229 (Anthropic)",
-      "apiEndpointPlaceholder": "e.g. https://api.openai.com/v1",
-      "apiEndpointHelp": "Third-party service endpoint compatible with OpenAI API format",
-      "apiEndpointInvalid": "Please enter a valid URL",
-      "apiKeyPlaceholder": "Enter API Key",
-      "apiKeyEditHint": "Leave blank to keep current key unchanged",
-      "timeoutSecondsHelp": "Request timeout, default 30 seconds (1-300)",
-      "maxTokensHelp": "Optional, leave blank to use model default",
-      "temperatureHelp": "Between 0-1, higher is more random, default 0.7"
-    },
-    "actions": {
-      "testConnection": "Test Connection",
-      "viewDetail": "View Detail"
-    },
-    "messages": {
-      "createSuccess": "AI model created successfully",
-      "updateSuccess": "AI model updated successfully",
-      "deleteSuccess": "AI model deleted successfully",
-      "deleteConfirm": "Are you sure to delete model \"{name}\"? All reviews using this model will stop working.",
-      "deleteTitle": "Confirm Delete",
-      "enableSuccess": "Enabled",
-      "disableSuccess": "Disabled",
-      "testSuccess": "Connection successful",
-      "testFailed": "Connection failed",
-      "testError": "Test error",
-      "testFromForm": "Testing requires an API Key — please use the edit form to test connection",
-      "validateFirst": "Please fill in required fields first",
-      "loadFailed": "Failed to load AI model list"
-    },
-    "search": {
-      "namePlaceholder": "Search by name",
-      "providerPlaceholder": "Filter by provider",
-      "statusPlaceholder": "Filter by status"
-    },
-    "empty": {
-      "noModels": "No AI model configurations"
-    }
+  "title": "AI Model Config",
+  "list": "AI Model List",
+  "create": "New Model",
+  "edit": "Edit Model",
+  "fields": {
+    "name": "Config Name",
+    "providerType": "Provider Type",
+    "modelName": "Model Name",
+    "apiEndpoint": "API Endpoint",
+    "apiKey": "API Key",
+    "apiKeyStatus": "API Key Status",
+    "enabled": "Status",
+    "timeoutSeconds": "Timeout (seconds)",
+    "maxTokens": "Max Tokens",
+    "temperature": "Temperature",
+    "createdAt": "Created At",
+    "operations": "Operations"
+  },
+  "provider": {
+    "OPENAI": "OpenAI",
+    "ANTHROPIC": "Anthropic",
+    "CUSTOM_OPENAPI": "Custom OpenAPI"
+  },
+  "status": {
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "configured": "Configured",
+    "notConfigured": "Not Configured"
+  },
+  "form": {
+    "namePlaceholder": "e.g. Production GPT-4",
+    "providerTypePlaceholder": "Select provider type",
+    "modelNamePlaceholder": "e.g. gpt-4-turbo-preview",
+    "modelNameHelp": "e.g. gpt-4-turbo-preview (OpenAI), claude-3-opus-20240229 (Anthropic)",
+    "apiEndpointPlaceholder": "e.g. https://api.openai.com/v1",
+    "apiEndpointHelp": "Third-party service endpoint compatible with OpenAI API format",
+    "apiEndpointInvalid": "Please enter a valid URL",
+    "apiKeyPlaceholder": "Enter API Key",
+    "apiKeyEditHint": "Leave blank to keep current key unchanged",
+    "timeoutSecondsHelp": "Request timeout, default 30 seconds (1-300)",
+    "maxTokensHelp": "Optional, leave blank to use model default",
+    "temperatureHelp": "Between 0-1, higher is more random, default 0.7"
+  },
+  "actions": {
+    "testConnection": "Test Connection",
+    "viewDetail": "View Detail"
+  },
+  "messages": {
+    "createSuccess": "AI model created successfully",
+    "updateSuccess": "AI model updated successfully",
+    "deleteSuccess": "AI model deleted successfully",
+    "deleteConfirm": "Are you sure to delete model \"{name}\"? All reviews using this model will stop working.",
+    "deleteTitle": "Confirm Delete",
+    "enableSuccess": "Enabled",
+    "disableSuccess": "Disabled",
+    "testSuccess": "Connection successful",
+    "testFailed": "Connection failed",
+    "testError": "Test error",
+    "testFromForm": "Testing requires an API Key — please use the edit form to test connection",
+    "validateFirst": "Please fill in required fields first",
+    "loadFailed": "Failed to load AI model list"
+  },
+  "search": {
+    "namePlaceholder": "Search by name",
+    "providerPlaceholder": "Filter by provider",
+    "statusPlaceholder": "Filter by status"
+  },
+  "empty": {
+    "noModels": "No AI model configurations"
   }
 }

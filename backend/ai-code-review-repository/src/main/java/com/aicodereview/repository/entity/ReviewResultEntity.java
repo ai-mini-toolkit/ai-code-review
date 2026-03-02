@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -46,6 +48,7 @@ public class ReviewResultEntity {
     /**
      * JSONB array of ReviewIssue objects serialized as JSON string.
      */
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "issues", columnDefinition = "jsonb", nullable = false)
     @Builder.Default
     private String issues = "[]";
@@ -53,6 +56,7 @@ public class ReviewResultEntity {
     /**
      * JSONB object with aggregated issue counts by severity and category.
      */
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "statistics", columnDefinition = "jsonb", nullable = false)
     @Builder.Default
     private String statistics = "{}";
@@ -60,6 +64,7 @@ public class ReviewResultEntity {
     /**
      * JSONB object with review execution metadata (provider, model, tokens, duration).
      */
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "metadata", columnDefinition = "jsonb", nullable = false)
     @Builder.Default
     private String metadata = "{}";
@@ -83,6 +88,7 @@ public class ReviewResultEntity {
      *
      * @since 6.2.0
      */
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "threshold_result", columnDefinition = "jsonb")
     private String thresholdResult;
 

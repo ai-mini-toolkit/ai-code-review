@@ -141,7 +141,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <Page :title="$t('review.history')">
+  <Page auto-content-height>
     <!-- 搜索工具栏 -->
     <div class="mb-4 flex flex-wrap items-center gap-3">
       <ElInput

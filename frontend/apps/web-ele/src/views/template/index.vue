@@ -1,24 +1,11 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
-
 import { Page } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import {
-  ElButton,
-  ElMessage,
-  ElMessageBox,
-  ElOption,
-  ElSelect,
-  ElSpace,
-  ElSwitch,
-  ElTable,
-  ElTableColumn,
-  ElTag,
-  ElInput,
-} from 'element-plus';
+import { ElButton, ElMessage, ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router';
 
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createTemplateApi,
   deleteTemplateApi,
@@ -26,77 +13,42 @@ import {
   updateTemplateApi,
   type TemplateApi,
 } from '#/api/template';
-import type { TemplateCategory } from '#/types/template';
+
+import { useColumns, useGridFormSchema } from './data';
 
 const router = useRouter();
 
-const templates = ref<TemplateApi.TemplateDTO[]>([]);
-const loading = ref(false);
-const searchName = ref('');
-const filterCategory = ref<TemplateCategory | ''>('');
-
-// M2 pattern: computed for reactive filtering
-const filteredTemplates = computed(() =>
-  templates.value.filter((t) => {
-    const nameMatch =
-      !searchName.value ||
-      t.name.toLowerCase().includes(searchName.value.toLowerCase());
-    const categoryMatch =
-      !filterCategory.value || t.category === filterCategory.value;
-    return nameMatch && categoryMatch;
-  }),
-);
-
-const categories: Array<{ label: string; value: TemplateCategory }> = [
-  { label: $t('template.category.security'), value: 'security' },
-  { label: $t('template.category.performance'), value: 'performance' },
-  { label: $t('template.category.quality'), value: 'quality' },
-  { label: $t('template.category.style'), value: 'style' },
-  { label: $t('template.category.bug'), value: 'bug' },
-  { label: $t('template.category.call-graph'), value: 'call-graph' },
-];
-
-async function fetchTemplates() {
-  loading.value = true;
-  try {
-    templates.value = (await getTemplatesApi()) as TemplateApi.TemplateDTO[];
-  } catch (error: any) {
-    ElMessage.error(error.message || $t('template.messages.loadFailed'));
-  } finally {
-    loading.value = false;
+function onActionClick({ code, row }: { code: string; row: TemplateApi.TemplateDTO }) {
+  switch (code) {
+    case 'edit': {
+      router.push({ name: 'TemplateEditor', params: { id: row.id } });
+      break;
+    }
+    case 'copy': {
+      onCopy(row);
+      break;
+    }
+    case 'delete': {
+      onDelete(row);
+      break;
+    }
   }
 }
 
-function handleEdit(row: TemplateApi.TemplateDTO) {
-  router.push({ name: 'TemplateEditor', params: { id: row.id } });
-}
-
-async function handleDelete(row: TemplateApi.TemplateDTO) {
-  if (row.isDefault) {
-    ElMessage.warning($t('template.messages.deleteDefaultWarning'));
-    return;
-  }
-
+async function onStatusChange(newVal: boolean, row: TemplateApi.TemplateDTO) {
   try {
-    await ElMessageBox.confirm(
-      $t('template.messages.deleteConfirm').replace('{name}', row.name),
-      $t('template.messages.deleteTitle'),
-      { type: 'warning' },
+    await updateTemplateApi(row.id, { enabled: newVal });
+    ElMessage.success(
+      newVal ? $t('aiModel.messages.enableSuccess') : $t('aiModel.messages.disableSuccess'),
     );
+    gridApi.query();
+    return true;
   } catch {
-    return;
-  }
-
-  try {
-    await deleteTemplateApi(row.id);
-    ElMessage.success($t('template.messages.deleteSuccess'));
-    await fetchTemplates();
-  } catch {
-    // API errors handled by global interceptor
+    return false;
   }
 }
 
-async function handleCopy(row: TemplateApi.TemplateDTO) {
+async function onCopy(row: TemplateApi.TemplateDTO) {
   try {
     await createTemplateApi({
       name: `${row.name}${$t('template.messages.copySuffix')}`,
@@ -105,191 +57,95 @@ async function handleCopy(row: TemplateApi.TemplateDTO) {
       enabled: true,
     });
     ElMessage.success($t('template.messages.copySuccess'));
-    await fetchTemplates();
+    gridApi.query();
   } catch {
     // API errors handled by global interceptor
   }
 }
 
-async function handleToggleEnabled(row: TemplateApi.TemplateDTO) {
+async function onDelete(row: TemplateApi.TemplateDTO) {
+  if (row.isDefault) {
+    ElMessage.warning($t('template.messages.deleteDefaultWarning'));
+    return;
+  }
   try {
-    await updateTemplateApi(row.id, { enabled: !row.enabled });
-    ElMessage.success(
-      !row.enabled
-        ? $t('aiModel.messages.enableSuccess')
-        : $t('aiModel.messages.disableSuccess'),
+    await ElMessageBox.confirm(
+      $t('template.messages.deleteConfirm').replace('{name}', row.name),
+      $t('template.messages.deleteTitle'),
+      { type: 'warning' },
     );
-    await fetchTemplates();
+    await deleteTemplateApi(row.id);
+    ElMessage.success($t('template.messages.deleteSuccess'));
+    gridApi.query();
   } catch {
-    // API errors handled by global interceptor
+    // cancelled or API error
   }
 }
 
-function handleCreate() {
+function onCreate() {
   router.push({ name: 'TemplateEditor', params: { id: 'new' } });
 }
 
-function handleResetFilter() {
-  searchName.value = '';
-  filterCategory.value = '';
+const columns = useColumns(onActionClick);
+
+// Wire up CellSwitch beforeChange for enabled column
+const enabledCol = columns?.find((c: any) => c.field === 'enabled');
+if (enabledCol?.cellRender?.attrs) {
+  enabledCol.cellRender.attrs.beforeChange = onStatusChange;
 }
 
-function getCategoryTagType(
-  category: string,
-): '' | 'danger' | 'info' | 'success' | 'warning' {
-  const map: Record<string, '' | 'danger' | 'info' | 'success' | 'warning'> = {
-    security: 'danger',
-    performance: 'warning',
-    quality: 'success',
-    style: 'info',
-    bug: 'danger',
-    'call-graph': '',
-  };
-  return map[category] ?? 'info';
+// Disable delete button for isDefault rows
+const deleteBtn = columns
+  ?.find((c: any) => c.field === 'operation')
+  ?.cellRender?.attrs?.buttons?.find((b: any) => b.code === 'delete');
+if (deleteBtn) {
+  deleteBtn.disabled = (row: TemplateApi.TemplateDTO) => row.isDefault;
 }
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleString();
-}
-
-onMounted(() => {
-  fetchTemplates();
+const [Grid, gridApi] = useVbenVxeGrid({
+  formOptions: {
+    schema: useGridFormSchema(),
+    submitOnChange: true,
+  },
+  gridOptions: {
+    columns,
+    height: 'auto',
+    keepSource: true,
+    proxyConfig: {
+      ajax: {
+        query: async (_params: any, formValues?: Record<string, any>) => {
+          const data = (await getTemplatesApi()) as TemplateApi.TemplateDTO[];
+          const name = formValues?.name?.toLowerCase() || '';
+          const category = formValues?.category || '';
+          const filtered = data.filter((t) => {
+            const nameMatch = !name || t.name.toLowerCase().includes(name);
+            const categoryMatch = !category || t.category === category;
+            return nameMatch && categoryMatch;
+          });
+          return { items: filtered, total: filtered.length };
+        },
+      },
+    },
+    rowConfig: { keyField: 'id' },
+    toolbarConfig: {
+      custom: true,
+      export: false,
+      refresh: true,
+      search: true,
+      zoom: true,
+    },
+  },
 });
 </script>
 
 <template>
-  <Page :title="$t('template.list')">
-    <!-- 搜索工具栏 -->
-    <div class="mb-4 flex flex-wrap items-center gap-3">
-      <ElInput
-        v-model="searchName"
-        :placeholder="$t('template.search.namePlaceholder')"
-        clearable
-        class="!w-64"
-      />
-      <ElSelect
-        v-model="filterCategory"
-        :placeholder="$t('template.search.categoryPlaceholder')"
-        clearable
-        class="!w-40"
-      >
-        <ElOption :label="$t('template.search.all')" value="" />
-        <ElOption
-          v-for="cat in categories"
-          :key="cat.value"
-          :label="cat.label"
-          :value="cat.value"
-        />
-      </ElSelect>
-      <ElButton @click="handleResetFilter">
-        {{ $t('common.reset') }}
-      </ElButton>
-      <div class="flex-1" />
-      <ElButton type="primary" @click="handleCreate">
-        {{ $t('template.create') }}
-      </ElButton>
-    </div>
-
-    <!-- 模板表格 -->
-    <ElTable
-      v-loading="loading"
-      :data="filteredTemplates"
-      stripe
-      border
-      style="width: 100%"
-    >
-      <ElTableColumn
-        prop="name"
-        :label="$t('template.fields.name')"
-        min-width="200"
-        show-overflow-tooltip
-      />
-      <ElTableColumn
-        prop="category"
-        :label="$t('template.fields.category')"
-        width="130"
-        align="center"
-      >
-        <template #default="{ row }">
-          <ElTag :type="getCategoryTagType(row.category)" size="small">
-            {{ $t(`template.category.${row.category}`) }}
-          </ElTag>
-        </template>
-      </ElTableColumn>
-      <ElTableColumn
-        prop="version"
-        :label="$t('template.fields.version')"
-        width="90"
-        align="center"
-      />
-      <ElTableColumn
-        prop="isDefault"
-        :label="$t('template.fields.isDefault')"
-        width="100"
-        align="center"
-      >
-        <template #default="{ row }">
-          <ElTag v-if="row.isDefault" type="success" size="small">
-            {{ $t('template.status.default') }}
-          </ElTag>
-          <ElTag v-else type="info" size="small">
-            {{ $t('template.status.custom') }}
-          </ElTag>
-        </template>
-      </ElTableColumn>
-      <ElTableColumn
-        prop="enabled"
-        :label="$t('template.fields.enabled')"
-        width="100"
-        align="center"
-      >
-        <template #default="{ row }">
-          <ElSwitch
-            :model-value="row.enabled"
-            @change="() => handleToggleEnabled(row)"
-          />
-        </template>
-      </ElTableColumn>
-      <ElTableColumn
-        prop="updatedAt"
-        :label="$t('template.fields.updatedAt')"
-        width="180"
-        sortable
-      >
-        <template #default="{ row }">
-          {{ formatDate(row.updatedAt) }}
-        </template>
-      </ElTableColumn>
-      <ElTableColumn
-        :label="$t('template.fields.operations')"
-        width="220"
-        align="center"
-        fixed="right"
-      >
-        <template #default="{ row }">
-          <ElSpace>
-            <ElButton size="small" type="primary" @click="handleEdit(row)">
-              {{ $t('template.actions.editTemplate') }}
-            </ElButton>
-            <ElButton size="small" @click="handleCopy(row)">
-              {{ $t('template.actions.copyTemplate') }}
-            </ElButton>
-            <ElButton
-              size="small"
-              type="danger"
-              :disabled="row.isDefault"
-              @click="handleDelete(row)"
-            >
-              {{ $t('common.delete') }}
-            </ElButton>
-          </ElSpace>
-        </template>
-      </ElTableColumn>
-    </ElTable>
-
-    <!-- 空状态 -->
-    <div v-if="!loading && filteredTemplates.length === 0" class="mt-8 py-12 text-center text-gray-400">
-      {{ $t('template.empty.noTemplates') }}
-    </div>
+  <Page auto-content-height>
+    <Grid :table-title="$t('template.list')">
+      <template #toolbar-tools>
+        <ElButton type="primary" @click="onCreate">
+          {{ $t('template.create') }}
+        </ElButton>
+      </template>
+    </Grid>
   </Page>
 </template>

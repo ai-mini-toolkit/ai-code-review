@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -48,6 +50,7 @@ public class Project {
     @Column(name = "webhook_secret", nullable = false, length = 500)
     private String webhookSecret;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "thresholds", columnDefinition = "jsonb", nullable = false)
     @Builder.Default
     private String thresholds = "{}";

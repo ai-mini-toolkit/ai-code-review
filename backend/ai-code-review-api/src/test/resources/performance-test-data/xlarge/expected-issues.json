@@ -1,0 +1,17 @@
+{
+  "datasetLevel": "xlarge",
+  "description": "XLarge change: full module rewrite (~5000 lines, 40 files)",
+  "minIssues": 10,
+  "maxIssues": 50,
+  "expectedSeverityDistribution": {
+    "CRITICAL": {"min": 0, "max": 3},
+    "HIGH": {"min": 2, "max": 10},
+    "MEDIUM": {"min": 5, "max": 15},
+    "LOW": {"min": 3, "max": 15},
+    "INFO": {"min": 0, "max": 15}
+  },
+  "performanceTarget": {
+    "maxReviewTimeMs": 60000,
+    "description": "XLarge changes should complete within 60 seconds (degradation strategy applies)"
+  }
+}

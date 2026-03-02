@@ -20,6 +20,8 @@
     "build:analyze": "pnpm vite build --mode analyze",
     "dev": "pnpm vite --mode development",
     "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e-ui": "playwright test --ui",
     "typecheck": "vue-tsc --noEmit --skipLibCheck"
   },
   "imports": {
@@ -51,10 +53,13 @@
     "element-plus": "catalog:",
     "mustache": "^4.2.0",
     "pinia": "catalog:",
+    "prismjs": "^1.30.0",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@types/prismjs": "^1.26.6",
     "unplugin-element-plus": "catalog:"
   }
 }

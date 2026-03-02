@@ -1,0 +1,17 @@
+{
+  "datasetLevel": "large",
+  "description": "Large change: multi-file refactoring (~1000 lines, 12 files)",
+  "minIssues": 5,
+  "maxIssues": 30,
+  "expectedSeverityDistribution": {
+    "CRITICAL": {"min": 0, "max": 2},
+    "HIGH": {"min": 1, "max": 5},
+    "MEDIUM": {"min": 2, "max": 10},
+    "LOW": {"min": 2, "max": 10},
+    "INFO": {"min": 0, "max": 10}
+  },
+  "performanceTarget": {
+    "maxReviewTimeMs": 30000,
+    "description": "Large changes should complete review within 30 seconds (NFR requirement)"
+  }
+}

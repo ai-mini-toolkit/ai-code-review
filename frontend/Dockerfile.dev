@@ -14,7 +14,7 @@ COPY . .
 # Install dependencies (creates proper Linux symlinks)
 RUN pnpm install --frozen-lockfile
 
-EXPOSE 5666
+EXPOSE 5173
 
-# Start the Ant Design variant dev server with host binding for Docker access
-CMD ["pnpm", "-F", "@vben/web-antd", "run", "dev", "--", "--host", "0.0.0.0"]
+# Start the Element Plus variant dev server with host binding for Docker access
+CMD ["pnpm", "-F", "@vben/web-ele", "run", "dev", "--", "--host", "0.0.0.0"]

@@ -1,99 +1,97 @@
 {
-  "template": {
-    "title": "Prompt Templates",
-    "list": "Template List",
-    "create": "New Template",
-    "edit": "Edit Template",
-    "fields": {
-      "name": "Template Name",
-      "category": "Category",
-      "version": "Version",
-      "enabled": "Status",
-      "isDefault": "Default",
-      "updatedAt": "Last Modified",
-      "operations": "Operations"
-    },
-    "category": {
-      "security": "Security",
-      "performance": "Performance",
-      "quality": "Quality",
-      "style": "Code Style",
-      "bug": "Bug Detection",
-      "call-graph": "Call Graph"
-    },
-    "status": {
-      "enabled": "Enabled",
-      "disabled": "Disabled",
-      "default": "Default",
-      "custom": "Custom"
-    },
-    "form": {
-      "namePlaceholder": "e.g. Java Security Review Template",
-      "categoryPlaceholder": "Select template category",
-      "contentPlaceholder": "Write your Mustache template here...",
-      "nameRequired": "Please enter template name",
-      "categoryRequired": "Please select a category",
-      "contentRequired": "Please enter template content",
-      "syntaxError": "Mustache syntax error"
-    },
-    "actions": {
-      "editTemplate": "Edit",
-      "copyTemplate": "Copy",
-      "restoreDefault": "Restore Default",
-      "preview": "Preview",
-      "save": "Save"
-    },
-    "messages": {
-      "createSuccess": "Template created successfully",
-      "updateSuccess": "Template saved successfully",
-      "deleteSuccess": "Template deleted successfully",
-      "copySuccess": "Template copied successfully",
-      "copySuffix": " - Copy",
-      "restoreSuccess": "Restored to default template",
-      "deleteConfirm": "Are you sure to delete template \"{name}\"?",
-      "deleteTitle": "Confirm Delete",
-      "deleteDefaultWarning": "Default templates cannot be deleted, only restored.",
-      "restoreConfirm": "Are you sure to restore the system default template? Your changes will be lost.",
-      "restoreTitle": "Confirm Restore",
-      "loadFailed": "Failed to load template",
-      "saveFailed": "Failed to save template",
-      "syntaxInvalid": "Template syntax error, please check and try again"
-    },
-    "search": {
-      "namePlaceholder": "Search by name",
-      "categoryPlaceholder": "Filter by category",
-      "all": "All categories"
-    },
-    "editor": {
-      "title": "Template Edit",
-      "previewTitle": "Live Preview",
-      "variablesTitle": "Available Variables",
-      "variableName": "Variable",
-      "variableDesc": "Description",
-      "editTab": "Edit",
-      "previewTab": "Preview",
-      "previewPlaceholder": "Enter template content to see preview..."
-    },
-    "variables": {
-      "fileName": "File name (e.g. UserService.java)",
-      "filePath": "File path",
-      "language": "Programming language (e.g. java, typescript)",
-      "codeSnippet": "Code snippet",
-      "fullCode": "Full file code",
-      "lineStart": "Start line number",
-      "lineEnd": "End line number",
-      "changedLines": "Changed lines",
-      "addedLines": "Added lines count",
-      "deletedLines": "Deleted lines count",
-      "projectName": "Project name",
-      "branch": "Branch name",
-      "author": "Author",
-      "commitMessage": "Commit message",
-      "dimension": "Review dimension (security, performance, etc.)",
-      "previousIssues": "Previously found issues"
-    },
-    "empty": {
-      "noTemplates": "No prompt templates found"
-    }
+  "title": "Prompt Templates",
+  "list": "Template List",
+  "create": "New Template",
+  "edit": "Edit Template",
+  "fields": {
+    "name": "Template Name",
+    "category": "Category",
+    "version": "Version",
+    "enabled": "Status",
+    "isDefault": "Default",
+    "updatedAt": "Last Modified",
+    "operations": "Operations"
+  },
+  "category": {
+    "security": "Security",
+    "performance": "Performance",
+    "quality": "Quality",
+    "style": "Code Style",
+    "bug": "Bug Detection",
+    "call-graph": "Call Graph"
+  },
+  "status": {
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "default": "Default",
+    "custom": "Custom"
+  },
+  "form": {
+    "namePlaceholder": "e.g. Java Security Review Template",
+    "categoryPlaceholder": "Select template category",
+    "contentPlaceholder": "Write your Mustache template here...",
+    "nameRequired": "Please enter template name",
+    "categoryRequired": "Please select a category",
+    "contentRequired": "Please enter template content",
+    "syntaxError": "Mustache syntax error"
+  },
+  "actions": {
+    "editTemplate": "Edit",
+    "copyTemplate": "Copy",
+    "restoreDefault": "Restore Default",
+    "preview": "Preview",
+    "save": "Save"
+  },
+  "messages": {
+    "createSuccess": "Template created successfully",
+    "updateSuccess": "Template saved successfully",
+    "deleteSuccess": "Template deleted successfully",
+    "copySuccess": "Template copied successfully",
+    "copySuffix": " - Copy",
+    "restoreSuccess": "Restored to default template",
+    "deleteConfirm": "Are you sure to delete template \"{name}\"?",
+    "deleteTitle": "Confirm Delete",
+    "deleteDefaultWarning": "Default templates cannot be deleted, only restored.",
+    "restoreConfirm": "Are you sure to restore the system default template? Your changes will be lost.",
+    "restoreTitle": "Confirm Restore",
+    "loadFailed": "Failed to load template",
+    "saveFailed": "Failed to save template",
+    "syntaxInvalid": "Template syntax error, please check and try again"
+  },
+  "search": {
+    "namePlaceholder": "Search by name",
+    "categoryPlaceholder": "Filter by category",
+    "all": "All categories"
+  },
+  "editor": {
+    "title": "Template Edit",
+    "previewTitle": "Live Preview",
+    "variablesTitle": "Available Variables",
+    "variableName": "Variable",
+    "variableDesc": "Description",
+    "editTab": "Edit",
+    "previewTab": "Preview",
+    "previewPlaceholder": "Enter template content to see preview..."
+  },
+  "variables": {
+    "fileName": "File name (e.g. UserService.java)",
+    "filePath": "File path",
+    "language": "Programming language (e.g. java, typescript)",
+    "codeSnippet": "Code snippet",
+    "fullCode": "Full file code",
+    "lineStart": "Start line number",
+    "lineEnd": "End line number",
+    "changedLines": "Changed lines",
+    "addedLines": "Added lines count",
+    "deletedLines": "Deleted lines count",
+    "projectName": "Project name",
+    "branch": "Branch name",
+    "author": "Author",
+    "commitMessage": "Commit message",
+    "dimension": "Review dimension (security, performance, etc.)",
+    "previousIssues": "Previously found issues"
+  },
+  "empty": {
+    "noTemplates": "No prompt templates found"
   }
 }

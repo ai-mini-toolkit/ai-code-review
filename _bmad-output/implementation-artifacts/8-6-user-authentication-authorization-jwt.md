@@ -1,6 +1,6 @@
 # Story 8.6: 实现用户认证与授权（JWT）
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -27,90 +27,90 @@ so that 保护 Web 界面和 API，确保只有授权用户能够访问系统资
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: 创建数据库 User 表和实体类 (AC: #1, #2)
-  - [ ] 1.1 创建 Flyway 迁移脚本 `V10__create_user_table.sql`
-  - [ ] 1.2 创建 `User` 实体类（JPA + Lombok）
-  - [ ] 1.3 创建 `UserRepository` 接口（Spring Data JPA）
-  - [ ] 1.4 添加 `findByUsername(String)` 和 `findByEmail(String)` 查询方法
+- [x] Task 1: 创建数据库 User 表和实体类 (AC: #1, #2)
+  - [x]1.1 创建 Flyway 迁移脚本 `V10__create_user_table.sql`
+  - [x]1.2 创建 `User` 实体类（JPA + Lombok）
+  - [x]1.3 创建 `UserRepository` 接口（Spring Data JPA）
+  - [x]1.4 添加 `findByUsername(String)` 和 `findByEmail(String)` 查询方法
 
-- [ ] Task 2: 添加 Spring Security 6 + JWT 依赖 (AC: #3, #4)
-  - [ ] 2.1 在 `backend/pom.xml` 添加 `spring-boot-starter-security` 依赖
-  - [ ] 2.2 添加 JJWT 依赖：`jjwt-api:0.12.5`, `jjwt-impl:0.12.5`, `jjwt-jackson:0.12.5`
-  - [ ] 2.3 在 `application.yml` 配置 JWT secret 和过期时间
+- [x] Task 2: 添加 Spring Security 6 + JWT 依赖 (AC: #3, #4)
+  - [x]2.1 在 `backend/pom.xml` 添加 `spring-boot-starter-security` 依赖
+  - [x]2.2 添加 JJWT 依赖：`jjwt-api:0.12.5`, `jjwt-impl:0.12.5`, `jjwt-jackson:0.12.5`
+  - [x]2.3 在 `application.yml` 配置 JWT secret 和过期时间
 
-- [ ] Task 3: 实现 JWT 工具类 (AC: #3, #4)
-  - [ ] 3.1 创建 `JwtTokenProvider`：生成 JWT Token（generateAccessToken, generateRefreshToken）
-  - [ ] 3.2 实现 JWT Token 验证（validateToken, getUsernameFromToken, getRoleFromToken）
-  - [ ] 3.3 实现 Token 过期检查（isTokenExpired）
+- [x] Task 3: 实现 JWT 工具类 (AC: #3, #4)
+  - [x]3.1 创建 `JwtTokenProvider`：生成 JWT Token（generateAccessToken, generateRefreshToken）
+  - [x]3.2 实现 JWT Token 验证（validateToken, getUsernameFromToken, getRoleFromToken）
+  - [x]3.3 实现 Token 过期检查（isTokenExpired）
 
-- [ ] Task 4: 实现 Spring Security 配置 (AC: #4, #12)
-  - [ ] 4.1 创建 `SecurityConfig`：配置 HTTP Security（禁用 CSRF，启用 JWT）
-  - [ ] 4.2 配置白名单路径（/api/v1/auth/**, /api/v1/webhook/**）
-  - [ ] 4.3 配置角色权限：ADMIN 全部权限，USER 只读权限
-  - [ ] 4.4 创建 `JwtAuthenticationFilter`：验证每个请求的 JWT Token
-  - [ ] 4.5 创建 `JwtAuthenticationEntryPoint`：处理认证失败（返回 401）
+- [x] Task 4: 实现 Spring Security 配置 (AC: #4, #12)
+  - [x]4.1 创建 `SecurityConfig`：配置 HTTP Security（禁用 CSRF，启用 JWT）
+  - [x]4.2 配置白名单路径（/api/v1/auth/**, /api/v1/webhook/**）
+  - [x]4.3 配置角色权限：ADMIN 全部权限，USER 只读权限
+  - [x]4.4 创建 `JwtAuthenticationFilter`：验证每个请求的 JWT Token
+  - [x]4.5 创建 `JwtAuthenticationEntryPoint`：处理认证失败（返回 401）
 
-- [ ] Task 5: 实现认证服务层 (AC: #5, #6, #7, #8)
-  - [ ] 5.1 创建 `AuthService`：实现 login, register, refresh, logout 业务逻辑
-  - [ ] 5.2 实现 `UserDetailsServiceImpl`：加载用户信息供 Spring Security 使用
-  - [ ] 5.3 实现密码加密验证（使用 BCryptPasswordEncoder）
-  - [ ] 5.4 实现 RefreshToken 黑名单（Redis 存储，7天 TTL）
+- [x] Task 5: 实现认证服务层 (AC: #5, #6, #7, #8)
+  - [x]5.1 创建 `AuthService`：实现 login, register, refresh, logout 业务逻辑
+  - [x]5.2 实现 `UserDetailsServiceImpl`：加载用户信息供 Spring Security 使用
+  - [x]5.3 实现密码加密验证（使用 BCryptPasswordEncoder）
+  - [x]5.4 实现 RefreshToken 黑名单（Redis 存储，7天 TTL）
 
-- [ ] Task 6: 实现认证 Controller (AC: #5, #6, #7, #8)
-  - [ ] 6.1 创建 `AuthController`：POST /api/v1/auth/login
-  - [ ] 6.2 实现 POST /api/v1/auth/register（仅 ADMIN 角色）
-  - [ ] 6.3 实现 POST /api/v1/auth/refresh
-  - [ ] 6.4 实现 POST /api/v1/auth/logout
-  - [ ] 6.5 实现 GET /api/v1/auth/me（获取当前用户信息）
+- [x] Task 6: 实现认证 Controller (AC: #5, #6, #7, #8)
+  - [x]6.1 创建 `AuthController`：POST /api/v1/auth/login
+  - [x]6.2 实现 POST /api/v1/auth/register（仅 ADMIN 角色）
+  - [x]6.3 实现 POST /api/v1/auth/refresh
+  - [x]6.4 实现 POST /api/v1/auth/logout
+  - [x]6.5 实现 GET /api/v1/auth/me（获取当前用户信息）
 
-- [ ] Task 7: 前端认证 API 集成 (AC: #9, #10)
-  - [ ] 7.1 更新 `src/api/core/auth.ts`：修改 loginApi 使用真实后端 `/api/v1/auth/login`
-  - [ ] 7.2 更新认证响应接口（accessToken, refreshToken, expiresIn, tokenType）
-  - [ ] 7.3 配置 Axios 请求拦截器：自动添加 `Authorization: Bearer {token}` header
-  - [ ] 7.4 配置 Axios 响应拦截器：处理 401 错误（Token 过期）
+- [x] Task 7: 前端认证 API 集成 (AC: #9, #10)
+  - [x]7.1 更新 `src/api/core/auth.ts`：修改 loginApi 使用真实后端 `/api/v1/auth/login`
+  - [x]7.2 更新认证响应接口（accessToken, refreshToken, expiresIn, tokenType）
+  - [x]7.3 配置 Axios 请求拦截器：自动添加 `Authorization: Bearer {token}` header
+  - [x]7.4 配置 Axios 响应拦截器：处理 401 错误（Token 过期）
 
-- [ ] Task 8: 实现 Token 自动刷新机制 (AC: #13)
-  - [ ] 8.1 在 Axios 响应拦截器中检测 401 错误
-  - [ ] 8.2 调用 refreshTokenApi 获取新 accessToken
-  - [ ] 8.3 重试原请求（使用新 Token）
-  - [ ] 8.4 如果 refreshToken 也过期，跳转到登录页
+- [x] Task 8: 实现 Token 自动刷新机制 (AC: #13)
+  - [x]8.1 在 Axios 响应拦截器中检测 401 错误
+  - [x]8.2 调用 refreshTokenApi 获取新 accessToken
+  - [x]8.3 重试原请求（使用新 Token）
+  - [x]8.4 如果 refreshToken 也过期，跳转到登录页
 
-- [ ] Task 9: 更新路由守卫 (AC: #11)
-  - [ ] 9.1 确认 Vben Admin 路由守卫已启用（检查 `src/router/guard.ts`）
-  - [ ] 9.2 验证未登录用户访问受保护路由会跳转到 `/login`
-  - [ ] 9.3 验证登录后自动跳转到 `redirect` 参数指定的页面
+- [x] Task 9: 更新路由守卫 (AC: #11)
+  - [x]9.1 确认 Vben Admin 路由守卫已启用（检查 `src/router/guard.ts`）
+  - [x]9.2 验证未登录用户访问受保护路由会跳转到 `/login`
+  - [x]9.3 验证登录后自动跳转到 `redirect` 参数指定的页面
 
-- [ ] Task 10: 实现角色权限控制 (AC: #12)
-  - [ ] 10.1 在 Controller 方法上添加 `@PreAuthorize("hasRole('ADMIN')")` 注解
-  - [ ] 10.2 更新项目管理 API：删除/修改操作限制为 ADMIN
-  - [ ] 10.3 更新 AI 模型配置 API：所有写操作限制为 ADMIN
-  - [ ] 10.4 更新 Prompt 模板 API：所有写操作限制为 ADMIN
-  - [ ] 10.5 前端隐藏 USER 角色不可操作的按钮（使用 `v-if="hasRole('ADMIN')"）
+- [x] Task 10: 实现角色权限控制 (AC: #12)
+  - [x]10.1 在 Controller 方法上添加 `@PreAuthorize("hasRole('ADMIN')")` 注解
+  - [x]10.2 更新项目管理 API：删除/修改操作限制为 ADMIN
+  - [x]10.3 更新 AI 模型配置 API：所有写操作限制为 ADMIN
+  - [x]10.4 更新 Prompt 模板 API：所有写操作限制为 ADMIN
+  - [x]10.5 前端隐藏 USER 角色不可操作的按钮（使用 `v-if="hasRole('ADMIN')"）
 
-- [ ] Task 11: 创建默认管理员用户 (AC: #6)
-  - [ ] 11.1 创建 Flyway 迁移脚本 `V11__insert_default_admin.sql`
-  - [ ] 11.2 插入默认管理员（username=admin, password=admin123, role=ADMIN）
-  - [ ] 11.3 在 README.md 中记录默认管理员账号
+- [x] Task 11: 创建默认管理员用户 (AC: #6)
+  - [x]11.1 创建 Flyway 迁移脚本 `V11__insert_default_admin.sql`
+  - [x]11.2 插入默认管理员（username=admin, password=admin123, role=ADMIN）
+  - [x]11.3 在 README.md 中记录默认管理员账号
 
-- [ ] Task 12: 编写认证流程集成测试 (AC: #14)
-  - [ ] 12.1 创建 `AuthControllerIntegrationTest`
-  - [ ] 12.2 测试登录成功场景（返回 accessToken 和 refreshToken）
-  - [ ] 12.3 测试登录失败场景（错误密码返回 401）
-  - [ ] 12.4 测试访问受保护 API（带 Token 返回 200，不带 Token 返回 401）
-  - [ ] 12.5 测试刷新 Token（使用 refreshToken 获取新 accessToken）
-  - [ ] 12.6 测试登出（refreshToken 加入黑名单后不能再使用）
-  - [ ] 12.7 测试角色权限（USER 角色不能访问 ADMIN 接口）
+- [x] Task 12: 编写认证流程集成测试 (AC: #14)
+  - [x]12.1 创建 `AuthControllerIntegrationTest`
+  - [x]12.2 测试登录成功场景（返回 accessToken 和 refreshToken）
+  - [x]12.3 测试登录失败场景（错误密码返回 401）
+  - [x]12.4 测试访问受保护 API（带 Token 返回 200，不带 Token 返回 401）
+  - [x]12.5 测试刷新 Token（使用 refreshToken 获取新 accessToken）
+  - [x]12.6 测试登出（refreshToken 加入黑名单后不能再使用）
+  - [x]12.7 测试角色权限（USER 角色不能访问 ADMIN 接口）
 
-- [ ] Task 13: 更新前端登录页面 (AC: #9)
-  - [ ] 13.1 移除 Vben Admin 示例代码中的 Mock 用户选择器
-  - [ ] 13.2 移除滑块验证码（或保留作为可选功能）
-  - [ ] 13.3 更新登录表单：仅保留 username + password 字段
-  - [ ] 13.4 更新错误提示：显示后端返回的错误消息
+- [x] Task 13: 更新前端登录页面 (AC: #9)
+  - [x]13.1 移除 Vben Admin 示例代码中的 Mock 用户选择器
+  - [x]13.2 移除滑块验证码（或保留作为可选功能）
+  - [x]13.3 更新登录表单：仅保留 username + password 字段
+  - [x]13.4 更新错误提示：显示后端返回的错误消息
 
-- [ ] Task 14: 国际化 (AC: 全部)
-  - [ ] 14.1 确认 `src/locales/langs/en-US/authentication.json` 已有登录相关翻译
-  - [ ] 14.2 确认 `src/locales/langs/zh-CN/authentication.json` 已有登录相关翻译
-  - [ ] 14.3 添加缺失的翻译 key（如 "tokenExpired", "refreshTokenExpired"）
+- [x] Task 14: 国际化 (AC: 全部)
+  - [x]14.1 确认 `src/locales/langs/en-US/authentication.json` 已有登录相关翻译
+  - [x]14.2 确认 `src/locales/langs/zh-CN/authentication.json` 已有登录相关翻译
+  - [x]14.3 添加缺失的翻译 key（如 "tokenExpired", "refreshTokenExpired"）
 
 ## Dev Notes
 

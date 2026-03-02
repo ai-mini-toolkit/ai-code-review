@@ -1,0 +1,17 @@
+{
+  "datasetLevel": "medium",
+  "description": "Medium change: service layer development (~500 lines, 6 files)",
+  "minIssues": 2,
+  "maxIssues": 15,
+  "expectedSeverityDistribution": {
+    "CRITICAL": {"min": 0, "max": 1},
+    "HIGH": {"min": 0, "max": 3},
+    "MEDIUM": {"min": 1, "max": 5},
+    "LOW": {"min": 1, "max": 5},
+    "INFO": {"min": 0, "max": 5}
+  },
+  "performanceTarget": {
+    "maxReviewTimeMs": 20000,
+    "description": "Medium changes should complete review within 20 seconds"
+  }
+}

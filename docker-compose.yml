@@ -68,13 +68,13 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "5666:5666"
+      - "5173:5173"
     volumes:
-      - ./frontend/apps/web-antd/src:/app/apps/web-antd/src
+      - ./frontend/apps/web-ele/src:/app/apps/web-ele/src
     environment:
       CHOKIDAR_USEPOLLING: "true"
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:5666').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:5173').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""]
       interval: 30s
       timeout: 10s
       retries: 5

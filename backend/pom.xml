@@ -30,10 +30,25 @@
         <spring-boot.version>3.2.2</spring-boot.version>
         <lombok.version>1.18.30</lombok.version>
         <jjwt.version>0.12.5</jjwt.version>
+        <!-- Override to 1.20.6 so docker-java 3.4.1 (API v1.44+) is used.
+             Required for Docker Desktop 4.34+ which dropped support for API < 1.44. -->
+        <testcontainers.version>1.20.6</testcontainers.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- TestContainers BOM — imported BEFORE Spring Boot BOM so that
+                 1.20.6 (docker-java 3.4.1, API v1.44) takes precedence over
+                 the Spring Boot 3.2.2 managed version (1.19.3, API v1.41).
+                 Required for Docker Desktop 4.34+ which dropped API < 1.44. -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- Spring Boot Dependencies -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>

@@ -1,0 +1,83 @@
+name: Frontend E2E Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/e2e-frontend.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/e2e-frontend.yml'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  e2e-frontend:
+    name: Frontend E2E Tests (Playwright + Chromium)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        working-directory: frontend/apps/web-ele
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E tests
+        working-directory: frontend/apps/web-ele
+        env:
+          CI: '1'
+        run: |
+          START_TIME=$(date +%s)
+          npx playwright test
+          END_TIME=$(date +%s)
+          echo "frontend_e2e_duration=$((END_TIME - START_TIME))" >> $GITHUB_ENV
+          echo "::notice::Frontend E2E tests completed in $((END_TIME - START_TIME)) seconds"
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-e2e-playwright-report
+          path: frontend/apps/web-ele/node_modules/.e2e/test-results/
+          retention-days: 7
+
+      - name: Upload test result summary
+        if: always()
+        run: |
+          echo "## Frontend E2E Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Playwright tests executed in CI mode (headless Chromium)." >> $GITHUB_STEP_SUMMARY
+          if [ -n "$frontend_e2e_duration" ]; then
+            echo "**Duration:** ${frontend_e2e_duration}s" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # Uncomment to enable Slack notifications (requires SLACK_WEBHOOK_URL secret):
+      # - name: Notify Slack on failure
+      #   if: failure()
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: ${{ job.status }}
+      #     text: 'Frontend E2E tests failed! Check: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

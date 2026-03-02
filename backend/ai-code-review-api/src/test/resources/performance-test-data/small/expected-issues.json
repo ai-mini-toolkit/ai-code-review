@@ -1,0 +1,17 @@
+{
+  "datasetLevel": "small",
+  "description": "Small change: CRUD service refactoring (~100 lines, 2 files)",
+  "minIssues": 0,
+  "maxIssues": 5,
+  "expectedSeverityDistribution": {
+    "CRITICAL": {"min": 0, "max": 0},
+    "HIGH": {"min": 0, "max": 1},
+    "MEDIUM": {"min": 0, "max": 2},
+    "LOW": {"min": 0, "max": 3},
+    "INFO": {"min": 0, "max": 2}
+  },
+  "performanceTarget": {
+    "maxReviewTimeMs": 10000,
+    "description": "Small changes should complete review within 10 seconds"
+  }
+}

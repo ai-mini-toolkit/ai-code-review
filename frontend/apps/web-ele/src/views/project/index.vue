@@ -1,287 +1,137 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
-
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import {
-  ElButton,
-  ElInput,
-  ElMessage,
-  ElMessageBox,
-  ElOption,
-  ElSelect,
-  ElSpace,
-  ElSwitch,
-  ElTable,
-  ElTableColumn,
-  ElTag,
-} from 'element-plus';
-
+import { ElButton, ElMessage, ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router';
 
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   deleteProjectApi,
   getProjectsApi,
-  type ProjectApi,
   updateProjectApi,
+  type ProjectApi,
 } from '#/api/project';
 import ProjectFormDrawer from './modules/ProjectFormDrawer.vue';
 
+import { useColumns, useGridFormSchema } from './data';
+
 const router = useRouter();
 
-// 数据状态
-const projects = ref<ProjectApi.ProjectDTO[]>([]);
-const loading = ref(false);
-
-// 搜索过滤状态
-const searchName = ref('');
-const filterPlatform = ref('');
-const filterEnabled = ref<boolean | undefined>(undefined);
-
-// Drawer 连接
 const [FormDrawer, formDrawerApi] = useVbenDrawer({
   connectedComponent: ProjectFormDrawer,
   destroyOnClose: true,
 });
 
-// 过滤后的项目列表
-const filteredProjects = computed(() => {
-  return projects.value.filter((p) => {
-    const nameMatch =
-      !searchName.value ||
-      p.name.toLowerCase().includes(searchName.value.toLowerCase());
-    const platformMatch =
-      !filterPlatform.value || p.gitPlatform === filterPlatform.value;
-    const enabledMatch =
-      filterEnabled.value === undefined || p.enabled === filterEnabled.value;
-    return nameMatch && platformMatch && enabledMatch;
-  });
-});
-
-// 加载项目列表
-async function fetchProjects() {
-  loading.value = true;
-  try {
-    projects.value = (await getProjectsApi()) as ProjectApi.ProjectDTO[];
-  } finally {
-    loading.value = false;
+function onActionClick({ code, row }: { code: string; row: ProjectApi.ProjectDTO }) {
+  switch (code) {
+    case 'detail': {
+      router.push({ name: 'ProjectDetail', params: { id: row.id } });
+      break;
+    }
+    case 'edit': {
+      formDrawerApi.setData(row).open();
+      break;
+    }
+    case 'delete': {
+      onDelete(row);
+      break;
+    }
   }
 }
 
-// 创建项目
-function handleCreate() {
-  formDrawerApi.setData({}).open();
+async function onStatusChange(newVal: boolean, row: ProjectApi.ProjectDTO) {
+  try {
+    await updateProjectApi(row.id, { enabled: newVal });
+    ElMessage.success(
+      newVal ? $t('project.messages.enableSuccess') : $t('project.messages.disableSuccess'),
+    );
+    gridApi.query();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
-// 编辑项目
-function handleEdit(row: ProjectApi.ProjectDTO) {
-  formDrawerApi.setData(row).open();
-}
-
-// 删除项目
-async function handleDelete(row: ProjectApi.ProjectDTO) {
+async function onDelete(row: ProjectApi.ProjectDTO) {
   try {
     await ElMessageBox.confirm(
       $t('project.messages.deleteConfirm').replace('{name}', row.name),
       $t('project.messages.deleteTitle'),
       { type: 'warning' },
     );
-  } catch {
-    // 用户取消操作
-    return;
-  }
-
-  try {
     await deleteProjectApi(row.id);
     ElMessage.success($t('project.messages.deleteSuccess'));
-    await fetchProjects();
-  } catch (error) {
-    // API 错误已由全局错误拦截器处理
+    gridApi.query();
+  } catch {
+    // cancelled or API error
   }
 }
 
-// 切换启用/禁用
-async function handleToggleEnabled(row: ProjectApi.ProjectDTO) {
-  const newEnabled = !row.enabled;
-  try {
-    await updateProjectApi(row.id, { enabled: newEnabled });
-    ElMessage.success(
-      newEnabled
-        ? $t('project.messages.enableSuccess')
-        : $t('project.messages.disableSuccess'),
-    );
-    await fetchProjects();
-  } catch (error) {
-    // API 错误已由全局错误拦截器处理
-  }
+function onCreate() {
+  formDrawerApi.setData({}).open();
 }
 
-// 查看详情
-function handleViewDetail(row: ProjectApi.ProjectDTO) {
-  router.push({ name: 'ProjectDetail', params: { id: row.id } });
+function onRefresh() {
+  gridApi.query();
 }
 
-// 表单提交成功回调
-function onFormSuccess() {
-  fetchProjects();
+const columns = useColumns(onActionClick);
+
+// Wire up CellSwitch beforeChange for enabled column
+const enabledCol = columns?.find((c: any) => c.field === 'enabled');
+if (enabledCol?.cellRender?.attrs) {
+  enabledCol.cellRender.attrs.beforeChange = onStatusChange;
 }
 
-// 格式化时间
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleString();
-}
-
-// 重置过滤
-function handleResetFilter() {
-  searchName.value = '';
-  filterPlatform.value = '';
-  filterEnabled.value = undefined;
-}
-
-// 平台标签颜色映射
-function getPlatformTagType(
-  platform: string,
-): '' | 'danger' | 'info' | 'success' | 'warning' {
-  switch (platform) {
-    case 'GitHub': {
-      return '';
-    }
-    case 'GitLab': {
-      return 'warning';
-    }
-    case 'CodeCommit': {
-      return 'info';
-    }
-    default: {
-      return 'info';
-    }
-  }
-}
-
-onMounted(() => {
-  fetchProjects();
+const [Grid, gridApi] = useVbenVxeGrid({
+  formOptions: {
+    schema: useGridFormSchema(),
+    submitOnChange: true,
+  },
+  gridOptions: {
+    columns,
+    height: 'auto',
+    keepSource: true,
+    proxyConfig: {
+      ajax: {
+        query: async (_params: any, formValues?: Record<string, any>) => {
+          const data = (await getProjectsApi()) as ProjectApi.ProjectDTO[];
+          const name = formValues?.name?.toLowerCase() || '';
+          const gitPlatform = formValues?.gitPlatform || '';
+          const enabled = formValues?.enabled;
+          const filtered = data.filter((p) => {
+            const nameMatch = !name || p.name.toLowerCase().includes(name);
+            const platformMatch = !gitPlatform || p.gitPlatform === gitPlatform;
+            const enabledMatch =
+              enabled === undefined || enabled === null || p.enabled === enabled;
+            return nameMatch && platformMatch && enabledMatch;
+          });
+          return { items: filtered, total: filtered.length };
+        },
+      },
+    },
+    rowConfig: { keyField: 'id' },
+    toolbarConfig: {
+      custom: true,
+      export: false,
+      refresh: true,
+      search: true,
+      zoom: true,
+    },
+  },
 });
 </script>
 
 <template>
-  <Page :title="$t('project.list')">
-    <FormDrawer @success="onFormSuccess" />
-
-    <!-- 搜索工具栏 -->
-    <div class="mb-4 flex flex-wrap items-center gap-3">
-      <ElInput
-        v-model="searchName"
-        :placeholder="$t('project.search.namePlaceholder')"
-        clearable
-        class="!w-64"
-      />
-      <ElSelect
-        v-model="filterPlatform"
-        :placeholder="$t('project.search.platformPlaceholder')"
-        clearable
-        class="!w-40"
-      >
-        <ElOption label="GitHub" value="GitHub" />
-        <ElOption label="GitLab" value="GitLab" />
-        <ElOption label="CodeCommit" value="CodeCommit" />
-      </ElSelect>
-      <ElSelect
-        v-model="filterEnabled"
-        :placeholder="$t('project.search.statusPlaceholder')"
-        clearable
-        class="!w-36"
-      >
-        <ElOption :label="$t('project.status.enabled')" :value="true" />
-        <ElOption :label="$t('project.status.disabled')" :value="false" />
-      </ElSelect>
-      <ElButton @click="handleResetFilter">
-        {{ $t('common.reset') }}
-      </ElButton>
-      <div class="flex-1" />
-      <ElButton type="primary" @click="handleCreate">
-        {{ $t('project.create') }}
-      </ElButton>
-    </div>
-
-    <!-- 项目表格 -->
-    <ElTable
-      v-loading="loading"
-      :data="filteredProjects"
-      stripe
-      border
-      style="width: 100%"
-    >
-      <ElTableColumn
-        prop="name"
-        :label="$t('project.fields.name')"
-        min-width="160"
-        show-overflow-tooltip
-      />
-      <ElTableColumn
-        prop="gitPlatform"
-        :label="$t('project.fields.gitPlatform')"
-        width="130"
-        align="center"
-      >
-        <template #default="{ row }">
-          <ElTag :type="getPlatformTagType(row.gitPlatform)" size="small">
-            {{ row.gitPlatform }}
-          </ElTag>
-        </template>
-      </ElTableColumn>
-      <ElTableColumn
-        prop="repoUrl"
-        :label="$t('project.fields.repoUrl')"
-        min-width="260"
-        show-overflow-tooltip
-      />
-      <ElTableColumn
-        prop="enabled"
-        :label="$t('project.fields.enabled')"
-        width="100"
-        align="center"
-      >
-        <template #default="{ row }">
-          <ElSwitch
-            :model-value="row.enabled"
-            @change="() => handleToggleEnabled(row)"
-          />
-        </template>
-      </ElTableColumn>
-      <ElTableColumn
-        prop="createdAt"
-        :label="$t('project.fields.createdAt')"
-        width="180"
-      >
-        <template #default="{ row }">
-          {{ formatDate(row.createdAt) }}
-        </template>
-      </ElTableColumn>
-      <ElTableColumn
-        :label="$t('project.fields.operations')"
-        width="220"
-        align="center"
-        fixed="right"
-      >
-        <template #default="{ row }">
-          <ElSpace>
-            <ElButton size="small" @click="handleViewDetail(row)">
-              {{ $t('project.actions.viewDetail') }}
-            </ElButton>
-            <ElButton size="small" type="primary" @click="handleEdit(row)">
-              {{ $t('common.edit') }}
-            </ElButton>
-            <ElButton
-              size="small"
-              type="danger"
-              @click="handleDelete(row)"
-            >
-              {{ $t('common.delete') }}
-            </ElButton>
-          </ElSpace>
-        </template>
-      </ElTableColumn>
-    </ElTable>
+  <Page auto-content-height>
+    <FormDrawer @success="onRefresh" />
+    <Grid :table-title="$t('project.list')">
+      <template #toolbar-tools>
+        <ElButton type="primary" @click="onCreate">
+          {{ $t('project.create') }}
+        </ElButton>
+      </template>
+    </Grid>
   </Page>
 </template>

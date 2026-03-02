@@ -1,0 +1,82 @@
+# Docker Compose configuration for isolated E2E test environment.
+# Provides real PostgreSQL and Redis services for E2E tests that do NOT
+# use TestContainers (e.g., manual integration verification or CI pipeline smoke tests).
+#
+# Usage:
+#   docker-compose -f docker-compose.test.yml up -d
+#   mvn test -pl backend/ai-code-review-api -Dspring.profiles.active=e2e \
+#            -Dspring.datasource.url=jdbc:postgresql://localhost:5433/e2e_testdb \
+#            -Dspring.datasource.username=e2e_user \
+#            -Dspring.datasource.password=e2e_pass \
+#            -Dspring.data.redis.port=6380
+#   docker-compose -f docker-compose.test.yml down -v
+
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: aicodereview-postgres-test
+    environment:
+      POSTGRES_DB: e2e_testdb
+      POSTGRES_USER: e2e_user
+      POSTGRES_PASSWORD: e2e_pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"   # Different port to avoid conflict with dev postgres:5432
+    volumes:
+      - postgres-test-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U e2e_user -d e2e_testdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - aicodereview-test-network
+
+  redis-test:
+    image: redis:7-alpine
+    container_name: aicodereview-redis-test
+    ports:
+      - "6380:6379"   # Different port to avoid conflict with dev redis:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - aicodereview-test-network
+
+  app-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aicodereview-app-test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: e2e
+      DB_USERNAME: e2e_user
+      DB_PASSWORD: e2e_pass
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-test:5432/e2e_testdb
+      SPRING_DATA_REDIS_HOST: redis-test
+      SPRING_DATA_REDIS_PORT: 6379
+    ports:
+      - "8081:8080"   # Different port to avoid conflict with dev app:8080
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    networks:
+      - aicodereview-test-network
+
+volumes:
+  postgres-test-data:
+    driver: local
+
+networks:
+  aicodereview-test-network:
+    driver: bridge

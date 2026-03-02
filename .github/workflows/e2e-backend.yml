@@ -1,0 +1,76 @@
+name: Backend E2E Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/e2e-backend.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/e2e-backend.yml'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  e2e-backend:
+    name: Backend E2E Tests (Java 17 + TestContainers)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17 (Corretto)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+          cache: 'maven'
+
+      # TestContainers uses the Docker daemon available on ubuntu-latest runners.
+      # No extra Docker setup needed — ubuntu runners include Docker by default.
+
+      - name: Build all modules (skip tests)
+        working-directory: backend
+        run: mvn clean install -DskipTests --no-transfer-progress -q
+
+      - name: Run E2E tests
+        working-directory: backend
+        run: |
+          START_TIME=$(date +%s)
+          mvn test \
+            -pl ai-code-review-api \
+            -Dtest="E2EFrameworkSetupTest,WebhookToReviewE2ETest,MultiPlatformIntegrationE2ETest,PlatformStatusUpdateE2ETest,AIReviewQualityE2ETest,AIProviderDegradationE2ETest" \
+            -DfailIfNoTests=false \
+            --no-transfer-progress
+          END_TIME=$(date +%s)
+          echo "backend_e2e_duration=$((END_TIME - START_TIME))" >> $GITHUB_ENV
+          echo "::notice::Backend E2E tests completed in $((END_TIME - START_TIME)) seconds"
+
+      - name: Upload Surefire test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-e2e-surefire-reports
+          path: backend/ai-code-review-api/target/surefire-reports/
+          retention-days: 7
+
+      - name: Upload test result summary
+        if: always()
+        run: |
+          echo "## Backend E2E Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          for f in backend/ai-code-review-api/target/surefire-reports/*.txt; do
+            if [ -f "$f" ]; then
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              cat "$f" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          if [ -n "$backend_e2e_duration" ]; then
+            echo "**Duration:** ${backend_e2e_duration}s" >> $GITHUB_STEP_SUMMARY
+          fi

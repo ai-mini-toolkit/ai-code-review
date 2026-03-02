@@ -1,0 +1,5160 @@
+diff --git a/src/main/java/com/example/service/Service1.java b/src/main/java/com/example/service/Service1.java
+index abc0001..def0001 100644
+--- a/src/main/java/com/example/service/Service1.java
++++ b/src/main/java/com/example/service/Service1.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service1 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service2.java b/src/main/java/com/example/service/Service2.java
+index abc0002..def0002 100644
+--- a/src/main/java/com/example/service/Service2.java
++++ b/src/main/java/com/example/service/Service2.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service2 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service3.java b/src/main/java/com/example/service/Service3.java
+index abc0003..def0003 100644
+--- a/src/main/java/com/example/service/Service3.java
++++ b/src/main/java/com/example/service/Service3.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service3 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service4.java b/src/main/java/com/example/service/Service4.java
+index abc0004..def0004 100644
+--- a/src/main/java/com/example/service/Service4.java
++++ b/src/main/java/com/example/service/Service4.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service4 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service5.java b/src/main/java/com/example/service/Service5.java
+index abc0005..def0005 100644
+--- a/src/main/java/com/example/service/Service5.java
++++ b/src/main/java/com/example/service/Service5.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service5 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service6.java b/src/main/java/com/example/service/Service6.java
+index abc0006..def0006 100644
+--- a/src/main/java/com/example/service/Service6.java
++++ b/src/main/java/com/example/service/Service6.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service6 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service7.java b/src/main/java/com/example/service/Service7.java
+index abc0007..def0007 100644
+--- a/src/main/java/com/example/service/Service7.java
++++ b/src/main/java/com/example/service/Service7.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service7 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service8.java b/src/main/java/com/example/service/Service8.java
+index abc0008..def0008 100644
+--- a/src/main/java/com/example/service/Service8.java
++++ b/src/main/java/com/example/service/Service8.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service8 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service9.java b/src/main/java/com/example/service/Service9.java
+index abc0009..def0009 100644
+--- a/src/main/java/com/example/service/Service9.java
++++ b/src/main/java/com/example/service/Service9.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service9 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service10.java b/src/main/java/com/example/service/Service10.java
+index abc0010..def0010 100644
+--- a/src/main/java/com/example/service/Service10.java
++++ b/src/main/java/com/example/service/Service10.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service10 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service11.java b/src/main/java/com/example/service/Service11.java
+index abc0011..def0011 100644
+--- a/src/main/java/com/example/service/Service11.java
++++ b/src/main/java/com/example/service/Service11.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service11 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service12.java b/src/main/java/com/example/service/Service12.java
+index abc0012..def0012 100644
+--- a/src/main/java/com/example/service/Service12.java
++++ b/src/main/java/com/example/service/Service12.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service12 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service13.java b/src/main/java/com/example/service/Service13.java
+index abc0013..def0013 100644
+--- a/src/main/java/com/example/service/Service13.java
++++ b/src/main/java/com/example/service/Service13.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service13 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service14.java b/src/main/java/com/example/service/Service14.java
+index abc0014..def0014 100644
+--- a/src/main/java/com/example/service/Service14.java
++++ b/src/main/java/com/example/service/Service14.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service14 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service15.java b/src/main/java/com/example/service/Service15.java
+index abc0015..def0015 100644
+--- a/src/main/java/com/example/service/Service15.java
++++ b/src/main/java/com/example/service/Service15.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service15 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service16.java b/src/main/java/com/example/service/Service16.java
+index abc0016..def0016 100644
+--- a/src/main/java/com/example/service/Service16.java
++++ b/src/main/java/com/example/service/Service16.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service16 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service17.java b/src/main/java/com/example/service/Service17.java
+index abc0017..def0017 100644
+--- a/src/main/java/com/example/service/Service17.java
++++ b/src/main/java/com/example/service/Service17.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service17 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service18.java b/src/main/java/com/example/service/Service18.java
+index abc0018..def0018 100644
+--- a/src/main/java/com/example/service/Service18.java
++++ b/src/main/java/com/example/service/Service18.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service18 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service19.java b/src/main/java/com/example/service/Service19.java
+index abc0019..def0019 100644
+--- a/src/main/java/com/example/service/Service19.java
++++ b/src/main/java/com/example/service/Service19.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service19 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service20.java b/src/main/java/com/example/service/Service20.java
+index abc0020..def0020 100644
+--- a/src/main/java/com/example/service/Service20.java
++++ b/src/main/java/com/example/service/Service20.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service20 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service21.java b/src/main/java/com/example/service/Service21.java
+index abc0021..def0021 100644
+--- a/src/main/java/com/example/service/Service21.java
++++ b/src/main/java/com/example/service/Service21.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service21 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service22.java b/src/main/java/com/example/service/Service22.java
+index abc0022..def0022 100644
+--- a/src/main/java/com/example/service/Service22.java
++++ b/src/main/java/com/example/service/Service22.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service22 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service23.java b/src/main/java/com/example/service/Service23.java
+index abc0023..def0023 100644
+--- a/src/main/java/com/example/service/Service23.java
++++ b/src/main/java/com/example/service/Service23.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service23 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service24.java b/src/main/java/com/example/service/Service24.java
+index abc0024..def0024 100644
+--- a/src/main/java/com/example/service/Service24.java
++++ b/src/main/java/com/example/service/Service24.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service24 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service25.java b/src/main/java/com/example/service/Service25.java
+index abc0025..def0025 100644
+--- a/src/main/java/com/example/service/Service25.java
++++ b/src/main/java/com/example/service/Service25.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service25 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service26.java b/src/main/java/com/example/service/Service26.java
+index abc0026..def0026 100644
+--- a/src/main/java/com/example/service/Service26.java
++++ b/src/main/java/com/example/service/Service26.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service26 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service27.java b/src/main/java/com/example/service/Service27.java
+index abc0027..def0027 100644
+--- a/src/main/java/com/example/service/Service27.java
++++ b/src/main/java/com/example/service/Service27.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service27 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service28.java b/src/main/java/com/example/service/Service28.java
+index abc0028..def0028 100644
+--- a/src/main/java/com/example/service/Service28.java
++++ b/src/main/java/com/example/service/Service28.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service28 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service29.java b/src/main/java/com/example/service/Service29.java
+index abc0029..def0029 100644
+--- a/src/main/java/com/example/service/Service29.java
++++ b/src/main/java/com/example/service/Service29.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service29 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service30.java b/src/main/java/com/example/service/Service30.java
+index abc0030..def0030 100644
+--- a/src/main/java/com/example/service/Service30.java
++++ b/src/main/java/com/example/service/Service30.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service30 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service31.java b/src/main/java/com/example/service/Service31.java
+index abc0031..def0031 100644
+--- a/src/main/java/com/example/service/Service31.java
++++ b/src/main/java/com/example/service/Service31.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service31 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service32.java b/src/main/java/com/example/service/Service32.java
+index abc0032..def0032 100644
+--- a/src/main/java/com/example/service/Service32.java
++++ b/src/main/java/com/example/service/Service32.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service32 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service33.java b/src/main/java/com/example/service/Service33.java
+index abc0033..def0033 100644
+--- a/src/main/java/com/example/service/Service33.java
++++ b/src/main/java/com/example/service/Service33.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service33 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service34.java b/src/main/java/com/example/service/Service34.java
+index abc0034..def0034 100644
+--- a/src/main/java/com/example/service/Service34.java
++++ b/src/main/java/com/example/service/Service34.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service34 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service35.java b/src/main/java/com/example/service/Service35.java
+index abc0035..def0035 100644
+--- a/src/main/java/com/example/service/Service35.java
++++ b/src/main/java/com/example/service/Service35.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service35 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service36.java b/src/main/java/com/example/service/Service36.java
+index abc0036..def0036 100644
+--- a/src/main/java/com/example/service/Service36.java
++++ b/src/main/java/com/example/service/Service36.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service36 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service37.java b/src/main/java/com/example/service/Service37.java
+index abc0037..def0037 100644
+--- a/src/main/java/com/example/service/Service37.java
++++ b/src/main/java/com/example/service/Service37.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service37 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service38.java b/src/main/java/com/example/service/Service38.java
+index abc0038..def0038 100644
+--- a/src/main/java/com/example/service/Service38.java
++++ b/src/main/java/com/example/service/Service38.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service38 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service39.java b/src/main/java/com/example/service/Service39.java
+index abc0039..def0039 100644
+--- a/src/main/java/com/example/service/Service39.java
++++ b/src/main/java/com/example/service/Service39.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service39 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
+diff --git a/src/main/java/com/example/service/Service40.java b/src/main/java/com/example/service/Service40.java
+index abc0040..def0040 100644
+--- a/src/main/java/com/example/service/Service40.java
++++ b/src/main/java/com/example/service/Service40.java
+@@ -1,5 +1,125 @@
+ package com.example.service;
++import org.springframework.stereotype.Service;
++@Service
++public class Service40 {
++    public void method0(Long id) {
++        String val1 = "data_1";
++        String val2 = "data_2";
++        // Process step 3
++        String val4 = "data_4";
++        String val5 = "data_5";
++        // Process step 6
++        String val7 = "data_7";
++        String val8 = "data_8";
++        // Process step 9
++        String val10 = "data_10";
++        String val11 = "data_11";
++        // Process step 12
++        String val13 = "data_13";
++    }
++    public void method15(Long id) {
++        String val16 = "data_16";
++        String val17 = "data_17";
++        // Process step 18
++        String val19 = "data_19";
++        String val20 = "data_20";
++        // Process step 21
++        String val22 = "data_22";
++        String val23 = "data_23";
++        // Process step 24
++        String val25 = "data_25";
++        String val26 = "data_26";
++        // Process step 27
++        String val28 = "data_28";
++    }
++    public void method30(Long id) {
++        String val31 = "data_31";
++        String val32 = "data_32";
++        // Process step 33
++        String val34 = "data_34";
++        String val35 = "data_35";
++        // Process step 36
++        String val37 = "data_37";
++        String val38 = "data_38";
++        // Process step 39
++        String val40 = "data_40";
++        String val41 = "data_41";
++        // Process step 42
++        String val43 = "data_43";
++    }
++    public void method45(Long id) {
++        String val46 = "data_46";
++        String val47 = "data_47";
++        // Process step 48
++        String val49 = "data_49";
++        String val50 = "data_50";
++        // Process step 51
++        String val52 = "data_52";
++        String val53 = "data_53";
++        // Process step 54
++        String val55 = "data_55";
++        String val56 = "data_56";
++        // Process step 57
++        String val58 = "data_58";
++    }
++    public void method60(Long id) {
++        String val61 = "data_61";
++        String val62 = "data_62";
++        // Process step 63
++        String val64 = "data_64";
++        String val65 = "data_65";
++        // Process step 66
++        String val67 = "data_67";
++        String val68 = "data_68";
++        // Process step 69
++        String val70 = "data_70";
++        String val71 = "data_71";
++        // Process step 72
++        String val73 = "data_73";
++    }
++    public void method75(Long id) {
++        String val76 = "data_76";
++        String val77 = "data_77";
++        // Process step 78
++        String val79 = "data_79";
++        String val80 = "data_80";
++        // Process step 81
++        String val82 = "data_82";
++        String val83 = "data_83";
++        // Process step 84
++        String val85 = "data_85";
++        String val86 = "data_86";
++        // Process step 87
++        String val88 = "data_88";
++    }
++    public void method90(Long id) {
++        String val91 = "data_91";
++        String val92 = "data_92";
++        // Process step 93
++        String val94 = "data_94";
++        String val95 = "data_95";
++        // Process step 96
++        String val97 = "data_97";
++        String val98 = "data_98";
++        // Process step 99
++        String val100 = "data_100";
++        String val101 = "data_101";
++        // Process step 102
++        String val103 = "data_103";
++    }
++    public void method105(Long id) {
++        String val106 = "data_106";
++        String val107 = "data_107";
++        // Process step 108
++        String val109 = "data_109";
++        String val110 = "data_110";
++        // Process step 111
++        String val112 = "data_112";
++        String val113 = "data_113";
++        // Process step 114
++        String val115 = "data_115";
++        String val116 = "data_116";
++        // Process step 117
++        String val118 = "data_118";
++}
